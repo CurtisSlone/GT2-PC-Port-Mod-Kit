@@ -1,0 +1,13 @@
+{
+  "name": "Hill Climb",
+  "add": "zz_climb",
+  "open": true,
+  "path": [
+    {"straight": 300}, {"arc": {"radius": 120, "angle": 90}}, {"straight": 200}, {"arc": {"radius": 80, "angle": -120}},
+    {"straight": 250}, {"arc": {"radius": 150, "angle": 60}}, {"straight": 400}, {"arc": {"radius": 60, "angle": 150}},
+    {"straight": 300}
+  ],
+  "width": 12,
+  "elevation": [[0, 0], [500, 25], [1000, 60], [1500, 80], [2000, 110]],
+  "course_info": {"display_name": "Hill Climb", "sky_from": "laguna2"}
+}

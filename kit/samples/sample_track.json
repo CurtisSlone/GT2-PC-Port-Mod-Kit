@@ -1,0 +1,9 @@
+{
+  "name": "Sample Track",
+  "import": "sample_track.glb",
+  "add": "zz_sample",
+  "kerb": {"width": 1.0, "surface": "kerb"},
+  "verge": {"width": 5.0, "surface": "grass"},
+  "racing_line": {"mode": "smooth", "margin": 2.0, "passing": 2.5},
+  "course_info": {"display_name": "Sample Track", "sky_from": "laguna2"}
+}

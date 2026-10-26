@@ -1,0 +1,30 @@
+{
+  "name": "Test Oval",
+  "slot": "laguna2",
+  "start": {"x": 0, "y": 0, "heading": 0},
+  "path": [
+    {"straight": 125},
+    {"arc": {"radius": 90, "angle": 180}},
+    {"straight": 250},
+    {"arc": {"radius": 90, "angle": 180}},
+    {"straight": 125}
+  ],
+  "width": 14,
+  "lanes": 3,
+  "kerb": {"width": 1.0, "surface": "kerb"},
+  "verge": {"width": 5.0, "surface": "grass"},
+  "wall": {"height": 1.2},
+  "grid": {"slots": 8, "first": 10, "spacing": 9, "stagger": 3},
+  "course_info": {"display_name": "Test Oval"},
+  "scenery": [
+    {"piece": "grandstand", "name": "main stand", "length": 80, "rows": 10, "along": {"s": 60, "side": "right", "offset": 4}},
+    {"piece": "grandstand", "name": "back stand", "length": 50, "rows": 6, "along": {"s": 560, "side": "left", "offset": 4}},
+    {"piece": "gantry", "along": {"s": 30, "lateral": 0}, "facing": "none", "heading": 90},
+    {"piece": "sponsor_board", "set": 0, "width": 6, "repeat": {"from": 150, "to": 400, "every": 30, "side": "right", "offset": 2}},
+    {"piece": "billboard", "width": 8, "repeat": {"from": 700, "to": 1000, "every": 60, "side": "left", "offset": 3}},
+    {"piece": "barrier", "length": 10, "repeat": {"from": 0, "every": 10, "side": "both", "offset": 0.6}},
+    {"piece": "lamp", "height": 9, "repeat": {"from": 5, "every": 45, "side": "both", "offset": 1.5}},
+    {"piece": "tree", "variants": 3, "height": 10, "repeat": {"from": 0, "every": 14, "side": "both", "offset": 10, "jitter": 5}},
+    {"piece": "box", "name": "pit building", "width": 30, "depth": 10, "height": 6, "along": {"s": 1000, "side": "right", "offset": 6}}
+  ]
+}

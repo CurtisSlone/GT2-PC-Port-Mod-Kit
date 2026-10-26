@@ -1,0 +1,2 @@
+# Mods load in this order (later ones win). One folder name per line; a line starting with # is off.
+# Each folder holds game files at the same paths as data\gt2vol (see README.txt and guides\02-MODS.md).
