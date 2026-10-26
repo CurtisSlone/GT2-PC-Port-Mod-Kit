@@ -1,0 +1,10 @@
+# Windows scripts are stored byte for byte (CRLF): a .bat with LF line ends can jump to the wrong label in cmd.exe.
+*.bat -text
+*.cmd -text
+*.ps1 -text
+# Binaries.
+*.exe binary
+*.wasm binary
+*.mcd binary
+*.zip binary
+*.glb binary
