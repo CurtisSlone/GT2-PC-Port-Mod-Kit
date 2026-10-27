@@ -11,7 +11,7 @@ tracks in Blender, and add new cars and courses to the game with their own menu 
 **No game data is included.** You install the game from **your own disc**. The release holds no game code, no
 graphics, no sounds and no music. Everything the game needs is read from your disc on your own PC.
 
-**Remaster + Mod in progress** join us at [Grand Tour '99]((https://discord.gg/fmMeQDFkMe))
+**Remaster + Mod in progress** join us at [Grand Tour '99](https://discord.gg/fmMeQDFkMe)
 
 ## Requirements (read first)
 
