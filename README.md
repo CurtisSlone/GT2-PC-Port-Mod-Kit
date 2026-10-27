@@ -108,5 +108,4 @@ LICENSE.txt           the guides, scripts, samples and Blender add-on are public
 
 Gran Turismo and Gran Turismo 2 are trademarks of Sony Interactive Entertainment. This project is not affiliated
 with or endorsed by Sony or Polyphony Digital. It includes no copyrighted game data. You need your own legally
-obtained copy of the game. The decompiled source this port is built from is public: GT2-Decomp, https://github.com/CurtisSlone/GT2-Decomp.
-The guides, scripts, samples and Blender add-on in this release are public domain (CC0 1.0, LICENSE.txt).
+obtained copy of the game. The guides, scripts, samples and Blender add-on in this release are public domain (CC0 1.0, LICENSE.txt).
