@@ -1,8 +1,8 @@
 # Cars and saves: the rules behind adding a car
 
 Why a new car's code must sort last, which tables a car lives in, and what the memory card stores. For the steps
-(`gt2-course.exe add-car`, pez2k's tools) see [05-CARS.md](../05-CARS.md); for the numbers, [LIMITS.md](LIMITS.md).
-Functions are addresses in the public byte-matched decompilation ([GT2-Decomp](https://github.com/CurtisSlone/GT2-Decomp)). US Simulation disc (SCUS-94488).
+(`gt2-course.exe add-car`s) see [05-CARS.md](../05-CARS.md); for the numbers, [LIMITS.md](LIMITS.md).
+Functions are addresses in the public byte-matched decompilation ([GT2-Decomp]). US Simulation disc (SCUS-94488).
 
 ## The short version
 
@@ -18,7 +18,7 @@ Functions are addresses in the public byte-matched decompilation ([GT2-Decomp](h
 
 A car is a **5-character code** such as `t2mgn`, from the characters `-0123456789abcdefghijklmnopqrstuvwxyz` (6 bits
 each), packed into a 32-bit number: resident `func_80060834` computes `c0<<24 | c1<<18 | c2<<12 | c3<<6 | c4` and
-`func_800607F8` turns it back into text (pez2k's `CarNameConversion` is the same encoding). The last character is
+`func_800607F8` turns it back into textThe last character is
 the variant (`n` stock, `r` race-modified and others).
 
 Because the character set is in ASCII order, the numeric order of codes is the alphabetical order of the file
