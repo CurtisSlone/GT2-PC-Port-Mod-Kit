@@ -4,9 +4,6 @@ Two jobs, two kinds of tools:
 
 * **Our tool** `gt2-course.exe add-car` makes the *slot*. It writes a new car with its own code, next to the
   1,110 on the disc, as a mods folder. The car starts as a copy of a donor car.
-* **pez2k's GT2 tools** edit what is *in* a car: model, paint, specs, names. They are downloaded by
-  `kit\setup-kit.bat` into `kit\tools\` (THIRD-PARTY.md; they need the .NET 8 Runtime). They are command-line
-  tools: run them from a command prompt (`cmd`), as below.
 
 Work in a folder of your own, for example `C:\Games\gt2-pc-port\work`. Never edit files inside `data\`. The
 commands below are typed in a command prompt opened in the port folder.
