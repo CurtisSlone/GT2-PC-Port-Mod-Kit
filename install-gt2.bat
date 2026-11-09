@@ -1,9 +1,9 @@
 @echo off
 setlocal
-rem GT2 PC Port: install Gran Turismo 2 from YOUR OWN disc image into data\.
+rem UGT2R: install Gran Turismo 2 from YOUR OWN disc image into data\, then prepare the tracks and cars.
 rem   install-gt2.bat                      pick the .cue file in a window
 rem   install-gt2.bat "game.cue"           install from that image (or drag the .cue onto this file)
-rem   install-gt2.bat "game.cue" verify    compare an existing install with the disc
+rem   install-gt2.bat "game.cue" verify    compare an existing install with the disc (and repair it)
 rem Only Gran Turismo 2 (USA) Simulation Mode v1.0 (SCUS-94488) is accepted; any other disc is refused.
 rem The disc is read once; afterwards the game plays from data\ and the image is not needed.
 cd /d "%~dp0"
@@ -17,19 +17,34 @@ if /i "%~2"=="verify" goto verify
 
 echo Installing from: %CUE%
 echo.
-psx-play.exe "%CUE%" --install-only --data "%~dp0data" --modules "%~dp0modules"
+UGT2R.exe "%CUE%" --install-only
 if errorlevel 1 goto failed
 if not exist "cards\card1.mcr" copy /y "cards\blank.mcd" "cards\card1.mcr" >nul
-echo.
-echo Done. Start play-gt2.bat to play. Your saves go to cards\card1.mcr.
-pause
-exit /b 0
+goto warm
 
 :verify
 echo Checking data\ against: %CUE%
-psx-play.exe "%CUE%" --install-only --verify-data --data "%~dp0data" --modules "%~dp0modules"
+UGT2R.exe "%CUE%" --install-only --verify-data
 if errorlevel 1 goto failed
 echo The install matches the disc.
+goto warm
+
+:warm
+echo.
+echo Preparing your tracks and cars. This runs once, takes a while and uses several GB in data\scene-cache.
+echo You can close this window and play now instead; anything not ready yet is prepared when the game needs it.
+echo.
+UGT2R.exe --warmup-all
+if errorlevel 1 goto warm_failed
+echo.
+echo Done. Start UGT2R.exe to play. Your saves go to cards\card1.mcr.
+pause
+exit /b 0
+
+:warm_failed
+echo.
+echo Preparing the tracks and cars stopped early (see the message above). The game still plays: what is missing
+echo is prepared when a race needs it. You can run install-gt2.bat again later to finish it.
 pause
 exit /b 0
 

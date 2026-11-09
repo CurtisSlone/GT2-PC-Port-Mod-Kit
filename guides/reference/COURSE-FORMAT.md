@@ -7,13 +7,15 @@ are the main executable's parts. Function names are not used: only addresses are
 
 > **What you can edit today, and what not yet.**
 >
-> * **Supported:** exporting any course with `gt2-course.exe export`, editing it **through its JSON and PNG files**
->   (move objects, recolour faces, move vertices, repaint textures, change AI lines, cameras, grid slots) and
->   rebuilding it with `gt2-course.exe import`; building **new** tracks from a centre line with `gt2-trackc.exe`
->   ([TRACK-SPEC.md](TRACK-SPEC.md), [04-BUILD-A-TRACK.md](../04-BUILD-A-TRACK.md)).
-> * **Not supported yet:** editing an existing course's **mesh in Blender** and compiling it back. The glTF that
->   `export` writes is a view for looking at; changes made to it in Blender do not flow back. Section 7 lists what
->   such a path has to rebuild.
+> * **Supported:** exporting any course with `gt2-tools course export`, editing it **through its JSON and PNG files**
+>   (move objects, recolor faces, move vertices, repaint textures, change AI lines, cameras, grid slots) and
+>   rebuilding it with `gt2-tools course import`; replacing textures with `gt2-tools course texture replace`
+>   ([06-RETEXTURE-A-COURSE.md](../06-RETEXTURE-A-COURSE.md)); editing a course's **mesh in Blender** through the edit
+>   export ([08-EDIT-A-COURSE.md](../08-EDIT-A-COURSE.md), [COURSE-EDIT.md](COURSE-EDIT.md)); building **new** tracks
+>   from a center line with `gt2-tools track new` ([TRACK-SPEC.md](TRACK-SPEC.md),
+>   [07-BUILD-A-TRACK.md](../07-BUILD-A-TRACK.md)).
+> * **Not supported yet:** re-routing a course's road in an edit. The glTF view that `course export` writes is for
+>   looking at; changes made to it do not flow back (the edit export is the path for that).
 
 **How complete this is.** Every byte of all 125 `.tro` files and all 125 `.trp` files is parsed into named fields
 and written back: all 250 files export and import back byte-identical. The only bytes kept as an opaque blob are 4
@@ -24,18 +26,10 @@ trailing bytes in `maxspeed.tro`. A few fields have no known reader; they are ke
 that read a course could be followed one by one. The race loader (`func_80027908`) inflates the `.trp` to
 0x800B4724, uploads its textures, then inflates the `.tro` over the same address and relocates its pointers in place
 (`func_8002714C`); every function that reads that buffer is a reader of the course, and each field here comes from
-one of them. The test for "understood" was rebuilding: `gt2-course.exe import` recomputes every pointer, count and
+one of them. The test for "understood" was rebuilding: `gt2-tools course import` recomputes every pointer, count and
 offset from the exported JSON and PNG, and all 250 files come back byte-identical. An edit made only in the JSON
-(a gantry moved 200 m and the road tinted red on the licence-test course) was rebuilt and showed up in the game. The
+(a gantry moved 200 m and the road tinted red on the license-test course) was rebuilt and showed up in the game. The
 glTF view followed from there as a translation, which is why it is a view and not an editing path yet.
-
-**Prior art.** SUBMANIAC's *Gran_Turismo_2_files_full_documentation.pdf* and the Nenkai GT modding hub
-(<https://nenkai.github.io/gt-modding-hub/ps1/gt2/>, which also links Nenkai's 010 Editor template
-`GTPS_tro_GTTrackObject.bt`) were checked; nothing was copied from them. The PDF agrees with the code on the
-`.crsinfo` flags, the three lighting colour/factor pairs, the six images of `crstim.arc`, the sponsor-board set
-names, the 96x96 4-bit minimaps and `.bsp` having `.trp`'s format. It differs on: the sky is an **index** into the
-sorted `/bgsobj` names, not a file name; the stored order of the lighting rows is +0xC, +0x14, +0x10. Where any
-source disagrees with the code, this page follows the code.
 
 Contents: 1 loading, 2 the `.tro`, 3 the `.trp`, 4 the files around a course, 5 the JSON export, 6 unknowns,
 7 what a new course needs.
@@ -49,7 +43,7 @@ Contents: 1 loading, 2 the `.tro`, 3 the `.trp`, 4 the files around a course, 5 
   by a linear search of `.crsinfo` entry `+4` (resident `func_80060DC4`). **An unknown key gives index 0**
   (2p_autumn).
 * **Course index to files.** The index is the stem's position in `/crsobj` sorted by byte order (the archive's
-  directory order). `gt2-course.exe list` prints it. Course *i*'s files are the *i*-th `.tro`/`.trp` pair.
+  directory order). `gt2-tools course list` prints it. Course *i*'s files are the *i*-th `.tro`/`.trp` pair.
 * **Loading.** ovl0 `func_80027908`, once per race, calls `func_800273C8(G = D_800A91F0, index)`, then
   `func_80027460` and `func_80027574`:
 
@@ -83,7 +77,7 @@ camera table, then its records          (header 0x1C)
 AI lines, to the end of the file        (header 0x20)
 ```
 
-Empty lists still have pointers: a pointer always holds the running offset. `gt2-course` writes exactly this layout
+Empty lists still have pointers: a pointer always holds the running offset. `gt2-tools course import` writes exactly this layout
 and recomputes every pointer.
 
 ### 2.1 Header (0x19C bytes)
@@ -97,7 +91,7 @@ and recomputes every pointer.
 | 0x18 | ptr | model list | `func_80027088` |
 | 0x1C | ptr | camera table | `func_80027110`; `func_800109FC` |
 | 0x20 | ptr | AI lines | `func_80038D4C` |
-| 0x24 | s32 | number of sector splits in use (0..8: 3 on most circuits, 1 on licence courses, 0 on test courses) | `func_80033330`, `func_8003CF40` |
+| 0x24 | s32 | number of sector splits in use (0..8: 3 on most circuits, 1 on license courses, 0 on test courses) | `func_80033330`, `func_8003CF40` |
 | 0x28 | s32[8] | split track distances, ascending, below the track length; unused entries 0. On point-to-point courses (`.crsinfo` flag 0x20) the last used split is the finish | `func_80033330`, `func_8003C6B8`, `func_80038FEC` |
 | 0x48 | s32[3] | start/finish line point (x, y, z), at track distance about 0 | no reader found |
 | 0x54 | s32 | grid heading (4096 = a full turn) | `func_80012CD4`, rotation by `func_8007B05C` |
@@ -153,8 +147,8 @@ A section is a short stretch of track: the unit of drawing, collision and visibi
 | +0x18 | s32[3] | start-plane point | `func_80027B48` |
 | +0x24 | s16[3] | start-plane normal (4.12) | `func_80027B48` |
 | +0x2A | s16 | 0 | |
-| +0x2C | s32 | bounding radius of the render vertices about the centre | `func_80026B40` |
-| +0x30 | s32[3] | centre. Its high bits (`& 0xFFC00000`) are the origin of the section's vertices | `func_80028214`, `func_80026B40`, `func_80020F64` |
+| +0x2C | s32 | bounding radius of the render vertices about the center | `func_80026B40` |
+| +0x30 | s32[3] | center. Its high bits (`& 0xFFC00000`) are the origin of the section's vertices | `func_80028214`, `func_80026B40`, `func_80020F64` |
 | +0x3C | s16[4] | (x, 0, z, 0): a horizontal unit vector across the track | no reader found |
 | +0x44 | s32[10] | culling box of the high mesh: 4 corners (x, z) start-left, start-right, end-left, end-right, then y min, y max | `func_80020E50` (mode 0) |
 | +0x6C | s32[10] | the same for the low mesh | `func_80020E50` (mode 1) |
@@ -170,7 +164,7 @@ visibility list padded with zeros to 4 bytes.
 * **Locating a point** (`func_80028320`, via `func_80028768` / `func_800287BC`): a point p is past section s's start
   plane when `dot(p - s.point, s.normal) >= 0` (`func_80027B48`). From a hint section the search walks back while
   the point is not past the plane, then forward while the next section's plane is passed. `func_80028214` finds the
-  nearest section by the norm `max + mid/2 + min/4` of the centre offset.
+  nearest section by the norm `max + mid/2 + min/4` of the center offset.
 * **Track distance** (`func_80028514`): `a = dot(p - s.point, s.normal)*fb >> 12`,
   `b = dot(next.point - p, next.normal)*fa >> 12`,
   `dist = wrap(s.dist + wrap(next.dist - s.dist) * ((a << 12)/(a+b)) >> 12)`. The lap line is distance 0
@@ -199,7 +193,7 @@ The data follows with no padding: vertices (n x 8), the 8 face lists, the billbo
   chosen by the box test `func_80020E50` (0 inside, 1 crossing, 2 outside = skipped). Models: `func_80019AE4` /
   `func_8001C108`.
 * **Vertex** (8 bytes): s16 a, b, c, then u16 0.
-  * Track: course x = hi(centre.x) + a*1024; height = hi(centre.y) + **c***1024; course z = hi(centre.z) +
+  * Track: course x = hi(center.x) + a*1024; height = hi(center.y) + **c***1024; course z = hi(center.z) +
     **b***1024, with hi(v) = v & 0xFFC00000 (`func_80020DC4` swaps the matrix columns 1 and 2). Consecutive
     sections share their boundary vertices exactly.
   * Models: (x, y, z) in model space.
@@ -208,10 +202,10 @@ The data follows with no padding: vertices (n x 8), the 8 face lists, the billbo
 
 | List | Track record | Model record |
 |---|---|---|
-| F3, F4 | 12 B: w0, w1, colour | 12 B: w0, w1, colour |
+| F3, F4 | 12 B: w0, w1, color | 12 B: w0, w1, color |
 | G3 | 20 B: w0, w1, c0, c1, c2 | same |
 | G4 | 24 B: w0, w1, c0..c3 | same |
-| FT3, FT4 | 12 B: w0, w1, colour (UVs through the texture table) | 24 B: w0, w1, colour, uv0\|clut<<16, uv1\|tpage<<16, uv2\|uv3<<16 |
+| FT3, FT4 | 12 B: w0, w1, color (UVs through the texture table) | 24 B: w0, w1, color, uv0\|clut<<16, uv1\|tpage<<16, uv2\|uv3<<16 |
 | GT3 | 20 B: w0, w1, c0, c1, c2 | 32 B: w0, w1, c0, uvA, uvB, uvC, c1, c2 |
 | GT4 | 24 B: w0, w1, c0..c3 | 36 B: w0, w1, c0, uvA, uvB, uvC, c1, c2, c3 |
 
@@ -221,25 +215,25 @@ The data follows with no padding: vertices (n x 8), the 8 face lists, the billbo
   lane); 27 unknown; 28-31 **surface** (2.6).
 * **Model w0:** bits 0-9, 10-19, 20-29 the indices; 30 sort by the farthest vertex; 31 cull. **Model w1:** bits 0-9
   i3; the rest unread (bit 10 an old fog flag).
-* **Colour words** are `0xCCBBGGRR`; the GPU code byte CC is taken from the first word only. Codes 0x20/0x28/0x30/0x38
+* **Color words** are `0xCCBBGGRR`; the GPU code byte CC is taken from the first word only. Codes 0x20/0x28/0x30/0x38
   untextured; 0x24/0x2C/0x34/0x3C textured; 0x25/0x2D raw texture, no modulation. Textured faces modulate the
   texel, 0x80 = 1.0. No course face is semi-transparent.
-* **Quad corners** are in cycle order 0-1-2-3; the GPU strip order is 0, 1, 3, 2. Colours and UVs follow the corners.
+* **Quad corners** are in cycle order 0-1-2-3; the GPU strip order is 0, 1, 3, 2. Colors and UVs follow the corners.
 * **Texture table entry** (32 bytes; section table +8): `[0] uv0 | clut<<16`, `[1] uv1 | tpage<<16`,
   `[2] uv2 | uv3<<16`, `[3] area threshold (u16)`; `[4..6]` the same three words for level 1, a half-size copy in
   VRAM; `[7] 0`. Level 0 is used when the face's screen area (NCLIP) is above the threshold.
-  * All course textures are **4-bit** (16 colours), blend mode 0.
+  * All course textures are **4-bit** (16 colors), blend mode 0.
   * Texel address: VRAM x = (tpage & 15)*64 + u/4, y = ((tpage >> 4) & 1)*256 + v. CLUT at ((clut & 63)*16, clut >> 6).
-  * Colour 0x0000 is transparent.
+  * Color 0x0000 is transparent.
 * **Billboards** (trees): vertical quads turned to the camera's yaw (`func_8002009C`; models `func_8001F784`).
-  * Track (16 B): s16 x, y, z; u16 texture index; s16 width, height; colour (0x2C). The quad spans
+  * Track (16 B): s16 x, y, z; u16 texture index; s16 width, height; color (0x2C). The quad spans
     (x, y) +/- width/2 * (cos, sin)(view yaw), from z to z + height. UV0/UV1 are on the top edge.
-  * Models (28 B): s16 x, y, z, u16 (0, or 1 on a few); s16 width, height; colour; three UV words as FT4. The
+  * Models (28 B): s16 x, y, z, u16 (0, or 1 on a few); s16 width, height; color; three UV words as FT4. The
     vertical axis is model y.
   * Drawn at visibility levels 0-2, or always in replays.
-* **Glows** (20 B, lamps): s16 x, y, z, size (screen size = size*H/SZ); two words no renderer reads; colour
+* **Glows** (20 B, lamps): s16 x, y, z, size (screen size = size*H/SZ); two words no renderer reads; color
   0x00BBGGRR. Each is drawn as 4 additive GT4 quads with `crstim.arc` element 0 (clut 0x7F57, tpage 0x29), corner
-  colours colour/2, /8 and /64. At visibility level 3 the main view draws only the glows (except in replays): the
+  colors color/2, /8 and /64. At visibility level 3 the main view draws only the glows (except in replays): the
   lights you see from far away.
 * **Subdivision.** Large textured faces are split at draw time (area limits 0x480/0x800 in the main view,
   0x120/0x200 in the mirror). Nothing in the data marks it.
@@ -284,7 +278,7 @@ high mesh, and the surface is in their w1.
 * **Road normal.** Not stored: pitch and roll come from the four wheel heights. AI nodes probe +/-2048 around the
   node (`func_8003898C`).
 * **Walls** (+0x98): `u32 n`, then n x {u16 vertex a, u16 vertex b (high-mesh vertices), s16 nx, s16 nz}. The
-  normal is always rot90(b - a) normalised to 4096 (redundant, but stored). Collision: `func_80041C78` builds the
+  normal is always rot90(b - a) normalized to 4096 (redundant, but stored). Collision: `func_80041C78` builds the
   car's 4 corner segments (last frame -> this frame), and `func_800288F4` / `func_80027F50` intersect them with the
   walls of the current section and up to 8 sections each way.
 
@@ -337,7 +331,7 @@ distance.** Each section's list covers the sections visible from anywhere inside
 | +0x10 | s16 | computed: section |
 | +0x12, +0x13 | u8 | computed: surface, shade |
 | +0x14 | s32 | computed: track distance (kind 4: unwrapped past the line) |
-| +0x18 | s32 | signed arc radius (0 on straights); arc centre = P - r*(cos a, sin a); r > 0 turns left |
+| +0x18 | s32 | signed arc radius (0 on straights); arc center = P - r*(cos a, sin a); r > 0 turns left |
 | +0x1C, +0x20 | s32 | computed: pitch, bank |
 | +0x24 | s32 | heading a (4096 = a turn, not masked); direction of travel (-sin a, cos a) |
 
@@ -354,7 +348,7 @@ distance.** Each section's list covers the sections visible from anywhere inside
 
 ### 2.11 Units and axes
 
-* **Course units:** 65,536 = 1 m (the licence 0-400 m / 0-1000 m constants 0x1900000 / 0x3E80000 in
+* **Course units:** 65,536 = 1 m (the license 0-400 m / 0-1000 m constants 0x1900000 / 0x3E80000 in
   `func_8003C6B8`). Track vertices sit on a 1,024-unit grid (1/64 m).
 * **Physics units:** course / 16, with z negated (`func_80028768`, `func_800288F4`).
 * **Angles:** 4096 to a turn (sine table `D_80092E48`).
@@ -370,16 +364,16 @@ distance.** Each section's list covers the sections visible from anywhere inside
 * **Draw.** ovl0 `func_80029010` draws it at screen (16, 144). A car dot is at
   `(16 + 48 + (163*X >> 12), 144 + 48 + (163*Z >> 12))`, X and Z being the high halves of the car position
   (car+0x830 / +0x838).
-* **The scale and origin are constants in the code, not in any file:** the world origin is the map centre and one
+* **The scale and origin are constants in the code, not in any file:** the world origin is the map center and one
   pixel is about 25 m, so the map shows about +/-1,200 m around the origin. A new course must be drawn into this
-  frame (and centred on the origin to use it fully).
+  frame (and centered on the origin to use it fully).
 * **Fallback.** A course with no map gets the first map's (2p_autumn). At most 128 maps (boot `func_80011B70`'s key
   table).
 
 ## 3. The `.trp` (and `.bsp`)
 
 * **Layout.** `u32 count`, then count TIMs, each padded to 4 bytes with zeros (`func_80027254`).
-* **TIMs.** All are 4 bits per pixel with a 16-colour CLUT (TIM flag 8).
+* **TIMs.** All are 4 bits per pixel with a 16-color CLUT (TIM flag 8).
 * **Upload.** Each TIM goes to the VRAM rectangle in its own header, in file order (resident `func_8007BBB0`); a
   later TIM can overwrite an earlier one.
 * **Coverage.** Every texture-table entry (both levels) and every model UV of all 125 courses lies inside a `.trp`
@@ -401,26 +395,26 @@ distance.** Each section's list covers the sections visible from anywhere inside
 | +0x04 | u32 | key: hash of the stem (section 1) | resident `func_80060DC4`; `func_80027364` (minimap) |
 | +0x08 | u16 | flags: 0x01 night, 0x02 evening, 0x04 dirt, 0x08 2-player variant, 0x10 reverse variant, 0x20 point-to-point, 0x40 no sponsor boards | `func_80028D88`, `func_80027460`, `func_8001503C`, `func_80027574`, `func_80012CD4` |
 | +0x0A | u16 | the sky: `/bgsobj` pair index (position in the sorted names) | `func_800273C8` -> `func_800272F8` |
-| +0x0C | u16, u16 | car lighting row 0: BGR555 colour, 4.12 factor | `func_80028D88` -> resident `func_80067870` |
+| +0x0C | u16, u16 | car lighting row 0: BGR555 color, 4.12 factor | `func_80028D88` -> resident `func_80067870` |
 | +0x10 | u16, u16 | row 2 | same |
 | +0x14 | u16, u16 | row 1 | same |
 
-* **Lighting rows.** `func_80067870` blends each car's CLUT toward the colour by factor/4096 (GTE INTPL) and
+* **Lighting rows.** `func_80067870` blends each car's CLUT toward the color by factor/4096 (GTE INTPL) and
   uploads 4 rows (row 3 is zero). A road face's shade class (w1 bits 23-24) chooses the row a car uses.
-* The only other course-dependent colours are the sky's backdrop colours and the reflection-map choice. The race
-  sets the GTE far colour to 0 (`func_80020E10`): there is no depth fog.
+* The only other course-dependent colors are the sky's backdrop colors and the reflection-map choice. The race
+  sets the GTE far color to 0 (`func_80020E10`): there is no depth fog.
 
 ### 4.2 Sky: `/bgsobj/<name>.bso` + `.bsp` (`func_800272F8`; drawn by ovl0 `func_80018CA8`)
 
 * **`.bsp`.** Same format as `.trp`. Its rectangles are absolute, so a sky can overwrite other VRAM (including
   parts of a course's `.trp` area: it is uploaded after it).
-* **`.bso` header** (0x20 bytes): `"BG\0\0"`, u32 backdrop colour A, u32 colour B (GPU words, code 0x28), u32 n
+* **`.bso` header** (0x20 bytes): `"BG\0\0"`, u32 backdrop color A, u32 color B (GPU words, code 0x28), u32 n
   vertices, u16[8] face counts (F3 ... GT4). Vertices: n x {s16 x, y, z, 0}.
 * **Face records:** `u32 w0, u32 w1`, then the GPU packet **twice** (double-buffered; packet sizes 5, 6, 7, 9, 8,
-  10, 10, 13 words for F3 ... GT4). The packet holds tag, colour, UVs, CLUT and tpage; its XY words are written at
+  10, 10, 13 words for F3 ... GT4). The packet holds tag, color, UVs, CLUT and tpage; its XY words are written at
   draw time. Indices: v0 = w0 & 0xFFF, v1 = (w0 >> 12) & 0xFFF, v2 = (w1 >> 12) & 0xFFF, v3 = w1 & 0xFFF. w0 bit 31
   selects the front or back ordering table.
-* **Drawing.** Camera-relative (view rotation x RotY(180), no translation). The two backdrop colours fill above and
+* **Drawing.** Camera-relative (view rotation x RotY(180), no translation). The two backdrop colors fill above and
   below the horizon (`func_80019648`).
 
 ### 4.3 Shared textures
@@ -440,21 +434,20 @@ distance.** Each section's list covers the sections visible from anywhere inside
   `func_80083C1C`: a flag byte per 8 items, LSB first; literal, or copy of `len = b + 3`, `dist = b + 1`, two bytes
   when bit 7 of b is set). The output is a 188x200 4-bit TIM, read by ovl2 `func_80017B60` / `func_80017CFC`.
 
-## 5. The JSON export (`gt2-course.exe`)
+## 5. The JSON export (`gt2-tools course`)
 
 ```text
-gt2-course.exe list --data data\gt2vol                                   the course stems in course-index order
-gt2-course.exe export laguna --data data\gt2vol --out work\laguna [--no-gltf]
-gt2-course.exe export laguna seattle --data data\gt2vol --out work\courses   (several, or --all: one folder each)
-gt2-course.exe import work\laguna --out work\laguna-built [--gzip]
-gt2-course.exe roundtrip --all --data data\gt2vol --work work\rt          export, import and compare
+gt2-tools course list                                         the course stems in course-index order
+gt2-tools course export laguna --out work/laguna [--no-gltf]
+gt2-tools course export laguna seattle --out work/courses      (several, or --all: one folder each)
+gt2-tools course import work/laguna --out work/laguna-built [--gzip]
 ```
 
-* `--data` is the unpacked archive (`data\gt2vol`, read from `raw\crsobj\*.tro.gz`), a `crsobj` folder, or a folder
-  holding the files. Courses are named by file stem (`laguna`, `TC_lisence`).
+* `--data` is your install (default: the `data` folder beside gt2-tools; the courses are read from
+  `data/gt2vol/raw/crsobj/*.tro.gz`). Courses are named by file stem (`laguna`, `TC_lisence`).
 * `import` writes `<course>.tro` and `.trp`; with `--gzip` also `.tro.gz` / `.trp.gz` behind the original member
   headers (the compressed bytes differ from the disc's but inflate to the same payload).
-* `roundtrip` exits non-zero if any course does not come back byte-identical.
+* Unchanged, every course comes back byte-identical (we check all 125).
 * The tool is deterministic: the same input gives the same bytes.
 
 ### The export folder
@@ -475,9 +468,9 @@ info.json            the course's .crsinfo entry (display name, flags, sky, ligh
 **JSON conventions.**
 
 * Field names follow this page.
-* 32-bit colour and raw words are strings `"0xCCBBGGRR"`; opaque bytes are hex strings.
+* 32-bit color and raw words are strings `"0xCCBBGGRR"`; opaque bytes are hex strings.
 * Fields that are zero in the file are left out, and default to zero on import.
-* Faces list their vertex indices `v` (quads in cycle order) and colour words `c`. Track faces add the texture-table
+* Faces list their vertex indices `v` (quads in cycle order) and color words `c`. Track faces add the texture-table
   index `tex`, `surf` (surface, 2.6), `shade`, `zone`, `sort` and `cull`.
 * Collision grid cells list faces as `[list, index]`, lists 0-7 = f3, f4, g3, g4, ft3, ft4, gt3, gt4.
 * Visibility entries are `[section, level]`.
@@ -487,8 +480,8 @@ and sections and models can be added as further `NNN.json` files (the files pres
 checks indices: face vertices, wall vertices, grid faces and LOD models.
 
 **Textures.** Edit `textures\NNN.png`. The importer reads the PNG's palette indices. An RGB(A) PNG, as many editors
-save, is mapped back through the TIM's first CLUT row and must use only its colours (the CLUT colours are the
-`words` in `trp.json`). Colour mapping: 5-bit components expanded to 8 bits; alpha 0 = 0x0000 (transparent),
+save, is mapped back through the TIM's first CLUT row and must use only its colors (the CLUT colors are the
+`words` in `trp.json`). Color mapping: 5-bit components expanded to 8 bits; alpha 0 = 0x0000 (transparent),
 alpha 128 = the STP bit set, alpha 255 = opaque. The mapping is lossless.
 
 **What an edit looks like.** Shown in the game: moving one trackside gantry 200 m along the start straight (an
@@ -510,7 +503,7 @@ referenced relatively). Six top-level empties:
 | `ai_lines` | line strips per line kind |
 | `markers` | the start point and the grid slots |
 
-Units are meters, axes are the course's, and the top view looks like the minimap. For the PlayStation colours use
+Units are meters, axes are the course's, and the top view looks like the minimap. For the PlayStation colors use
 Material Preview, or Solid with *Color: Attribute*. Each section mesh sits at its section origin
 (`centre & 0xFFC00000`), so vertices stay exact.
 
@@ -527,7 +520,7 @@ Material Preview, or Solid with *Color: Attribute*. Each section mesh sits at it
 
 ## 7. What a new course needs
 
-`gt2-trackc.exe` builds all of this from a centre line ([TRACK-SPEC.md](TRACK-SPEC.md)). For anyone building
+`gt2-tools track new` builds all of this from a center line ([TRACK-SPEC.md](TRACK-SPEC.md)). For anyone building
 courses another way (or working on a Blender-to-course path), the game needs:
 
 1. **`<stem>.tro`** with: at least one section, a cyclic prev/next chain, start planes, distances and the track

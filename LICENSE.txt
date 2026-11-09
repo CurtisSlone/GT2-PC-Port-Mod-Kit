@@ -1,13 +1,12 @@
 GT2 PC Port + Mod Kit: what this license covers
 
-The guides (guides\), the scripts (*.bat, kit\setup-kit.*), the track samples (kit\samples\), the READMEs and
-the GT2 Track Tools Blender add-on (kit\gt2_track_tools-*.zip) are dedicated to the public domain under CC0 1.0
+The guides (guides/), the scripts (install-gt2.bat, install-gt2.sh), the track samples (kit/samples/), the READMEs
+and the GT2 Tools Blender add-on (kit/gt2_track_tools-*.zip) are dedicated to the public domain under CC0 1.0
 Universal (full text below): copy, change and share them for any purpose, without asking and without credit.
 
-Not covered: modules\ is compiled from the public decompilation of Gran Turismo 2 (GT2-Decomp, https://github.com/CurtisSlone/GT2-Decomp);
+Not covered: modules/ is compiled from the public decompilation of Gran Turismo 2 (GT2-Decomp, https://github.com/CurtisSlone/GT2-Decomp);
 the game itself is the property of Sony Interactive Entertainment and no rights to it are granted here. The
-open-source libraries inside the .exe files keep their own licenses (THIRD-PARTY-LICENSES.txt). Third-party
-tools downloaded by setup-kit.bat belong to their authors (THIRD-PARTY.md).
+open-source libraries inside our programs keep their own licenses (THIRD-PARTY-LICENSES.txt).
 
 Creative Commons Legal Code
 
