@@ -1,2 +1,2 @@
 GT2 PC Port + Mod Kit v0.4.0-debug (Windows and Linux)
-UGT2R built 2026-11-09
+UGT2R built 2026-11-10

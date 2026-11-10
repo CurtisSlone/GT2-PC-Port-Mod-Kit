@@ -108,7 +108,7 @@ the game with its messages.
 | no mods this time | `UGT2R.exe --mods none` | `./UGT2R-x86_64.AppImage --mods none` |
 | the software renderer (a driver problem) | `UGT2R.exe --gpu soft` | `./UGT2R-x86_64.AppImage --gpu soft` |
 | GT2's car-to-car contacts in modern physics | `set GT2_MODERN_CARS=gt2` then `UGT2R.exe` | `GT2_MODERN_CARS=gt2 ./UGT2R-x86_64.AppImage` |
-| GT2's yaw inertia in modern physics | `set GT2_MODERN_YAW_INERTIA=gt2` then `UGT2R.exe` | `GT2_MODERN_YAW_INERTIA=gt2 ./UGT2R-x86_64.AppImage` |
+| the yaw inertia from the car's mass and size (experimental: cars rotate more easily) | `set GT2_MODERN_YAW_INERTIA=physical` then `UGT2R.exe` | `GT2_MODERN_YAW_INERTIA=physical ./UGT2R-x86_64.AppImage` |
 | the plain port: GT2's own code everywhere (no swaps) | `set PSX_SWAP=tick=off` then `UGT2R.exe --scene off` | `PSX_SWAP=tick=off ./UGT2R-x86_64.AppImage --scene off` |
 
 ## The built-in flags
@@ -151,6 +151,7 @@ Data, cards, mods and modules are found beside the program: `data`, `cards/card1
 | `PSX_RUBBER_BAND=off` | every AI car at the event's fixed pace, no catch-up or slow-down | `on`: GT2's rubber band (also `--rubber-band on`) |
 | `PSX_FAST_BOOT=on` | fast-forward through the boot's card autoload to the title (a button press ends it) | `off` (also `--fast-boot off`) |
 | `PSX_GHOST=poses` | time-trial ghosts from recorded car poses (kept beside the card: `card1.mcr.ghosts.gt2drive`) | `gt2`: GT2's own ghost |
+| `GT2_MODERN_YAW_INERTIA=gt2` | modern physics uses GT2's yaw inertia for each car | `physical`: from the car's mass and size (experimental: cars rotate more easily) |
 | `PSX_PHYS_TIME=1` | the time of each physics tick goes into the hitch log | `0` |
 | `PSX_HITCH_LOG=<port>/shots/hitch.log` | a line per slow picture | another file name |
 | `PSX_MODULES=<port>/modules` | GT2's compiled code | keep it |
@@ -170,7 +171,7 @@ difference. They change only the modern physics, and **they are not recorded** (
 | Variable | Default | Other settings |
 |---|---|---|
 | `GT2_MODERN_CARS` | `rigid`: cars touch as rigid bodies | `gt2`: GT2's car-to-car push; `impulse`: a simple impulse |
-| `GT2_MODERN_YAW_INERTIA` | `physical`: the yaw inertia from the car's mass and size | `gt2`: GT2's value per car |
+| `GT2_MODERN_YAW_INERTIA` | `gt2`: GT2's value per car | `physical`: the yaw inertia from the car's mass and size (experimental: cars rotate more easily) |
 | `GT2_MODERN_AI_ASSISTS` | `own`: AI cars use their own driving assists | `table`: GT2's table |
 | `GT2_MODERN_AI_REACTION` | `0.2`: seconds the AI holds its controls after a hit | `0` or another number of seconds |
 | `GT2_MODERN_BRAKE_SIZE` | `real`: brakes sized like the real car's | `gt2` |
