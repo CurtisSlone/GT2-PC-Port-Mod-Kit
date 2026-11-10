@@ -98,6 +98,11 @@ Laguna Seca, or a course opened for editing with its textures, is **generated on
 stays there. Do not share files that contain GT2's data. What is your own work: a new track's course files, a course
 edit's `.gt2patch`, the pictures you paint, your own car model. guides/03-MODS.md lists which file is which.
 
+## How GT2 works
+
+Open `explainers/index.html` in any browser (no internet needed): 40 pages on GT2's physics, AI, events,
+cars, menus, graphics and sound, and on what the port's modern physics changes, with the graphs and formulas.
+
 ## What is in this folder
 
 ```text
@@ -109,6 +114,7 @@ cards/blank.mcd                     an empty, formatted memory card
 mods/                               your mods (see mods/README.txt)
 kit/                                the Blender add-on (gt2_track_tools-0.4.0.zip) and sample tracks
 guides/                             the guides above
+explainers/                         how GT2 works, in pages: open explainers/index.html in a browser
 THIRD-PARTY.md                      license notices for the AppImage runtime
 THIRD-PARTY-LICENSES.txt            licenses of the open-source libraries compiled into our programs
 LICENSE.txt                         the guides, scripts, samples and Blender add-on are public domain (CC0)

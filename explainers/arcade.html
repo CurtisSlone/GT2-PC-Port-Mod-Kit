@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2's Arcade Disc</title>
+<style>
+:root{
+  --bg:#f2f4f6; --panel:#ffffff; --ink:#15181d; --ink-2:#4a5160; --ink-3:#6f7685; --rule:#dce0e6; --grid:#eceef2;
+  --code-bg:#eef1f5; --empty:#e6e9ee;
+  --accent:#c8102e; --accent-soft:#fbe3e6;
+  --s1:#2a6fd0; --s2:#d65f28; --s3:#14916a; --s4:#b07d00; --s5:#8a6fb8; --s6:#5f6b7d; --on:#ffffff;
+  --ok:#0b7a3e; --ok-bg:#e1f3e8; --mid:#8a5a00; --mid-bg:#fbefd6; --bad:#b3261e; --bad-bg:#fbe4e2;
+  --display:"Avenir Next Condensed","Roboto Condensed","Helvetica Neue","Arial Narrow",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111317; --panel:#1a1d22; --ink:#eef0f3; --ink-2:#b6bcc7; --ink-3:#8b92a0; --rule:#2c3038; --grid:#23272e;
+  --code-bg:#22262d; --empty:#22262c;
+  --accent:#ff5a6a; --accent-soft:#3d1a1f;
+  --s1:#3f86e3; --s2:#e0733d; --s3:#21a57a; --s4:#c99a1c; --s5:#9a82cc; --s6:#6c788b; --on:#ffffff;
+  --ok:#5fd394; --ok-bg:#16352a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff8a80; --bad-bg:#3d1c1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111317; --panel:#1a1d22; --ink:#eef0f3; --ink-2:#b6bcc7; --ink-3:#8b92a0; --rule:#2c3038; --grid:#23272e;
+  --code-bg:#22262d; --empty:#22262c;
+  --accent:#ff5a6a; --accent-soft:#3d1a1f;
+  --s1:#3f86e3; --s2:#e0733d; --s3:#21a57a; --s4:#c99a1c; --s5:#9a82cc; --s6:#6c788b; --on:#ffffff;
+  --ok:#5fd394; --ok-bg:#16352a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff8a80; --bad-bg:#3d1c1a; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--accent);padding-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1.02;margin:0;letter-spacing:.005em;text-wrap:balance}
+h2{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-stretch:condensed;font-weight:600;font-size:21px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:70ch}
+ul,ol{margin:0;padding-left:1.25em;max-width:70ch;display:flex;flex-direction:column;gap:4px}
+.lede{color:var(--ink-2)}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+code,.m{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;white-space:nowrap}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+nav.toc a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+nav.toc a:hover{color:var(--accent);border-color:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.facts div{background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts b{font-family:var(--display);font-stretch:condensed;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums;color:var(--ink)}
+.facts span{font-size:12.5px;color:var(--ink-2);line-height:1.35}
+.scope{font-size:13.5px;color:var(--ink-2);border-left:3px solid var(--rule);padding-left:12px;max-width:80ch}
+section{display:flex;flex-direction:column;gap:14px;scroll-margin-top:12px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.two>*{min-width:0}
+.diagram{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.diagram svg{display:block;width:100%;height:auto;min-width:560px}
+.diagram.narrow svg{min-width:0}
+.cap{font-size:13px;color:var(--ink-3);max-width:80ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+td.k{font-family:var(--mono);white-space:nowrap;color:var(--ink-2)}
+tr:last-child td{border-bottom:0}
+.bar{display:block;height:8px;border-radius:2px;background:var(--accent);min-width:2px}
+.note{font-size:13px;color:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px}
+.card .k{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-mid{background:var(--mid-bg);color:var(--mid)}
+.b-bad{background:var(--bad-bg);color:var(--bad)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.steps{counter-reset:st;list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:st;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.steps li::before{content:counter(st);font-family:var(--mono);font-size:12px;width:24px;height:24px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+svg text{fill:var(--ink);font-family:var(--body);font-size:12px}
+svg .t1{fill:var(--ink)} svg .t2{fill:var(--ink-2)} svg .t3{fill:var(--ink-3)} svg .ta{fill:var(--accent)}
+svg .on{fill:var(--on);font-weight:600}
+svg .b{font-weight:600} svg .sm{font-size:11px} svg .lg{font-size:14px} svg .mono{font-family:var(--mono)}
+svg .box{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .boxa{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+svg .emptyr{fill:var(--empty)}
+svg .free{fill:none;stroke:var(--ink-3);stroke-dasharray:4 3}
+svg .gridl{stroke:var(--grid);stroke-width:1}
+svg .axis{stroke:var(--ink-3);stroke-width:1}
+svg .ln{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+svg .lna{stroke:var(--accent);stroke-width:1.6;fill:none}
+svg .dash{stroke-dasharray:5 4}
+svg .arrowhead{fill:var(--ink-3)} svg .arrowheada{fill:var(--accent)}
+svg .s1{fill:var(--s1)} svg .s2{fill:var(--s2)} svg .s3{fill:var(--s3)} svg .s4{fill:var(--s4)} svg .s5{fill:var(--s5)} svg .s6{fill:var(--s6)}
+svg .s1p{fill:var(--s1);opacity:.55} svg .clut{fill:var(--s6);opacity:.6} svg .acc{fill:var(--accent)}
+svg .c1{stroke:var(--s1);stroke-width:2.2;fill:none} svg .c2{stroke:var(--s2);stroke-width:2.2;fill:none} svg .c3{stroke:var(--s3);stroke-width:2.2;fill:none}
+@media (max-width:560px){h2{font-size:24px}.facts b{font-size:22px}.panel{padding:14px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker>
+<marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowheada" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs></svg>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Arcade vs Simulation</div>
+  <h1>GT2's Arcade Disc</h1>
+  <p class="lede">Gran Turismo 2 shipped on two discs, Arcade (SCUS-94455) and Simulation (SCUS-94488). Compared file by file and piece of code by piece of code, they turn out to be one program. The Simulation disc already carries the Arcade disc's code and almost all of its data, unused. This page shows what differs, and why physics and AI are the same on both.</p>
+  <div class="facts">
+    <div><b>10,618</b><span>of the Arcade archive's 10,620 entries identical to the Sim disc's</span></div>
+    <div><b>0</b><span>archive entries found only on the Arcade disc</span></div>
+    <div><b>1 file</b><span>Arcade-only: STREAM.DAT, the three movies (335 MB)</span></div>
+    <div><b>5</b><span>places in the code differ, all deciding which part of the game runs next</span></div>
+    <div><b>6 B</b><span>differ in the race code, all in that routing</span></div>
+    <div><b>0 B</b><span>differ in the arcade race build</span></div>
+  </div>
+  <p class="scope">Method: the files of both discs compared by content (compressed entries compared after unpacking), and both programs compared instruction by instruction.</p>
+  <nav class="toc" aria-label="Contents"><a href="#data">The data</a><a href="#code">The code</a><a href="#routing">The five differences</a><a href="#engine">Physics and AI</a><a href="#flow">Arcade-only code</a><a href="#content">Arcade content</a><a href="#port">In the port</a></nav>
+</header>
+
+<section id="data">
+  <h2>The data: the Arcade archive is a subset</h2>
+  <p class="lede">Every course, car model, car picture, engine sound, sound bank, the arcade menu art, the attract demos and the arcade database are the same files on both discs. Even the compressed bytes are the same: the shared files were not recompressed. The music file is identical in content.</p>
+  <div class="panel">
+    <div class="diagram">
+<svg viewBox="0 0 760 230" role="img" aria-label="Disc contents by size: shared, Sim-only and Arcade-only">
+  <text class="t3 sm" x="140" y="16">stored size, drawn to scale (1 px = about 0.9 MB)</text>
+  <text class="b sm" x="0" y="44">Sim GT2.VOL</text><text class="t2 sm" x="0" y="58">10,903 entries</text>
+  <rect class="s1" x="140" y="30" width="223" height="30"/><text class="on sm" x="148" y="49">shared: 10,618 entries, 203 MB</text>
+  <rect class="s6" x="364" y="30" width="291" height="30"/><text class="on sm" x="372" y="49">Sim only: GT Mode menus, license demos, ghosts</text>
+  <text class="t2 sm mono" x="662" y="49">468 MB</text>
+  <text class="b sm" x="0" y="94">Arcade GT2.VOL</text><text class="t2 sm" x="0" y="108">10,620 entries</text>
+  <rect class="s1" x="140" y="80" width="223" height="30"/><text class="on sm" x="148" y="99">shared, same bytes</text>
+  <text class="t2 sm mono" x="370" y="99">204 MB (2 entries are older builds of Sim files)</text>
+  <text class="b sm" x="0" y="144">MUSIC.DAT</text><text class="t2 sm" x="0" y="158">both discs</text>
+  <rect class="s3" x="140" y="130" width="94" height="30"/><text class="on sm" x="148" y="149">same</text>
+  <text class="t2 sm mono" x="240" y="149">85 MB</text>
+  <text class="b sm" x="0" y="194">STREAM.DAT</text><text class="t2 sm" x="0" y="208">Arcade only</text>
+  <rect class="acc" x="140" y="180" width="369" height="30"/><text class="on sm" x="148" y="199">the three movies: intro + two ending credits</text>
+  <text class="t2 sm mono" x="516" y="199">335 MB</text>
+</svg>
+    </div>
+    <p class="cap">The Sim-only part is GT Mode's menus (22 entries, 264 MB across 5 languages) plus 261 license demos and rally ghosts. Directory dates suggest the Arcade archive was built about 2.5 hours before the Sim one, on 1999-12-08, from the same set of files.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>The two differing files</th><th>Sim disc</th><th>Arcade disc</th><th>Which is newer</th></tr></thead>
+      <tbody>
+        <tr><td><code>.carinfoa</code> (car names, colors)</td><td>names for two Japan-model cars (Integra Type R, NSX)</td><td>those two names blank</td><td>Sim: both cars are hidden in the US game anyway</td></tr>
+        <tr><td>license database</td><td>6 tests list the hidden Japan model first, then the US model</td><td>US model only</td><td>Sim: license tests are GT Mode only</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="code">
+  <h2>The code: one program</h2>
+  <p class="lede">GT2 keeps a small core of code in memory all the time ("resident") and loads the rest in parts called <b>overlays</b> (ovl0 to ovl5) from GT2.OVL when needed. Both discs load the same overlays at the same addresses. Each piece of code is classed as identical, relocated (the same instructions, but some addresses they point to moved), or really different.</p>
+  <div class="panel">
+    <div class="legend"><span><i style="background:var(--s3)"></i>identical</span><span><i style="background:var(--s1)"></i>identical but relocated</span><span><i style="background:var(--s4)"></i>near-identical</span></div>
+    <div class="diagram">
+<svg viewBox="0 0 760 210" role="img" aria-label="Verdict per program part">
+  <g>
+    <rect class="s4" x="0" y="0" width="184" height="92" rx="4"/><text class="on b" x="10" y="22">boot</text><text class="on sm" x="10" y="42">start-up and system init, splash</text><text class="on sm" x="10" y="60">2 instructions + 1 table byte</text><text class="on sm" x="10" y="78">(the rest shifted 8 bytes)</text>
+    <rect class="s4" x="192" y="0" width="184" height="92" rx="4"/><text class="on b" x="202" y="22">resident</text><text class="on sm" x="202" y="42">main loop, loaders, libraries,</text><text class="on sm" x="202" y="60">car and race database code</text><text class="on sm" x="202" y="78">1 byte differs</text>
+    <rect class="s4" x="384" y="0" width="184" height="92" rx="4"/><text class="on b" x="394" y="22">ovl0 race</text><text class="on sm" x="394" y="42">physics, AI, renderer, HUD,</text><text class="on sm" x="394" y="60">replays, split screen</text><text class="on sm" x="394" y="78">6 bytes differ</text>
+    <rect class="s4" x="576" y="0" width="184" height="92" rx="4"/><text class="on b" x="586" y="22">ovl1 title</text><text class="on sm" x="586" y="42">title, options, card, replays</text><text class="on sm" x="586" y="60">1 routine differs</text><text class="on sm" x="586" y="78">(the rest shifted 0x20)</text>
+    <rect class="s1" x="0" y="104" width="184" height="92" rx="4"/><text class="on b" x="10" y="126">ovl2 arcade menus</text><text class="on sm" x="10" y="146">course, car, difficulty, 2P,</text><text class="on sm" x="10" y="164">time trial, records</text><text class="on sm" x="10" y="182">1 pointer into ovl1</text>
+    <rect class="s3" x="192" y="104" width="184" height="92" rx="4"/><text class="on b" x="202" y="126">ovl3 arcade race build</text><text class="on sm" x="202" y="146">race request to race specs</text><text class="on sm" x="202" y="164">identical, byte for byte</text>
+    <rect class="s1" x="384" y="104" width="184" height="92" rx="4"/><text class="on b" x="394" y="126">ovl4 GT Mode</text><text class="on sm" x="394" y="146">city map, every page,</text><text class="on sm" x="394" y="164">event and license set-up</text><text class="on sm" x="394" y="182">1 pointer into ovl1</text>
+    <rect class="s3" x="576" y="104" width="184" height="92" rx="4"/><text class="on b" x="586" y="126">ovl5 movie player</text><text class="on sm" x="586" y="146">plays STREAM.DAT</text><text class="on sm" x="586" y="164">identical, byte for byte</text>
+  </g>
+</svg>
+    </div>
+    <p>The Sim disc's unused ovl2 (arcade menus) and ovl3 (arcade race build) <b>are</b> the Arcade disc's arcade code. ovl3 is identical. ovl2 differs in one byte: a pointer to the attract-demo routine, which on the Sim disc correctly points into the Sim title. The Arcade disc's ovl2 would jump 0x20 bytes into the middle of other Sim code, so the Sim disc's copy is the right one to use.</p>
+  </div>
+</section>
+
+<section id="routing">
+  <h2>The five differences</h2>
+  <p class="lede">Every real code difference decides which part of the game comes next. Nothing else differs.</p>
+  <div class="panel tablewrap"><table>
+    <thead><tr><th>Where</th><th>Simulation</th><th>Arcade</th></tr></thead>
+    <tbody>
+      <tr><td>title, Start Game</td><td>go to GT Mode (overlay 4)</td><td>go to the arcade menus (overlay 2)</td></tr>
+      <tr><td>title, idle</td><td>the attract demo every time</td><td>every 4th idle, the intro movie instead</td></tr>
+      <tr><td>main loop: first overlay after boot</td><td>1, the title</td><td>5, the intro movie</td></tr>
+      <tr><td>race code: fallback next overlay (two places)</td><td>1, the title</td><td>5, the intro movie</td></tr>
+      <tr><td>boot start-up</td><td>ends with one extra step (purpose unknown)</td><td>without it</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px">Plus one byte in the boot splash list (cosmetic). Every other raw-byte difference is relocation: the Arcade title is 8 words longer, so the rest of ovl1 sits 0x20 higher.</p></div>
+</section>
+
+<section id="engine">
+  <h2>Physics and AI are identical</h2>
+  <div class="panel">
+    <p>The race code is 316,776 bytes on both discs and differs in 6 bytes, all inside the two routing places above. The resident code differs in 1 byte (the first overlay after boot). So all the physics and AI, the renderer, HUD, cameras, replays, the car and race database code and the libraries are identical, at the same addresses. There is no separate arcade build with its own constants, assists, damage or AI. What the Arcade game does differently in a race comes from its inputs, which the shared code already handles:</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Arcade behavior</th><th>Where it lives (same on both discs)</th></tr></thead>
+      <tbody>
+        <tr><td>arcade race and course clears</td><td>race type 4; sets the save's arcade flags</td></tr>
+        <tr><td>2-player split screen</td><td>race type 0; a second camera</td></tr>
+        <tr><td>time trial with lap ring and ghost</td><td>race type 6</td></tr>
+        <tr><td>arcade cars, events, difficulty</td><td>the database loader in arcade mode (<code>usa_arcade_data.dat</code>)</td></tr>
+        <tr><td>back to the arcade menus after a race</td><td>a hand-over byte set to arcade</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">The Sim disc already uses part of this: its attract demos load the arcade database and include time-trial demos.</p>
+  </div>
+</section>
+
+<section id="flow">
+  <h2>The arcade-only code path</h2>
+  <div class="panel">
+    <div class="diagram">
+<svg viewBox="0 0 760 210" role="img" aria-label="Flow from the title through the arcade menus and race and back">
+  <rect class="box" x="0" y="70" width="130" height="60" rx="4"/><text class="b sm" x="65" y="94" text-anchor="middle">title (ovl1)</text><text class="t2 sm" x="65" y="112" text-anchor="middle">Start Game / new row</text>
+  <line class="lna" x1="130" y1="100" x2="186" y2="100" marker-end="url(#aha)"/>
+  <rect class="boxa" x="190" y="70" width="150" height="60" rx="4"/><text class="b sm" x="265" y="94" text-anchor="middle">arcade menus (ovl2)</text><text class="t2 sm" x="265" y="112" text-anchor="middle">course, car, mode</text>
+  <line class="lna" x1="340" y1="100" x2="396" y2="100" marker-end="url(#aha)"/>
+  <rect class="boxa" x="400" y="70" width="150" height="60" rx="4"/><text class="b sm" x="475" y="94" text-anchor="middle">race build (ovl3)</text><text class="t2 sm" x="475" y="112" text-anchor="middle">request to race specs</text>
+  <line class="lna" x1="550" y1="100" x2="606" y2="100" marker-end="url(#aha)"/>
+  <rect class="box" x="610" y="70" width="150" height="60" rx="4"/><text class="b sm" x="685" y="94" text-anchor="middle">race (ovl0, shared)</text><text class="t2 sm" x="685" y="112" text-anchor="middle">physics, AI, HUD</text>
+  <path class="ln" d="M685,130 V170 H265 V134" marker-end="url(#ah)"/><text class="t2 sm" x="475" y="188" text-anchor="middle">the race returns to the arcade menus</text>
+  <path class="ln" d="M265,70 V30 H65 V66" marker-end="url(#ah)"/><text class="t2 sm" x="165" y="24" text-anchor="middle">exit to the title</text>
+  <path class="ln dash" d="M300,70 V30 H640" marker-end="url(#ah)"/><text class="t2 sm" x="470" y="24" text-anchor="middle">goodies / ending credits: movie player (ovl5, needs STREAM.DAT)</text>
+</svg>
+    </div>
+    <p class="cap">ovl2 is the whole arcade front end (347 routines): its course list and car codes, its strings, and the results and unlock screens. ovl3 is small (16 routines), one of them the race spec builder that also appears twice in GT Mode's code.</p>
+  </div>
+</section>
+
+<section id="content">
+  <h2>What Arcade Mode contains</h2>
+  <div class="two">
+    <div class="panel">
+      <h3>Courses: 78 of the 125 course files</h3>
+      <div class="tablewrap"><table>
+        <tbody>
+          <tr><td>forward</td><td class="n">23</td><td style="width:50%"><i class="bar" style="width:85%"></i></td></tr>
+          <tr><td>reverse</td><td class="n">22</td><td><i class="bar" style="width:81%"></i></td></tr>
+          <tr><td>dirt</td><td class="n">6</td><td><i class="bar" style="width:22%"></i></td></tr>
+          <tr><td>two-player</td><td class="n">27</td><td><i class="bar" style="width:100%"></i></td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Two-player courses are separate, lighter files (2P Rome's geometry is 561,580 bytes against 644,160). Rome Night is its own course file, not a lighting switch. All are on the Sim disc too.</p>
+    </div>
+    <div class="panel">
+      <h3>The arcade database</h3>
+      <ul>
+        <li><b>15 events:</b> 12 races (three difficulty rows by classes A, B, C, S, with 8 to 10 opponents each), the two-player battle, and two with no opponents, one of them the time trial.</li>
+        <li><b>38 opponent cars.</b></li>
+        <li><b>63 player car set-ups</b> with fixed parts per car, not GT Mode garage tuning. 15 are arcade-only race models with no GT Mode car record; their models are on both discs.</li>
+        <li>The course field reads <code>roma</code> in all 15 events: the course comes from the menu when you pick it.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="panel">
+    <p><b>One save serves both modes.</b> Both programs write the same memory card files with the same layout, and the save already has the arcade fields: options and arcade flags, 32 bytes that look like course clears, two-player wins and course records.</p>
+  </div>
+</section>
+
+<section id="port">
+  <h2>In the port</h2>
+  <div class="panel">
+    <p>Because the Simulation disc already holds the arcade code and data, the port's Arcade Mode is a row under Start Game on the title menu that runs the Sim disc's own arcade code, the same way the Arcade disc's Start Game does. The Sim title's idle behavior stays (no intro movie every 4th idle). The only thing the Sim disc cannot supply is the movies in STREAM.DAT (the intro and the two ending credits). The rules for menus, races and unlocks are on the <a href="arcade-modes.html">Arcade modes</a> page.</p>
+  </div>
+</section>
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

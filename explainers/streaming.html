@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Streaming and Music</title>
+<style>
+
+:root{
+  --bg:#f0efea; --panel:#ffffff; --ink:#171614; --ink-2:#4b4842; --ink-3:#7a766e; --rule:#d9d5cb; --soft:#e8e5dc;
+  --accent:#2a62a8; --go:#1d7f4c; --stop:#b8312f; --warm:#c4561b; --code-bg:#eceae3;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121110; --panel:#1b1a18; --ink:#eeebe5; --ink-2:#bdb8ae; --ink-3:#8b867c; --rule:#302d29; --soft:#24221f;
+  --accent:#6aa6f0; --go:#45c985; --stop:#ff6b62; --warm:#f08a4b; --code-bg:#24221f; color-scheme:dark}
+  :root:not([data-theme="light"]) .diagram svg .on{fill:#121110}}
+:root[data-theme="dark"]{
+  --bg:#121110; --panel:#1b1a18; --ink:#eeebe5; --ink-2:#bdb8ae; --ink-3:#8b867c; --rule:#302d29; --soft:#24221f;
+  --accent:#6aa6f0; --go:#45c985; --stop:#ff6b62; --warm:#f08a4b; --code-bg:#24221f; color-scheme:dark}
+:root[data-theme="dark"] .diagram svg .on{fill:#121110}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1060px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;border-bottom:2px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.2;margin:0}
+p{margin:0;max-width:72ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:720px;height:auto}
+.diagram svg text{font-family:var(--body);fill:var(--ink);font-size:12.5px}
+.diagram svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.diagram svg .lane{fill:var(--soft)}
+.diagram svg .bar{fill:var(--accent);opacity:.85}
+.diagram svg .bar.j{fill:var(--warm)}
+.diagram svg .bar.q{fill:var(--go)}
+.diagram svg .tick{stroke:var(--ink-3);stroke-width:1}
+.diagram svg .on{fill:#fff}
+.diagram svg .goline{stroke:var(--stop);stroke-width:2;stroke-dasharray:4 3}
+.box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+.box.hot{fill:var(--panel);stroke:var(--accent);stroke-width:2}
+.edge{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+.arrowhead{fill:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:.92em}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+.note{font-size:13px;color:var(--ink-3)}
+.kpis{display:flex;flex-wrap:wrap;gap:10px 28px}
+.kpis div{display:flex;flex-direction:column}
+.kpis b{font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kpis span{font-size:12px;color:var(--ink-3)}
+.pass{color:var(--go);font-weight:600}
+.dim{color:var(--ink-3)}
+.tag{font-family:var(--mono);font-size:11px;border:1px solid var(--rule);border-radius:3px;padding:1px 5px;background:var(--soft);white-space:nowrap}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation · music and streaming from the disc</div>
+  <h1>GT2 Streaming and Music</h1>
+  <p class="lede">What Gran Turismo 2 plays from the disc and when: the XA music (CD audio stored in a compressed PlayStation format), the menu music, the movies and the attract demo, and the CD player logic that serves them. Every trigger and timing below was checked against the running game.</p>
+  <div class="kpis">
+    <div><b>21</b><span>XA tracks in MUSIC.DAT</span></div>
+    <div><b>9 + 1</b><span>sequenced menu tunes (GT Mode, Arcade)</span></div>
+    <div><b>27</b><span>movie segments (Arcade disc only)</span></div>
+    <div><b>6</b><span>race tunes, one drawn at random per race</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>A race, as the music sees it</h2>
+  <p>The race code picks everything when the race is set up and then only reacts. The start jingle is the one piece of music that changes gameplay: the race hold (the wait before the countdown can end) is stretched to the jingle's length, so the countdown ends when the jingle does. A field is one 1/60 s screen refresh.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 960 250" role="img" aria-label="Race music timeline: race init, start jingle during the hold, race tune from GO, finish jingle, track 8 queued, result pages">
+      <rect class="lane" x="120" y="40" width="820" height="30" rx="3"/>
+      <rect class="lane" x="120" y="90" width="820" height="30" rx="3"/>
+      <rect class="lane" x="120" y="140" width="820" height="30" rx="3"/>
+      <text x="10" y="60">tick / frame</text>
+      <text x="10" y="110">XA music</text>
+      <text x="10" y="160">pages</text>
+      <line class="tick" x1="150" y1="30" x2="150" y2="180"/><text class="m" x="150" y="22" text-anchor="middle">race init</text>
+      <line class="tick" x1="200" y1="30" x2="200" y2="180"/><text class="m" x="200" y="200" text-anchor="middle">first frame</text>
+      <line class="goline" x1="420" y1="30" x2="420" y2="180"/><text class="m" x="420" y="22" text-anchor="middle">GO (hold = 0)</text>
+      <line class="tick" x1="760" y1="30" x2="760" y2="180"/><text class="m" x="760" y="22" text-anchor="middle">player finishes</text>
+      <line class="tick" x1="860" y1="30" x2="860" y2="180"/><text class="m" x="860" y="200" text-anchor="middle">drive ends</text>
+      <rect x="200" y="46" width="220" height="18" rx="2" fill="none" stroke="var(--stop)" stroke-width="1.4"/>
+      <text x="310" y="59" text-anchor="middle">race hold = max(hold, 60 × s)</text>
+      <rect class="bar j" x="200" y="94" width="220" height="22" rx="2"/><text x="310" y="109" text-anchor="middle" class="on">jingle 12 · 9 s · once</text>
+      <rect class="bar" x="420" y="94" width="340" height="22" rx="2"/><text x="590" y="109" text-anchor="middle" class="on">race tune 0..5 (drawn at init) · loops</text>
+      <rect class="bar j" x="760" y="94" width="100" height="22" rx="2"/><text x="810" y="109" text-anchor="middle" class="on">jingle 14</text>
+      <rect class="bar q" x="860" y="94" width="80" height="22" rx="2" opacity=".35"/><text x="900" y="109" text-anchor="middle">8 queued</text>
+      <rect class="bar q" x="120" y="144" width="70" height="22" rx="2"/><text x="155" y="159" text-anchor="middle" class="on">8</text>
+      <rect class="bar q" x="870" y="144" width="70" height="22" rx="2"/><text x="905" y="159" text-anchor="middle" class="on">19 / 18</text>
+      <text class="m" x="155" y="186" text-anchor="middle">session page</text>
+      <text class="m" x="905" y="186" text-anchor="middle">results, payout</text>
+      <text class="m" x="120" y="236">The queued 8 starts when jingle 14 ends, unless the drive ends first (one measured race ended 388 fields into the 6.5 s jingle). Replays: no jingles, the tune from the replay's GO.</text>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <h2>What plays when</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Trigger</th><th>Track</th><th>Mode</th><th>Part of the game</th></tr></thead>
+      <tbody>
+        <tr><td>Title</td><td class="dim">silence</td><td></td><td>title menus</td></tr>
+        <tr><td>Replay Theater · Options · Save / Load / Data Transfer</td><td>0 · 6 · 7</td><td>loop</td><td>title menus</td></tr>
+        <tr><td>GT Mode pages</td><td>sequenced tune 0..8 (set by a byte in the page): 7 city map, 1..4 events, 8 licenses</td><td>sequenced</td><td>GT Mode (starts 2 frames after the page)</td></tr>
+        <tr><td>Arcade menus</td><td>sequenced <code>arcade.seq</code></td><td>sequenced</td><td>Arcade</td></tr>
+        <tr><td>Session page before a race · post-race menu</td><td>8</td><td>loop</td><td>race</td></tr>
+        <tr><td>Race with a hold (not license / Machine Test)</td><td>jingle 12 · 10 (GT Mode "One-Make") · 11 (set-up +0x580)</td><td>once</td><td>race</td></tr>
+        <tr><td>GO</td><td>race tune: a random number mod 6</td><td>loop</td><td>race</td></tr>
+        <tr><td>Player finishes</td><td>14 (Machine Test 16), then 8 queued (not 2P battle, not license)</td><td>once, then loop</td><td>race</td></tr>
+        <tr><td>Result list</td><td>19 if not 1st, else 8</td><td>loop</td><td>race</td></tr>
+        <tr><td>Payout / award</td><td>17 (1st) · 18</td><td>loop</td><td>race</td></tr>
+        <tr><td>Championship end · license results</td><td>9 · 20 (or 8 on the record path)</td><td>loop</td><td>race</td></tr>
+        <tr><td>Title idle 901 fields</td><td>next of 7 demo replays (race tune at its GO)</td><td></td><td>title menus</td></tr>
+        <tr><td class="dim">never</td><td class="dim">13 (its finish mode is never set), 15</td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>The track table</h2>
+  <p>One file, <code>MUSIC.DAT</code>: four XA channels interleaved, 37.8 kHz stereo, read at single speed. Track <i>t</i> is channel <i>t</i>+1; its range is a table in the game's RAM at <code>0x800956B8</code>. The game's seconds, <code>(end − start + 74) / 75</code>, set the jingle's hold (75 sectors a second).</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th class="n">#</th><th>Kind</th><th class="n">Sectors</th><th class="n">Seconds</th><th class="n">s</th><th>Played by</th></tr></thead>
+      <tbody>
+        <tr><td class="n">0–5</td><td>licensed race tunes</td><td class="n">3,960–6,297</td><td class="n">211–336</td><td class="n"></td><td>GO (one at random); 0 also Replay Theater</td></tr>
+        <tr><td class="n">6 · 7</td><td>menu cues</td><td class="n">1,047 · 2,951</td><td class="n">55.8 · 157.4</td><td class="n"></td><td>Options · Save / Load / Data Transfer</td></tr>
+        <tr><td class="n">8 · 9</td><td>result cues</td><td class="n">2,397 · 1,186</td><td class="n">127.8 · 63.3</td><td class="n"></td><td>after the finish, result pages · championship end</td></tr>
+        <tr><td class="n">10</td><td>start jingle</td><td class="n">131</td><td class="n">6.99</td><td class="n">7</td><td>GT Mode "One-Make": hold 420</td></tr>
+        <tr><td class="n">11</td><td>start jingle</td><td class="n">217</td><td class="n">11.57</td><td class="n">12</td><td>set-up +0x580: hold 720</td></tr>
+        <tr><td class="n">12</td><td>start jingle</td><td class="n">162</td><td class="n">8.64</td><td class="n">9</td><td>the others: hold 540</td></tr>
+        <tr><td class="n">14 · 16</td><td>finish jingles</td><td class="n">122 · 89</td><td class="n">6.51 · 4.75</td><td class="n"></td><td>finish · Machine Test finish</td></tr>
+        <tr><td class="n">17–20</td><td>award / result cues</td><td class="n">657–1,685</td><td class="n">35–90</td><td class="n"></td><td>17 win, 18 not, 19 not 1st, 20 license</td></tr>
+        <tr><td class="n">13 · 15</td><td class="dim">unused</td><td class="n">197 · 60</td><td class="n">10.5 · 3.2</td><td class="n"></td><td class="dim">never played</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>The CD player logic</h2>
+  <p>One record in RAM (<code>0x801EFF00</code>) and ten small scripts drive the CD drive. It serves one stream at a time, so every load ends the music. Once per field it fades the CD volume by 8192/32768 and checks the position every 8 fields.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 960 170" role="img" aria-label="Script 5, the XA play script, as a loop">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+      <rect class="box" x="10" y="30" width="110" height="44" rx="4"/><text x="65" y="50" text-anchor="middle">latch request</text><text class="m" x="65" y="66" text-anchor="middle">file 1, ch t+1</text>
+      <rect class="box hot" x="150" y="30" width="150" height="44" rx="4"/><text x="225" y="50" text-anchor="middle">Setloc · Setfilter</text><text class="m" x="225" y="66" text-anchor="middle">Setmode 0x68 · ReadS</text>
+      <rect class="box" x="330" y="30" width="110" height="44" rx="4"/><text x="385" y="50" text-anchor="middle">fade in</text><text class="m" x="385" y="66" text-anchor="middle">4 fields</text>
+      <rect class="box hot" x="470" y="30" width="160" height="44" rx="4"/><text x="550" y="50" text-anchor="middle">GetlocL every 8 fields</text><text class="m" x="550" y="66" text-anchor="middle">until pos ≥ end</text>
+      <rect class="box" x="660" y="30" width="130" height="44" rx="4"/><text x="725" y="50" text-anchor="middle">fade out · Pause</text><text class="m" x="725" y="66" text-anchor="middle">4 fields</text>
+      <rect class="box" x="820" y="30" width="130" height="44" rx="4"/><text x="885" y="50" text-anchor="middle">loop flag?</text><text class="m" x="885" y="66" text-anchor="middle">else "ended"</text>
+      <path class="edge" d="M120,52 H148" marker-end="url(#ah)"/><path class="edge" d="M300,52 H328" marker-end="url(#ah)"/>
+      <path class="edge" d="M440,52 H468" marker-end="url(#ah)"/><path class="edge" d="M630,52 H658" marker-end="url(#ah)"/>
+      <path class="edge" d="M790,52 H818" marker-end="url(#ah)"/>
+      <path class="edge" d="M885,74 V120 H225 V76" marker-end="url(#ah)"/><text class="m" x="555" y="114" text-anchor="middle">loop: back to the track's first sector (~16 fields of silence + the seek)</text>
+      <text class="m" x="10" y="150">11 polls without progress → drive reset · a read error → error state (music stops; the race resumes it from the last polled position) · data reads retry without limit</text>
+    </svg>
+  </div>
+  <div class="grid">
+    <div class="card"><h3>Volume</h3><p><code>master = ((v &lt;&lt; 15) / 255 × 2252) &gt;&gt; 12</code> of the Music Volume option (default 240 → 16,955), times the fade, into the sound chip's CD input. The menus' sequenced music uses <code>(v &lt;&lt; 14) / 255</code>.</p></div>
+    <div class="card"><h3>Pause</h3><p>Pausing a race fades out and pauses the drive; unpausing resumes from the last checked position, up to 8 fields behind where it stopped.</p></div>
+    <div class="card"><h3>Loads</h3><p>Every compressed read from the game's data file stops the stream first. The race loads before GO; pages restart their own track after their loads, from the start.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Movies (Arcade disc only)</h2>
+  <p><code>STREAM.DAT</code>: an 8-sector interleave (7 data, 1 XA audio) at double speed. Each data sector has an STR-style <code>0x0160</code> header with GT2's own type <code>0x5349</code>; the picture uses GT2's own coding, unpacked by the main processor for the console's video decoder (MDEC). The Simulation disc has no STREAM.DAT.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Id</th><th>What</th><th class="n">Frames</th><th>Picture</th><th class="n">fps</th><th class="n">Seconds</th><th>Skip</th></tr></thead>
+      <tbody>
+        <tr><td>0x00–0x17</td><td>Arcade course previews (29 courses → 24 clips)</td><td class="n">419</td><td>112 × 96</td><td class="n">30</td><td class="n">14.0</td><td>cursor moves</td></tr>
+        <tr><td>0x18</td><td>intro, at power-on</td><td class="n">4,649</td><td>320 × 192</td><td class="n">30</td><td class="n">155.0</td><td>Start</td></tr>
+        <tr><td>0x19 · 0x1A</td><td>ending credits</td><td class="n">3,934 · 4,999</td><td>640 × 216 · 640 × 224</td><td class="n">15</td><td class="n">262 · 333</td><td>no</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Without STREAM.DAT the Arcade course preview reads the disc's first sectors as a movie: an Arcade Mode on the Simulation disc needs a guard against that.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Attract</h2>
+  <p>Leave the title screen alone and GT2 plays its demo replays in turn.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 960 120" role="img" aria-label="Attract state machine: title, idle 901 fields, fade, demo i, back to title">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+      <rect class="box hot" x="20" y="30" width="200" height="50" rx="4"/><text x="120" y="52" text-anchor="middle">Title (silent)</text><text class="m" x="120" y="70" text-anchor="middle">idle +1 per field, any button → 0</text>
+      <rect class="box" x="290" y="30" width="170" height="50" rx="4"/><text x="375" y="52" text-anchor="middle">Fade out</text><text class="m" x="375" y="70" text-anchor="middle">17 fields</text>
+      <rect class="box hot" x="530" y="30" width="220" height="50" rx="4"/><text x="640" y="52" text-anchor="middle">Demo replay i</text><text class="m" x="640" y="70" text-anchor="middle">demofile_us.gmr, i → (i+1) % 7</text>
+      <path class="edge" d="M220,55 H288" marker-end="url(#ah2)"/><text class="m" x="254" y="48" text-anchor="middle">901</text>
+      <path class="edge" d="M460,55 H528" marker-end="url(#ah2)"/>
+      <path class="edge" d="M750,55 H820 V100 H120 V82" marker-end="url(#ah2)"/><text class="m" x="785" y="48">replay ends</text>
+    </svg>
+  </div>
+</section>
+
+<footer>
+  <div>Sizes, offsets and counts only; no game data on this page.</div>
+</footer>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+</body>
+</html>

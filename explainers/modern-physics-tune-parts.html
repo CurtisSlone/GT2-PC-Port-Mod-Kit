@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Modern Physics Tunes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800&family=Archivo+Narrow:wght@500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#0e1015; --card:#14171d; --line:#262b35; --grid:#20242d;
+  --ink:#eef0f4; --ink2:#a9b0bf; --ink3:#727b8d;
+  --modern:#c98226; --classic:#5e8bd6;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Archivo,"Segoe UI",Arial,sans-serif}
+.card{width:1200px;max-width:100%;min-height:1590px;padding:64px 72px 48px;background:
+  linear-gradient(180deg,rgba(94,139,214,.08),transparent 260px),var(--card);display:flex;flex-direction:column;gap:30px}
+.kicker{font:600 15px/1 "Archivo Narrow",Archivo,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--modern)}
+h1{margin:12px 0 0;font-weight:800;font-size:60px;line-height:1.02;letter-spacing:-.01em;text-wrap:balance}
+.lede{margin:18px 0 0;font-size:20px;line-height:1.5;color:var(--ink2);max-width:64ch}
+.lede b{color:var(--ink);font-weight:600}
+.head{display:grid;grid-template-columns:1fr 250px;gap:40px;align-items:end}
+.hero{border:1px solid var(--line);border-radius:10px;padding:20px 22px;background:rgba(255,255,255,.015)}
+.hero .n{font-weight:800;font-size:56px;line-height:1}
+.hero .l{margin-top:10px;font-size:15px;line-height:1.4;color:var(--ink2)}
+.legend{display:flex;gap:28px;font-size:15px;color:var(--ink2);align-items:center}
+.sw{display:inline-block;width:26px;height:10px;border-radius:5px;margin-right:8px;vertical-align:middle}
+.group h2{margin:0;font-size:24px;font-weight:600}
+.group p{margin:4px 0 10px;color:var(--ink2);font-size:15px}
+svg text{font-family:Archivo,sans-serif}
+.notes{border-top:1px solid var(--line);padding-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:10px 40px}
+.notes h3{grid-column:1/-1;margin:0 0 4px;font:600 14px/1 "Archivo Narrow",sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3)}
+.notes div{font-size:15px;line-height:1.45;color:var(--ink2)}
+.notes b{color:var(--ink);font-weight:600}
+.foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;font-size:12.5px;line-height:1.5;color:var(--ink3)}
+.foot .who{font:500 14px "JetBrains Mono",monospace;color:var(--ink2);white-space:nowrap}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+</style></head>
+<body><div class="card">
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+<nav class="xback" style="font-size:13px;margin:6px 0 0;padding:0"><a href="index.html" style="color:inherit;opacity:.8">&larr; All explainers</a></nav>
+  <div class="head">
+    <div>
+      <div class="kicker">GT2 port &middot; physics notes</div>
+      <h1>Do tune parts still do their job?</h1>
+      <p class="lede">I tested 944 tune changes on 11 cars, on the <b>original physics</b> and on <b>modern physics</b>. The bars show the typical change each part makes.</p>
+    </div>
+    <div class="hero"><div class="n">0.99</div><div class="l">modern vs original effect (1.00 = the same)</div></div>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw" style="background:#5e8bd6"></span>Original physics</span>
+    <span><span class="sw" style="background:#c98226"></span>Modern physics</span>
+  </div>
+
+  <div class="group">
+    <h2>Power</h2>
+    <p>Seconds cut from 0-100 km/h.</p>
+    <svg id="g1" width="1056" height="10"></svg>
+  </div>
+
+  <div class="group">
+    <h2>Grip</h2>
+    <p>Change in cornering grip, in g. Minus means less grip.</p>
+    <svg id="g2" width="1056" height="10"></svg>
+  </div>
+
+  <div class="notes">
+    <h3>What the table says</h3>
+    <div><b>Suspension kits do about half as much on modern.</b> So does the LSD.</div>
+    <div><b>Springs, dampers, ride height, toe and stabilizers</b> made almost no difference on either.</div>
+    <div><b>Brakes, brake balance, ASC and TCS</b> made no difference on either in these tests.</div>
+    <div><b>11 cars,</b> tested by script.</div>
+  </div>
+
+  <div class="foot">
+    <div>Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+    <div class="who">breakit_makeit</div>
+  </div>
+</div>
+<script>
+const NS='http://www.w3.org/2000/svg';
+function chart(id,rows,max,fmt,ticks){
+  const svg=document.getElementById(id);
+  const L=250,R=860,rh=58,T=8;
+  const x=v=>L+Math.abs(v)/max*(R-L);
+  const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e};
+  const H=T+rows.length*rh+26; svg.setAttribute('height',H);
+  ticks.forEach(v=>{el('line',{x1:x(v),x2:x(v),y1:T,y2:T+rows.length*rh-6,stroke:'#20242d'});
+    el('text',{x:x(v),y:T+rows.length*rh+14,'text-anchor':'middle','font-size':13,fill:'#727b8d'},fmt(v,true))});
+  rows.forEach((r,i)=>{
+    const y=T+i*rh;
+    el('text',{x:0,y:y+25,'font-size':18,'font-weight':600,fill:'#eef0f4'},r[0]);
+    el('rect',{x:L,y:y+6,width:Math.max(4,x(r[1])-L),height:14,rx:4,fill:'#5e8bd6'});
+    el('rect',{x:L,y:y+24,width:Math.max(4,x(r[2])-L),height:14,rx:4,fill:'#c98226'});
+    el('text',{x:Math.max(x(r[1]),x(r[2]))+14,y:y+18,'font-size':14,fill:'#a9b0bf'},fmt(r[1]));
+    el('text',{x:Math.max(x(r[1]),x(r[2]))+14,y:y+36,'font-size':14,fill:'#eef0f4'},fmt(r[2]));
+  });
+}
+chart('g1',[
+  ['Full tune',-2.50,-2.57],
+  ['NA Tune',-0.68,-0.70],
+  ['Turbo',-0.67,-0.67],
+  ['Flywheel',-0.37,-0.37],
+  ['Clutch',-0.23,-0.23],
+  ['Weight Reduction',-0.18,-0.20],
+  ['Muffler',-0.20,-0.17],
+],2.8,(v,t)=>t?(v===0?'0':'-'+v.toFixed(1)+' s'):'-'+Math.abs(v).toFixed(2)+' s',[0,0.5,1,1.5,2,2.5]);
+chart('g2',[
+  ['Dirt Tires',0.283,0.278],
+  ['Simulation Tires',-0.239,-0.230],
+  ['Sports / Racing tires',0.119,0.117],
+  ['Suspension kits',0.044,0.022],
+  ['Camber',-0.028,-0.029],
+],0.31,(v,t)=>t?(v===0?'0':v.toFixed(2)+' g'):(v>0?'+':'-')+Math.abs(v).toFixed(3)+' g',[0,0.05,0.1,0.15,0.2,0.25,0.3]);
+</script>
+</body></html>

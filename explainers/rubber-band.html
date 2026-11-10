@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 AI Rubber Band</title>
+<style>
+
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#131820; --ink-2:#465063; --ink-3:#717c8f; --rule:#d5dae2; --soft:#e7eaf0;
+  --code-bg:#edf0f4; --accent:#5246c8; --accent-soft:#e6e3fa;
+  --gt2:#2a6fb8; --ours:#c8641a; --ok:#0f7a43; --ok-bg:#e1f3e8; --bad:#b3261e; --bad-bg:#fbe5e3; --mid:#8a5a00; --mid-bg:#fbefd6;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:18px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:18px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:72ch}
+ul{margin:0;padding-left:20px;max-width:72ch;display:flex;flex-direction:column;gap:6px}
+.lede{color:var(--ink-2)}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-top:6px}
+.kpis div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule);border-radius:6px}
+.kpis b{font-family:var(--display);font-stretch:condensed;font-size:30px;line-height:1.05;font-variant-numeric:tabular-nums;color:var(--accent)}
+.kpis span{font-size:13px;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.cols>*{min-width:0}
+figure{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+figcaption{font-size:13px;color:var(--ink-3);max-width:80ch}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:680px;height:auto}
+.diagram.narrow svg{min-width:0}
+svg text{font-family:var(--body);fill:var(--ink);font-size:12px}
+svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+svg .t{font-family:var(--display);font-weight:700;font-size:16px}
+svg .n{font-size:11.5px;fill:var(--ink-2)}
+svg .acc-t{fill:var(--accent);font-weight:600}
+svg .gt2-t{fill:var(--gt2);font-weight:600}
+svg .ours-t{fill:var(--ours);font-weight:600}
+svg .bad-t{fill:var(--bad);font-weight:600}
+svg .ok-t{fill:var(--ok);font-weight:600}
+svg .box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+svg .card{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .accbox{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg .gt2box{fill:var(--panel);stroke:var(--gt2);stroke-width:1.6}
+svg .oursbox{fill:var(--panel);stroke:var(--ours);stroke-width:1.6}
+svg .badbox{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.4}
+svg .okbox{fill:var(--ok-bg);stroke:var(--ok);stroke-width:1.4}
+svg .wire{fill:none;stroke:var(--ink-3);stroke-width:1.4}
+svg .wire-acc{fill:none;stroke:var(--accent);stroke-width:1.8}
+svg .wire-gt2{fill:none;stroke:var(--gt2);stroke-width:1.6}
+svg .wire-ours{fill:none;stroke:var(--ours);stroke-width:1.6}
+svg .dash{stroke-dasharray:5 4}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .ah{fill:var(--ink-3)} svg .ah-acc{fill:var(--accent)} svg .ah-gt2{fill:var(--gt2)} svg .ah-ours{fill:var(--ours)}
+svg .f-acc{fill:var(--accent)} svg .f-gt2{fill:var(--gt2)} svg .f-ours{fill:var(--ours)} svg .f-ok{fill:var(--ok)} svg .f-bad{fill:var(--bad)} svg .f-soft{fill:var(--soft)} svg .f-ink3{fill:var(--ink-3)}
+.tablewrap{overflow-x:auto;min-width:0}
+.tablewrap table{min-width:600px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+tr.strike td{color:var(--ink-3);text-decoration:line-through}
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.03em;padding:1px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)} .b-bad{background:var(--bad-bg);color:var(--bad)} .b-mid{background:var(--mid-bg);color:var(--mid)} .b-acc{background:var(--accent-soft);color:var(--accent)}
+.bar{display:inline-block;height:9px;border-radius:2px;background:var(--accent);vertical-align:middle}
+.note{font-size:13px;color:var(--ink-3)}
+.callout{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:0 6px 6px 0;max-width:80ch;display:flex;flex-direction:column;gap:6px}
+dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0;font-size:14px}
+dl.kv dt{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);padding-top:2px}
+dl.kv dd{margin:0;min-width:0}
+@media (max-width:520px){dl.kv{grid-template-columns:1fr} dl.kv dd{margin-bottom:6px}}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.scan{display:flex;flex-direction:column;gap:6px}
+.scan-row{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums}
+.scan-row i{display:block;height:14px;background:var(--accent);border-radius:0 3px 3px 0}
+.scan-row span:last-child{text-align:right;color:var(--ink-2)}
+.diagram.chart svg{min-width:0}
+svg .curve{fill:none;stroke:var(--accent);stroke-width:2.4}
+svg .base{stroke:var(--ink-3);stroke-width:1}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation · AI · the rubber band</div>
+  <h1>GT2 AI Rubber Band</h1>
+  <p class="lede">GT2 doesn't give a trailing AI car more power or more grip. It gives the car more time. Every car has a time scale that multiplies its physics step (a tick, one 1/30 s update), so an AI car at 1.10 lives 10% more time each tick than you do: same engine, same tires, same line, slightly fast-forwarded. A car ahead can be put in slight slow motion the same way. This page shows when that happens and how strong it gets on the stock events.</p>
+  <div class="kpis">
+    <div><b>263</b><span>GT Mode and Arcade events scanned on the US disc</span></div>
+    <div><b>0.70</b><span>the slowest any stock event can make an AI car run</span></div>
+    <div><b>2–30 %</b><span>strongest slow-down per event, set in its data</span></div>
+    <div><b>321,824</b><span>car-ticks measured in real races, all matching the formula</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Time, not speed</h2>
+  <div class="cols">
+    <div class="panel">
+      <h3>The time scale</h3>
+      <p>Each car keeps a time scale in its record, where 4096 means normal speed. GT2's physics step is 2184 units of time per tick, and each car's step is that times its scale. The rubber band writes the scale at the end of one tick and it takes effect on the next.</p>
+      <pre>dt = (2184 × time_scale) >> 12</pre>
+      <p class="note">">> 12" means divide by 4096, dropping the remainder.</p>
+    </div>
+    <div class="panel">
+      <h3>What it doesn't touch</h3>
+      <p>The car's engine power, gearing, tire grip and the AI's driving line are unchanged. A boosted car accelerates, brakes and corners exactly as it would, just over more time per tick. That is why the effect is hard to see in any one corner and easy to see over a lap.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>When it kicks in</h2>
+  <p>Each event's data carries six rubber band settings plus a global scale. There are two sides, each with a start distance, a full-strength distance and a strength. Between the two distances the effect ramps up in a straight line; a full lap counts as past the full distance.</p>
+  <div class="cols">
+    <div class="panel">
+      <h3>Catch-up</h3>
+      <p>An AI car behind its reference car by more than the start distance runs faster, up to the full boost.</p>
+    </div>
+    <div class="panel">
+      <h3>Slow-down</h3>
+      <p>An AI car ahead of its reference car by more than the start distance runs slower, down to the full cut.</p>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="panel">
+      <h3>Player mode</h3>
+      <p>Every AI car is banded against you.</p>
+    </div>
+    <div class="panel">
+      <h3>Neighbor mode</h3>
+      <p>Each AI car is banded against the car next to it in the running order: the car just behind for cars ahead of you, the car just ahead for cars behind you. The field gets pulled toward you like a chain.</p>
+    </div>
+  </div>
+  <p class="note">Only some race types use it. Time trials and license tests don't. An AI car that is off the course gets no catch-up boost.</p>
+</section>
+
+<section>
+  <h2>Two real events</h2>
+  <p>Both curves come from real races, with the settings read back from their event data.</p>
+  <div class="cols">
+    <figure class="panel diagram chart">
+      <h3>Short race, catch-up side</h3>
+      <svg viewBox="0 0 520 250" role="img" aria-label="Time scale against distance behind: 1.00 up to 15 metres, rising in a straight line to 1.10 at 40 metres, then flat at 1.10.">
+        <line x1="50" y1="174.3" x2="500" y2="174.3" class="grid"/>
+        <line x1="50" y1="110" x2="500" y2="110" class="grid"/>
+        <line x1="50" y1="45.7" x2="500" y2="45.7" class="grid"/>
+        <line x1="50" y1="200" x2="500" y2="200" class="base"/>
+        <text x="42" y="178" text-anchor="end" class="m">1.00</text>
+        <text x="42" y="114" text-anchor="end" class="m">1.05</text>
+        <text x="42" y="50" text-anchor="end" class="m">1.10</text>
+        <text x="50" y="218" text-anchor="middle" class="m">0</text>
+        <text x="162.5" y="218" text-anchor="middle" class="m">15 m</text>
+        <text x="350" y="218" text-anchor="middle" class="m">40 m</text>
+        <text x="500" y="218" text-anchor="end" class="m">60 m</text>
+        <text x="275" y="242" text-anchor="middle" class="n">AI car's distance behind its reference car</text>
+        <polyline points="50,174.3 162.5,174.3 350,45.7 500,45.7" class="curve"/>
+        <circle cx="162.5" cy="174.3" r="4" class="f-acc"/>
+        <circle cx="350" cy="45.7" r="4" class="f-acc"/>
+        <text x="356" y="36" class="n">full boost: +10 %</text>
+        <text x="170" y="166" class="n">starts at 15 m</text>
+      </svg>
+      <p class="note">The slow-down side of this event starts at 10 m ahead and cuts 1.25 % per meter; the gaps in that race (at most 13.7 m) don't show its full strength.</p>
+    </figure>
+    <figure class="panel diagram chart">
+      <h3>Endurance race, neighbor mode</h3>
+      <svg viewBox="0 0 520 250" role="img" aria-label="Time scale against gap: 0.98 when more than 1000 metres ahead, rising to 1.00 at 200 metres ahead, flat to 200 metres behind, rising to 1.02 at 1000 metres behind.">
+        <line x1="50" y1="170" x2="500" y2="170" class="grid"/>
+        <line x1="50" y1="110" x2="500" y2="110" class="grid"/>
+        <line x1="50" y1="50" x2="500" y2="50" class="grid"/>
+        <line x1="275" y1="30" x2="275" y2="200" class="grid"/>
+        <line x1="50" y1="200" x2="500" y2="200" class="base"/>
+        <text x="42" y="174" text-anchor="end" class="m">0.98</text>
+        <text x="42" y="114" text-anchor="end" class="m">1.00</text>
+        <text x="42" y="54" text-anchor="end" class="m">1.02</text>
+        <text x="87.5" y="218" text-anchor="middle" class="m">1000</text>
+        <text x="237.5" y="218" text-anchor="middle" class="m">200</text>
+        <text x="312.5" y="218" text-anchor="middle" class="m">200</text>
+        <text x="462.5" y="218" text-anchor="middle" class="m">1000 m</text>
+        <text x="60" y="242" class="n">← AI car ahead</text>
+        <text x="490" y="242" text-anchor="end" class="n">AI car behind →</text>
+        <polyline points="50,170 87.5,170 237.5,110 312.5,110 462.5,50 500,50" class="curve"/>
+        <text x="300" y="42" class="n">+2 % catch-up</text>
+        <text x="96" y="160" class="n">−2 % slow-down</text>
+      </svg>
+      <p class="note">Plus or minus 2 %, starting at 200 m and full at 1000 m, each car against its neighbor in the running order.</p>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <h2>How strong it gets</h2>
+  <p>The strongest slow-down each stock event allows, over all 263 GT Mode and Arcade events on the US disc. Every event uses a global scale of 100 %, so no AI car on a stock event ever runs below 70 % speed.</p>
+  <div class="panel">
+    <div class="scan" role="table" aria-label="Events by strongest slow-down">
+      <div class="scan-row" role="row"><span>2 %</span><i style="width:4.6%"></i><span>7</span></div>
+      <div class="scan-row" role="row"><span>5 %</span><i style="width:37.9%"></i><span>58</span></div>
+      <div class="scan-row" role="row"><span>10 %</span><i style="width:100%"></i><span>153</span></div>
+      <div class="scan-row" role="row"><span>20 %</span><i style="width:3.3%"></i><span>5</span></div>
+      <div class="scan-row" role="row"><span>25 %</span><i style="width:5.9%"></i><span>9</span></div>
+      <div class="scan-row" role="row"><span>30 %</span><i style="width:20.3%"></i><span>31</span></div>
+    </div>
+  </div>
+  <div class="callout">
+    <p><b>Can it freeze a car?</b> In principle yes: a 100 % slow-down scales a car's time to zero. No stock event comes close, though. Only edited event data would reach it.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Memory addresses</h2>
+  <p>US Simulation disc, version 1.0. Places in the PlayStation's RAM where the rubber band's data lives, for anyone who wants to watch it in a memory viewer.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th style="text-align:left">What</th><th style="text-align:left">Address</th></tr></thead>
+      <tbody>
+        <tr><td>Car records (car 0 is the player)</td><td><code>0x800A9378</code>, one every <code>0xB40</code> bytes</td></tr>
+        <tr><td>Time scale in a car record (signed 16-bit, 4096 = 1.0)</td><td>car + <code>0x792</code></td></tr>
+        <tr><td>AI cars 1 to 5: time scale</td><td><code>0x800AA64A</code>, <code>0x800AB18A</code>, <code>0x800ABCCA</code>, <code>0x800AC80A</code>, <code>0x800AD34A</code></td></tr>
+        <tr><td>Event bytes e[20..28]: global scale, mode, slow-down, speed-up</td><td><code>0x801C9300</code> + 20..28 (neighbor mode flag e[22] at <code>0x801C9316</code>)</td></tr>
+        <tr><td>Running order (cars by position)</td><td><code>0x801C7FD0</code></td></tr>
+        <tr><td>In a car record: lap, course distance, flags</td><td>+<code>0x634</code> lap, +<code>0x630</code> distance (65536 per meter), +<code>0x7B9</code> flags (bit 4: off course)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>In the port</h2>
+  <p>The port keeps the rubber band exactly like GT2. An option to turn it down or off may come later.</p>
+</section>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+</body>
+</html>

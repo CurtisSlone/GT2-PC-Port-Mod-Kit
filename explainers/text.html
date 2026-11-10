@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Text and Fonts</title>
+<style>
+
+:root{
+  --bg:#f1f0ec; --panel:#ffffff; --ink:#171614; --ink-2:#4b4842; --ink-3:#7a766e; --rule:#dad6cd; --soft:#e9e6de;
+  --accent:#c4561b; --go:#1d7f4c; --stop:#b8312f; --cool:#2a62a8; --code-bg:#eeebe4;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121110; --panel:#1b1a18; --ink:#eeebe5; --ink-2:#bdb8ae; --ink-3:#8b867c; --rule:#302d29; --soft:#24221f;
+  --accent:#f08a4b; --go:#45c985; --stop:#ff6b62; --cool:#6aa6f0; --code-bg:#24221f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121110; --panel:#1b1a18; --ink:#eeebe5; --ink-2:#bdb8ae; --ink-3:#8b867c; --rule:#302d29; --soft:#24221f;
+  --accent:#f08a4b; --go:#45c985; --stop:#ff6b62; --cool:#6aa6f0; --code-bg:#24221f; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1060px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;border-bottom:2px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.2;margin:0}
+p{margin:0;max-width:70ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:680px;height:auto}
+.diagram svg text{font-family:var(--body);fill:var(--ink);font-size:13px}
+.diagram svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+.box.hot{fill:var(--panel);stroke:var(--accent);stroke-width:2}
+.edge{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+.arrowhead{fill:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:.92em}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+.note{font-size:13px;color:var(--ink-3)}
+.kpis{display:flex;flex-wrap:wrap;gap:10px 28px}
+.kpis div{display:flex;flex-direction:column}
+.kpis b{font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kpis span{font-size:12px;color:var(--ink-3)}
+.bytes{font-family:var(--mono);font-size:13px;display:flex;flex-wrap:wrap;gap:4px}
+.bytes span{border:1px solid var(--rule);border-radius:3px;padding:2px 6px;background:var(--soft)}
+.bytes span.bad{border-color:var(--stop);color:var(--stop)}
+.bytes span.ok{border-color:var(--go);color:var(--go)}
+.pass{color:var(--go);font-weight:600}
+.fail{color:var(--stop);font-weight:600}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--cool)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation · text, numbers and fonts</div>
+  <h1>GT2 Text and Fonts</h1>
+  <p class="lede">Where every word and number Gran Turismo 2 prints comes from, how the language setting picks it, the exact time, money and unit formats, and how the fonts place each letter. All of it was checked against the running game.</p>
+  <div class="kpis">
+    <div><b>645</b><span>US interface strings in 5 text files</span></div>
+    <div><b>11,837</b><span>strings on the disc, all sources</span></div>
+    <div><b>9</b><span>fonts (7 sprite, 2 GT Mode)</span></div>
+    <div><b>7</b><span>language blocks per text file</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>From a value to glyphs</h2>
+  <p>Every printed number goes the same way: a formatter makes the digits, a string from the language's text block supplies the words and the unit, a layout rule turns characters into x positions, and each character becomes one or two sprites (small rectangles cut from a font picture).</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 920 200" role="img" aria-label="Pipeline: value, formatter, text block string, layout, glyph sprites">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect class="box" x="10" y="40" width="140" height="80" rx="6"/><text x="80" y="72" text-anchor="middle">value</text><text class="m" x="80" y="92" text-anchor="middle">ms, 0.01 mph, Cr., PS</text>
+      <rect class="box hot" x="190" y="40" width="160" height="80" rx="6"/><text x="270" y="72" text-anchor="middle">formatter</text><text class="m" x="270" y="92" text-anchor="middle">time, money, speed ...</text>
+      <rect class="box" x="390" y="40" width="160" height="80" rx="6"/><text x="470" y="72" text-anchor="middle">string + unit</text><text class="m" x="470" y="92" text-anchor="middle">block[lang] + offset</text>
+      <rect class="box hot" x="590" y="40" width="150" height="80" rx="6"/><text x="665" y="72" text-anchor="middle">layout</text><text class="m" x="665" y="92" text-anchor="middle">kerning / tabular / clock</text>
+      <rect class="box" x="780" y="40" width="130" height="80" rx="6"/><text x="845" y="72" text-anchor="middle">sprites</text><text class="m" x="845" y="92" text-anchor="middle">glyph + accent</text>
+      <path class="edge" d="M150,80 L188,80" marker-end="url(#ah)"/><path class="edge" d="M350,80 L388,80" marker-end="url(#ah)"/>
+      <path class="edge" d="M550,80 L588,80" marker-end="url(#ah)"/><path class="edge" d="M740,80 L778,80" marker-end="url(#ah)"/>
+      <text class="m" x="80" y="160" text-anchor="middle">83456</text><text class="m" x="270" y="160" text-anchor="middle">"1:23.456"</text>
+      <text class="m" x="470" y="160" text-anchor="middle">race+0x14 label</text><text class="m" x="665" y="160" text-anchor="middle">digits in a fixed cell</text>
+      <text class="m" x="845" y="160" text-anchor="middle">SPRT per char</text>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <h2>Text blocks: one layout, seven languages</h2>
+  <div class="grid">
+    <div class="card"><h3>Fixed offsets, no index</h3><p>Each <code>.txd</code> file holds seven blocks of one size. The game copies the block of the current language to a fixed place in RAM and always looks for each string at the same spot: the speed unit is always race +0x37. A missing translation is an empty string at its offset.</p><div class="where">race 5,759 B · title 3,502 · global 1,903 · gt 129 · arcade 736</div></div>
+    <div class="card"><h3>The language byte</h3><p>Save byte 0 (1 on this disc) picks the block, the database files (0 Japanese, every other value the usa files), the GT Mode menu folder, the license descriptions, the region filter for cars and the Japanese kanji path. 64 places in the game read it.</p><div class="where">copies in RAM at 0x8009229C · 0x80052968 · 0x8002F4C4</div></div>
+    <div class="card"><h3>Only usa is complete</h3><p>English misses 160 of 328 race strings and the whole GT Mode block; French, German, Italian and Spanish miss 127 and are damaged (below). The US block is the one complete set of text on this disc.</p></div>
+  </div>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Source</th><th>Format</th><th class="n">usa strings</th><th>Encoding</th></tr></thead>
+      <tbody>
+        <tr><td>data-race / title / global / gt / arcade .txd</td><td>7 fixed-layout blocks</td><td class="n">645</td><td>ASCII (usa), EUC-JP (jpn)</td></tr>
+        <tr><td>usa_unistrdb (car names, shop items)</td><td>WSDB, length-prefixed</td><td class="n">851</td><td>UTF-16LE</td></tr>
+        <tr><td>.carinfoa (display names)</td><td>sorted by car id</td><td class="n">1,110</td><td>ASCII, 7 Latin-1</td></tr>
+        <tr><td>.cclatain (color names)</td><td>16-bit offsets</td><td class="n">1,165</td><td>ASCII</td></tr>
+        <tr><td>.crsinfo (course names)</td><td>24-byte records</td><td class="n">125</td><td>ASCII</td></tr>
+        <tr><td>GTDT string tables (events, series)</td><td>per block, length-prefixed</td><td class="n">414</td><td>ASCII</td></tr>
+        <tr><td>license_info_us (test descriptions)</td><td>60 records, title + lines</td><td class="n">60</td><td>ASCII</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>The damaged European text</h2>
+  <p>The European translators wrote Latin-1 (the Western European character set). Somewhere in the build their files went through a Japanese Shift-JIS to EUC-JP converter, so an accented letter became a lead byte that swallowed the next letter, and letters from 0xA1 to 0xDF became full-width kana. The fonts draw Latin-1, so a French player on this disc would read garbage. The conversion can be undone exactly, except an accent at a string's end, which ate the terminator.</p>
+  <div class="panel">
+    <div class="bytes"><span>R</span><span class="ok">é = E9</span><span class="ok">c = 63</span><span>o</span><span>r</span><span>d</span></div>
+    <div class="note">E9 is a Shift-JIS lead byte: row (0xA9 - 0x81) x 2 + 0x21 = 0x71, column 0x63 - 0x1F = 0x44</div>
+    <div class="bytes"><span>R</span><span class="bad">F1</span><span class="bad">C4</span><span>o</span><span>r</span><span>d</span></div>
+    <div class="note">on the disc: (0x71 | 0x80, 0x44 | 0x80); drawn as "ñÄ". 255 strings turn back into their original text this way.</div>
+  </div>
+</section>
+
+<section>
+  <h2>Number formats</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Format</th><th>Where</th><th>Rule</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>race time</td><td>race</td><td>m:ss.xxx under an hour, h:mm:ss.t below 100 h, else --:--:---</td><td><code>1:23.456</code></td></tr>
+        <tr><td>difference</td><td>race</td><td>+ behind, - ahead, ± level; s.xxx under a minute</td><td><code>+0.544</code></td></tr>
+        <tr><td>speed record</td><td>records, Max Speed test</td><td><code>"%d.%d"</code> of n / 100, n % 100: <span class="fail">no zero pad</span></td><td>123.05 → <code>123.5</code></td></tr>
+        <tr><td>status speed</td><td>GT Mode</td><td><code>"%d.%02dmph"</code></td><td><code>123.05mph</code></td></tr>
+        <tr><td>money</td><td>GT Mode</td><td>commas every three digits, up to 8 digits</td><td><code>1,234,567</code></td></tr>
+        <tr><td>completion</td><td>GT Mode</td><td>won x 10,000 / 223, printed %d.%02d</td><td>219 → <code>98.20</code></td></tr>
+        <tr><td>power</td><td>GT Mode, license, parts</td><td>PS x 1000 / 1014, then "%dhp"</td><td>280 PS → <code>276hp</code></td></tr>
+        <tr><td>weight</td><td>GT Mode spec</td><td>kg x 22046 / 10000, then "%dlb"</td><td>1,000 kg → <code>2204lb</code></td></tr>
+        <tr><td>ride height</td><td>parts setting</td><td><span class="fail">mm, unconverted, under "in"</span></td><td>120 → <code>120 in</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Units belong to the language's strings; the US game converts power, weight and launch speed for every language. "%d" is the printing pattern for a whole number, "%02d" pads it to two digits.</p>
+</section>
+
+<section>
+  <h2>Fonts and kerning</h2>
+  <div class="grid">
+    <div class="card"><h3>Sprite fonts (7)</h3><p>racefont small, medium and large (sizes stored in the game's program, picture in /font/racefont.dat) and four arc_fontinfo fonts. 256 Latin-1 glyphs each; accents are a second sprite drawn over the base letter. Advance = base + width - a pair cut (kerning, the space removed between certain letter pairs) from a bit-packed class table.</p></div>
+    <div class="card"><h3>Three layouts</h3><p>Proportional with kerning; tabular digits (each digit centered in a fixed cell so running times hold still); a clock layout with narrow cells for ':' and '.'. Centered = x - width / 2, right = x - width.</p></div>
+    <div class="card"><h3>GT Mode fonts (2)</h3><p>A menu font of 267 glyphs (74 ASCII, 119 16-bit codes) and a 24-glyph numeral font, on /arcade/gtmode_font.tim: per glyph an offset and an advance, no kerning. Item flag 31 picks the numerals.</p></div>
+  </div>
+  <pre>adv(a, b) = base + (w0[a] &amp; 0x3F) - kern[class_left(a)][class_right(b)]
+            (a glyph with bit 31 set uses its own fixed cut instead)
+width(s)  = sum adv(c_i, c_i+1) + spacing  -  spacing</pre>
+  <p class="note">One detail seen in the running game: during license races, the race reuses the last 48 KB of the arc_fontinfo fonts' memory (those fonts are not used there).</p>
+</section>
+
+<footer>
+  <div>No game text or font pictures are stored on this page.</div>
+</footer>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+</body>
+</html>

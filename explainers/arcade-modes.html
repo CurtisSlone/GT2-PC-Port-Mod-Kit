@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Arcade Modes</title>
+<style>
+:root{
+  --bg:#f0efea; --panel:#ffffff; --ink:#171614; --ink-2:#4b4842; --ink-3:#7a766e; --rule:#d9d5cb; --soft:#e8e5dc;
+  --accent:#2a62a8; --go:#1d7f4c; --stop:#b8312f; --warm:#c4561b; --code-bg:#eceae3;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121110; --panel:#1b1a18; --ink:#eeebe5; --ink-2:#bdb8ae; --ink-3:#8b867c; --rule:#302d29; --soft:#24221f;
+  --accent:#6aa6f0; --go:#45c985; --stop:#ff6b62; --warm:#f08a4b; --code-bg:#24221f; color-scheme:dark}
+  :root:not([data-theme="light"]) .diagram svg .on{fill:#121110}}
+:root[data-theme="dark"]{
+  --bg:#121110; --panel:#1b1a18; --ink:#eeebe5; --ink-2:#bdb8ae; --ink-3:#8b867c; --rule:#302d29; --soft:#24221f;
+  --accent:#6aa6f0; --go:#45c985; --stop:#ff6b62; --warm:#f08a4b; --code-bg:#24221f; color-scheme:dark}
+:root[data-theme="dark"] .diagram svg .on{fill:#121110}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1060px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;border-bottom:2px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.2;margin:0}
+p{margin:0;max-width:72ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:720px;height:auto}
+.diagram svg text{font-family:var(--body);fill:var(--ink);font-size:12.5px}
+.diagram svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.diagram svg .lane{fill:var(--soft)}
+.diagram svg .bar{fill:var(--accent);opacity:.85}
+.diagram svg .bar.j{fill:var(--warm)}
+.diagram svg .bar.q{fill:var(--go)}
+.diagram svg .tick{stroke:var(--ink-3);stroke-width:1}
+.diagram svg .on{fill:#fff}
+.diagram svg .gate{stroke:var(--stop);stroke-width:2;stroke-dasharray:4 3}
+.box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+.box.hot{fill:var(--panel);stroke:var(--accent);stroke-width:2}
+.edge{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+.arrowhead{fill:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:.92em}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+.note{font-size:13px;color:var(--ink-3)}
+.kpis{display:flex;flex-wrap:wrap;gap:10px 28px}
+.kpis div{display:flex;flex-direction:column}
+.kpis b{font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kpis span{font-size:12px;color:var(--ink-3)}
+.pass{color:var(--go);font-weight:600}
+.dim{color:var(--ink-3)}
+.tag{font-family:var(--mono);font-size:11px;border:1px solid var(--rule);border-radius:3px;padding:1px 5px;background:var(--soft);white-space:nowrap}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 · Arcade Mode</div>
+  <h1>GT2 Arcade Modes</h1>
+  <p class="lede">How Gran Turismo 2's Arcade Mode turns menu choices into races, and what a win unlocks. The arcade code also sits unused on the Simulation disc, identical to the copy on the Arcade disc, so these rules hold for the port's Arcade Mode too. Checked against runs of the Arcade disc itself.</p>
+  <div class="kpis">
+    <div><b>3</b><span>race kinds (road race, time trial / rally, battle)</span></div>
+    <div><b>21 + 2</b><span>courses with progress flags (+ 2 time-trial only)</span></div>
+    <div><b>18 / 21</b><span>courses gated by GT Mode licenses</span></div>
+    <div><b>724</b><span>bytes in the menu's race request</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>From the title to the race and back</h2>
+  <p>GT2 does not keep all its code in memory at once. Parts of it, called <b>overlays</b>, are loaded from GT2.OVL when needed: "ovl2" below is the arcade menu code, "ovl3" builds garage cars, "ovl5" plays movies. The port's Arcade Mode row does what the Arcade disc's Start Game does: set the hand-over bytes and load the arcade menus. Every page writes one field of a 724-byte request; the race build turns it into the shared race set-up, and after the race the game returns the player to the menus.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 960 330" role="img" aria-label="Flow: title, Arcade menus, request, race build, race, result pages, back to the menus">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect class="box" x="10" y="20" width="150" height="56" rx="5"/><text x="85" y="44" text-anchor="middle">Title</text><text class="m" x="85" y="62" text-anchor="middle">+1 = 1, +2 = 1, ovl 2</text>
+      <rect class="box hot" x="200" y="10" width="330" height="200" rx="5"/>
+      <text x="365" y="32" text-anchor="middle">Arcade menus (ovl2)</text>
+      <text class="m" x="215" y="58">ARCADE MODE</text>
+      <text class="m" x="230" y="78">Single Player › GAME › Road Race › LEVEL › CLASS</text>
+      <text class="m" x="230" y="96">                       Rally › RALLY CARS</text>
+      <text class="m" x="230" y="114">                       Time Trial › CLASS</text>
+      <text class="m" x="230" y="132">  › CAR or GARAGE › AT/MT › Racing/Drift › COURSE</text>
+      <text class="m" x="230" y="152">2 player Battle › Road/Rally › both players › COURSE</text>
+      <text class="m" x="230" y="172">Bonus Items › progress › ENDING CREDITS</text>
+      <text class="m" x="230" y="192">Load Guest Garage › another card's garage (RAM)</text>
+      <rect class="box" x="580" y="20" width="170" height="56" rx="5"/><text x="665" y="44" text-anchor="middle">race build</text><text class="m" x="665" y="62" text-anchor="middle">request → set-up</text>
+      <rect class="box" x="790" y="20" width="160" height="56" rx="5"/><text x="870" y="44" text-anchor="middle">ovl3</text><text class="m" x="870" y="62" text-anchor="middle">garage cars on GT db</text>
+      <rect class="box" x="580" y="130" width="370" height="80" rx="5"/><text x="765" y="154" text-anchor="middle">race code · session 0</text>
+      <text class="m" x="765" y="174" text-anchor="middle">drive · replay · RESULTS (flag on a win) · menu</text>
+      <text class="m" x="765" y="194" text-anchor="middle">Replay · Try Again · Save Replay · Exit</text>
+      <rect class="box" x="200" y="250" width="330" height="56" rx="5"/><text x="365" y="274" text-anchor="middle">movie player (ovl5)</text><text class="m" x="365" y="292" text-anchor="middle">ending credits · needs STREAM.DAT</text>
+      <path class="edge" d="M160,48 L198,48" marker-end="url(#ah)"/>
+      <path class="edge" d="M530,48 L578,48" marker-end="url(#ah)"/>
+      <path class="edge" d="M750,48 L788,48" marker-end="url(#ah)"/>
+      <path class="edge" d="M870,76 L870,128" marker-end="url(#ah)"/>
+      <path class="edge" d="M580,190 L532,190" marker-end="url(#ah)"/><text class="m" x="556" y="226" text-anchor="middle">+2 == 1</text>
+      <path class="edge" d="M365,210 L365,248" marker-end="url(#ah)"/><text class="m" x="372" y="234">exit 2 / 3</text>
+    </svg>
+  </div>
+  <p class="note">"+1", "+2" are byte offsets in the small hand-over block the title leaves for the next part of the game.</p>
+</section>
+
+<section>
+  <h2>What a win unlocks</h2>
+  <p>Arcade progress is one byte per course: the difficulties won (Easy, Normal, Difficult) and a count of Normal wins. Only a first place in a Road Race writes it, on the result page after the replay. Easy wins open nothing.</p>
+  <div class="grid">
+    <div class="card"><h3>Courses</h3><p>Three per list are open. The other eighteen need a <b>GT Mode license</b> in the same save: B, A, IC, IB, IA, S open three each, once all ten tests of the license have a result. The Arcade disc alone never opens them; its progress page says so.</p></div>
+    <div class="card"><h3>Reverse layouts</h3><p>The license, and the course won at <b>Difficult</b>. Five Normal wins count as a Difficult win.</p></div>
+    <div class="card"><h3>Class S and race cars</h3><p>Each of the 10 class S cars and 11 of the 24 race cars is tied to one course: win it at Normal or Difficult. The Class S row appears with the first S car.</p></div>
+    <div class="card"><h3>Ending credits</h3><p><b>Arcade</b>: every road course won at Normal or better. <b>Simulation</b>: the GT World Cup won in GT Mode. Both are movies only the Arcade disc has.</p></div>
+  </div>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Flag byte bits</th><th>Meaning</th><th>Set by</th></tr></thead>
+      <tbody>
+        <tr><td><code>0</code> · <code>1</code> · <code>2</code></td><td>won at Easy · Normal · Difficult</td><td><code>b | {1, 2, 4}[difficulty]</code></td></tr>
+        <tr><td><code>3..5</code></td><td>Normal wins, counted to 5; the fifth also sets bits 1-2</td><td>the result page, after a Normal win</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Three race set-ups</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th></th><th>Road Race · kind 4</th><th>Rally / Time Trial · kind 6</th><th>2 player Battle · kind 0</th></tr></thead>
+      <tbody>
+        <tr><td>Event</td><td>A{level}{class}</td><td>ATT</td><td>ATT rules, A2P name</td></tr>
+        <tr><td>Cars</td><td>player + 5 opponents drawn from the event</td><td>1 (+ ghost on request)</td><td>2</td></tr>
+        <tr><td>Grid · start</td><td>player last · standing</td><td>slot 0 · rolling, clock at the first line</td><td>P1, P2 · standing</td></tr>
+        <tr><td>Laps</td><td>Options: arcade laps</td><td>100 (no finish)</td><td>Options: battle laps</td></tr>
+        <tr><td>Writes back</td><td>course flag on a win</td><td>course record at the lap line</td><td>battle wins (tie → P2)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Player cars use fixed arcade set-ups: block 32 of usa_arcade_data.dat for <b>Racing</b>, block 33 for <b>Drift</b>. Garage cars (your own or a guest's) keep their own tune; ovl3 rebuilds them on the GT Mode car database.</p>
+</section>
+
+<section>
+  <h2>Difficulty is the rubber band</h2>
+  <p>The "rubber band" holds the AI back when it is ahead and helps it when it is behind. Easy, Normal and Difficult change only rule bytes 23 to 28 of the event: how hard and from how far that happens. AI grip stays 100 in every arcade event; the class picks the opponents.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Level</th><th class="n">slow-down %</th><th class="n">starts</th><th class="n">full</th><th class="n">speed-up %</th><th class="n">starts</th><th class="n">full</th></tr></thead>
+      <tbody>
+        <tr><td>Easy</td><td class="n">25</td><td class="n">10</td><td class="n">4</td><td class="n">10</td><td class="n">30</td><td class="n">8</td></tr>
+        <tr><td>Normal</td><td class="n">10</td><td class="n">20</td><td class="n">6</td><td class="n">10</td><td class="n">30</td><td class="n">6</td></tr>
+        <tr><td>Difficult</td><td class="n">5</td><td class="n">50</td><td class="n">10</td><td class="n">5</td><td class="n">30</td><td class="n">6</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Raw rule bytes e[23..28]. The <a href="rubber-band.html">rubber band</a> page shows how they become the AI's time scale.</p>
+</section>
+
+<section>
+  <h2>What comes from which disc</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Item</th><th>Sim disc</th><th>Arcade disc</th><th>Without it</th></tr></thead>
+      <tbody>
+        <tr><td>Arcade menus and race build (ovl2, ovl3), tables</td><td class="pass">yes</td><td>same</td><td></td></tr>
+        <tr><td>usa_arcade_data.dat, /arcade art, 2P course files, arcade sounds, music</td><td class="pass">yes</td><td>same</td><td></td></tr>
+        <tr><td>24 course preview clips</td><td>no</td><td>STREAM.DAT</td><td>a still picture or a rendered fly-through</td></tr>
+        <tr><td>Ending credits, Arcade and Simulation</td><td>no</td><td>STREAM.DAT</td><td>a credits page; unlock rules kept</td></tr>
+        <tr><td>Save: flags, battle wins, records, licenses</td><td colspan="2">the same GAME file on both</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Bugs and quirks</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>#</th><th>What</th><th>Kind</th></tr></thead>
+      <tbody>
+        <tr><td>A1</td><td>18 of 21 courses need GT Mode licenses; the Arcade disc alone can never open them</td><td>design</td></tr>
+        <tr><td>A2 · A3</td><td>five Normal wins count as Difficult · Easy wins unlock nothing</td><td>design</td></tr>
+        <tr><td>A4 · A5</td><td>Try Again counts a win again · the flag is written after the replay</td><td>design</td></tr>
+        <tr><td>A6 · A7</td><td>rally, time trial and battle wins count for nothing · three reverse entries are the forward layout</td><td>design / data</td></tr>
+        <tr><td>A8 · A9</td><td>a tied battle goes to player 2 · the battle runs on the time trial's rules</td><td>code / data</td></tr>
+        <tr><td>A10 – A15</td><td>event number 0 in kinds 0 / 6 · dirt setting ignored in a road race · a hidden 4th level · guest garage kept in memory only · any lap becomes a record · 99 laps arms the 2-hour limit</td><td>hidden / design</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">More quirks across the whole game on the <a href="bugs.html">bugs</a> page.</p>
+</section>
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

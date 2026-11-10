@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Car Settings</title>
+<style>
+
+:root{
+  --bg:#f1efe9; --card:#fcfbf7; --ink:#1b1d1f; --ink-2:#45494e; --ink-3:#72767c; --rule:#d9d5ca; --rule-2:#bdb7a8;
+  --accent:#0f6b5c; --accent-bg:#dcefe9; --warm:#a3521a; --warm-bg:#f6e5d6; --code-bg:#ece9e0; --focus:#a3521a;
+  --display:"Rockwell","Roboto Slab","DejaVu Serif",Georgia,serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121413; --card:#1b1e1d; --ink:#e8e9e6; --ink-2:#b9bdb8; --ink-3:#8b908b; --rule:#2c312f; --rule-2:#3d4441;
+  --accent:#5cc4ae; --accent-bg:#17322c; --warm:#e39a5e; --warm-bg:#3a2617; --code-bg:#222725; --focus:#e39a5e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121413; --card:#1b1e1d; --ink:#e8e9e6; --ink-2:#b9bdb8; --ink-3:#8b908b; --rule:#2c312f; --rule-2:#3d4441;
+  --accent:#5cc4ae; --accent-bg:#17322c; --warm:#e39a5e; --warm-bg:#3a2617; --code-bg:#222725; --focus:#e39a5e; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.55}
+.wrap{max-width:1000px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:40px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.12;font-weight:700}
+h1{font-size:clamp(34px,6.5vw,54px)}
+h2{font-size:clamp(23px,3.6vw,29px)}
+h3{font-size:18px}
+p{margin:0;max-width:68ch}
+section{display:flex;flex-direction:column;gap:14px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--code-bg);padding:1px 4px;border-radius:3px}
+pre{background:var(--code-bg);padding:12px 14px;overflow-x:auto;font-size:13px;line-height:1.45;margin:0;border:1px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+header{display:flex;flex-direction:column;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:20px}
+.lede{font-size:18px;color:var(--ink-2)}
+.ledger{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--rule-2);background:var(--card)}
+.ledger div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+.ledger b{font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+.ledger span{font-size:13px;color:var(--ink-2)}
+.chart{background:var(--card);border:1px solid var(--rule-2);padding:12px;overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--body);fill:var(--ink-2);font-size:13px}
+svg .t{font-family:var(--display);fill:var(--ink);font-size:16px;font-weight:700}
+svg .m{font-family:var(--mono);font-size:11.5px;fill:var(--ink-3)}
+svg .box{fill:var(--card);stroke:var(--rule-2);stroke-width:1.5}
+svg .hot{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1.5}
+svg .wire{stroke:var(--ink-3);stroke-width:1.5;fill:none}
+svg .ah{fill:var(--ink-3)}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .rng{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1}
+svg .val{fill:var(--accent)}
+svg .warn{fill:var(--warm)}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule-2);background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ok{color:var(--accent);font-weight:600}
+.note{background:var(--warm-bg);border-left:3px solid var(--warm);padding:12px 14px;font-size:14.5px}
+.demo{background:var(--card);border:1px solid var(--rule-2);padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:center}
+.demo input[type=range]{width:100%;accent-color:var(--accent)}
+.readout{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.readout dt{font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
+.readout dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.readout dd.bad{color:var(--warm);font-weight:700}
+footer{border-top:1px solid var(--rule-2);padding-top:16px;font-size:13px;color:var(--ink-3);display:flex;flex-direction:column;gap:6px}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation (US) · the car settings screens</div>
+  <h1>Every setting is a byte, every range is a part</h1>
+  <p class="lede">Gran Turismo 2's settings screens edit a work copy of your car. Each setting is one or two bytes of the 132-byte set-up (the record that holds your car's parts and tune); its range comes from the part you fitted; one press moves it one raw unit; leaving the screen writes it back to the garage. These rules were checked against the game for every car.</p>
+</header>
+
+<div class="ledger" role="list">
+  <div role="listitem"><b>17</b><span>settings (modes 0 to 16)</span></div>
+  <div role="listitem"><b>2</b><span>screens: CHANGE PARTS, PARTS SETTING</span></div>
+  <div role="listitem"><b>6,120</b><span>bytes: the tune sheet work copy</span></div>
+  <div role="listitem"><b>2</b><span>positions that wrap to 255 (TCS, ASC)</span></div>
+</div>
+
+<section>
+  <h2>Two screens over one work copy</h2>
+  <p>On the pre-race page, <b>Settings ...</b> opens CHANGE PARTS (fit a part you own); L1 switches to PARTS SETTING (adjust), R1 back. Both work on the <b>tune sheet</b>: the set-up plus every part record your car could fit, built when you entered the race. Nothing reaches the garage until you leave. In the drawing, +0x numbers are byte offsets inside a record and 0x8016E584 is the tune sheet's address in the PlayStation's RAM.</p>
+  <div class="chart"><svg viewBox="0 0 960 250" style="min-width:740px" role="img" aria-label="Flow: race entry builds the tune sheet; the two screens edit it; leaving commits it to race entry 0 and the garage record">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+    <text x="10" y="22" class="m">GARAGE (save)</text><text x="230" y="22" class="m">PRE-RACE (race overlay)</text><text x="760" y="22" class="m">AFTER LEAVING</text>
+    <rect x="10" y="40" width="170" height="80" class="box"/><text x="22" y="66" class="t">Garage car</text><text x="22" y="88">0x84 set-up</text><text x="22" y="106" class="m">+0x3C74 + 164 n</text>
+    <rect x="230" y="40" width="170" height="80" class="hot"/><text x="242" y="66" class="t">Tune sheet</text><text x="242" y="88">set-up + part records</text><text x="242" y="106" class="m">0x8016E584</text>
+    <rect x="450" y="30" width="250" height="60" class="box"/><text x="462" y="56" class="t">CHANGE PARTS</text><text x="462" y="76" class="m">fit a part (resets that part)</text>
+    <rect x="450" y="110" width="250" height="90" class="box"/><text x="462" y="136" class="t">PARTS SETTING</text><text x="462" y="156" class="m">read and write the values</text><text x="462" y="174" class="m">Start = default</text><text x="462" y="192" class="m">edit box</text>
+    <rect x="760" y="40" width="190" height="70" class="box"/><text x="772" y="66" class="t">Race entry 0</text><text x="772" y="88">spec rebuilt</text>
+    <rect x="760" y="130" width="190" height="70" class="box"/><text x="772" y="156" class="t">Garage record</text><text x="772" y="178">set-up + shown hp, lb</text>
+    <path d="M180 80H225" class="wire" marker-end="url(#a)"/><text x="186" y="72" class="m">race entry</text>
+    <path d="M400 70H445" class="wire" marker-end="url(#a)"/><path d="M400 100Q425 150 445 150" class="wire" marker-end="url(#a)"/>
+    <path d="M575 90V105" class="wire"/><text x="585" y="102" class="m">L1 / R1</text>
+    <path d="M700 75H755" class="wire" marker-end="url(#a)"/><path d="M700 160H755" class="wire" marker-end="url(#a)"/><text x="706" y="232" class="m">leave either screen: commit (write-back +0x76 / +0x78 / +0x7A)</text>
+  </svg></div>
+  <p>Inside the edit box, Cross or Circle writes the values into the sheet and Triangle or Square throws them away. There is no "cancel all": once you leave, the sheet is the car.</p>
+</section>
+
+<section>
+  <h2>The seventeen settings</h2>
+  <p>Ranges are the fitted part record's (min..max, or 1..its step count). The shown number is the game's own formatting; the units are the US text's, which do not always match the value (see the quirks).</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Setting</th><th>Set-up bytes</th><th>Unlocked by</th><th>Shown as</th><th>Start resets to</th></tr></thead>
+    <tbody>
+      <tr><td>Spring rate</td><td class="mono">+0x60 F, +0x61 R</td><td>racing suspension (stage 3)</td><td>byte / 10 "lb/in" (it is a position)</td><td>part default</td></tr>
+      <tr><td>Ride height</td><td class="mono">+0x5C, +0x5D</td><td>suspension stage 2+</td><td>mm, labeled "in"</td><td>part default</td></tr>
+      <tr><td>Damper / bound</td><td class="mono">+0x64..65, +0x68..69</td><td>any sports suspension</td><td>step, "level"</td><td>part default (a and b)</td></tr>
+      <tr><td>Damper rebound</td><td class="mono">+0x66..67, +0x6A..6B</td><td>racing suspension</td><td>step</td><td>part default</td></tr>
+      <tr><td>Camber</td><td class="mono">+0x5A, +0x5B</td><td>any sports suspension</td><td>0.1 degree</td><td>part default</td></tr>
+      <tr><td>Toe</td><td class="mono">+0x5E, +0x5F (128 = 0)</td><td>racing suspension</td><td>(v - 128) x 0.05 "in"</td><td>128 / 128</td></tr>
+      <tr><td>Stabilizer</td><td class="mono">+0x6C, +0x6D</td><td>racing suspension</td><td>step</td><td>part default</td></tr>
+      <tr><td>Brake balance</td><td class="mono">+0x50, +0x51</td><td>brake controller</td><td>step 1..24</td><td>front default on both</td></tr>
+      <tr><td>Gear ratios, final</td><td class="mono">+0x3E.., +0x4C</td><td>custom gearbox (stage 3)</td><td>x 0.001</td><td>the box computed at fit time</td></tr>
+      <tr><td>Auto setting</td><td class="mono">+0x4E (refills the ratios)</td><td>custom gearbox</td><td>slider</td><td>part default, ratios untouched</td></tr>
+      <tr><td>LSD initial / accel / decel</td><td class="mono">+0x6E..0x73</td><td>an LSD with ranges</td><td>slider</td><td>part default</td></tr>
+      <tr><td>Yaw control</td><td class="mono">+0x6F</td><td>yaw control LSD (stage 5)</td><td>slider</td><td>part default</td></tr>
+      <tr><td>ASC</td><td class="mono">+0x74</td><td>ASC kit</td><td>slider 1..101</td><td>100</td></tr>
+      <tr><td>TCS</td><td class="mono">+0x75</td><td>TCS kit</td><td>slider 1..51</td><td>1 (off)</td></tr>
+      <tr><td>Downforce</td><td class="mono">+0x52, +0x53</td><td>racing modification with a range</td><td>Cl x 0.01</td><td>part default</td></tr>
+    </tbody>
+  </table></div>
+  <p>Fitting a part resets <b>that part's</b> settings to the new part's defaults (suspension, brake controller, gearbox, turbo, NA tune, racing modification, ASC, TCS, LSD); everything else is kept.</p>
+</section>
+
+<section>
+  <h2>The custom gearbox: ranges from a computed box</h2>
+  <p>The custom gearbox stores no ratios. When it is fitted, or when you change the auto setting, the game computes a box from the target speed (the auto setting x 10 km/h), your final drive and your tires. Each gear may then move a third of the way toward its neighbors; first gear up to 12.5 % shorter, top gear up to 12.5 % taller. The ranges never overlap, so the gears keep their order.</p>
+  <div class="chart"><svg id="ratios" viewBox="0 0 640 300" role="img" aria-label="Mazda RX-7 custom gearbox: computed ratio per gear and its allowed range"></svg></div>
+  <p class="mono" style="font-size:13px;color:var(--ink-3)">RX-7 GT-C (a2gcn), custom box just fitted, auto setting 24 (240 km/h), final 4.300 (range 2.500..5.500). Bars: the allowed range; dot: the computed ratio.</p>
+  <div class="note">The ranges and Start on the ratios come from the box computed at the last fit or auto setting change. Change your tires afterwards and they still describe the old box until you touch the auto setting again.</div>
+</section>
+
+<section>
+  <h2>Try it: the TCS slider</h2>
+  <p>The screen lets the TCS byte go from 0 to 50 (the kit's min..max). The race spec spreads it over the kit's 50 steps starting at 1, so 1 is off, 50 is full, and 0 falls below the start of the table.</p>
+  <div class="demo">
+    <div><label for="tcs" class="eyebrow">TCS slider position</label><input id="tcs" type="range" min="0" max="50" value="1"></div>
+    <dl class="readout">
+      <dt>screen shows</dt><dd id="o-show"></dd>
+      <dt>set-up +0x75</dt><dd id="o-su"></dd>
+      <dt>spec +0x1A2</dt><dd id="o-spec"></dd>
+      <dt>car +0x480</dt><dd id="o-car"></dd>
+    </dl>
+  </div>
+  <p>The same happens to ASC at 0: the weakest setting sits below the strongest one.</p>
+</section>
+
+<section>
+  <h2>Quirks and bugs</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>What</th><th>Kind</th></tr></thead>
+    <tbody>
+      <tr><td>TCS at 0 gives the race a TCS level of 255 (car +0x480 = -26,624, a negative active level)</td><td>game logic</td></tr>
+      <tr><td>ASC at 0 is the weakest setting; 1 is the strongest</td><td>game logic</td></tr>
+      <tr><td>Rear brake balance resets to the front default (there is no rear default on file; harmless with the disc's data)</td><td>hidden</td></tr>
+      <tr><td>Spring row: position / 10 labeled "lb/in"</td><td>text</td></tr>
+      <tr><td>Toe: 0.05 per unit labeled "in" (the physics uses 0.088 degree per unit)</td><td>text</td></tr>
+      <tr><td>A damper edit sets both speed points to one step</td><td>hidden</td></tr>
+      <tr><td>Gear ranges come from the last computed box; Start on the auto setting leaves the ratios</td><td>design</td></tr>
+      <tr><td>Downforce checks only the front range; a simple suspension's damper also sets the rebound</td><td>hidden</td></tr>
+      <tr><td>After a rally the car is back on stock tires, not the ones fitted before</td><td>design</td></tr>
+      <tr><td>Slider numbers start at 1 above the minimum; R1 + Left steps +9</td><td>cosmetic</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">"Hidden" means the bug is there but the disc's own data never triggers it.</p>
+</section>
+
+<section>
+  <h2>Redesigned screens, same rules</h2>
+  <p>The port's settings screens can look different from GT2's, but what they do to the set-up stays the same: locked or out-of-range edits are refused, Default and Fit have exactly the effects listed above (gear ratios refilled, a part's settings reset, NA tune and turbo kit removing each other), and the raw values stay what the race reads.</p>
+</section>
+
+<footer>
+  <div>Offsets and addresses are for the US Simulation disc (SCUS-94488). The gearbox example is computed from the game's own car data.</div>
+</footer>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!==undefined)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+  /* ratio ranges (a2gcn, custom box, auto 24): [value, min, max] x 1000 */
+  const G=[[2909,2590,3272],[1954,1773,2272],[1412,1300,1592],[1078,1008,1189],[869,760,938]];
+  const s=document.getElementById('ratios');
+  const x0=70,x1=620,y0=30,rowh=50,vmax=3500;
+  const X=v=>x0+(x1-x0)*v/vmax;
+  for(let v=0;v<=3500;v+=500){el('line',{x1:X(v),x2:X(v),y1:y0-10,y2:y0+rowh*G.length-10,class:'grid'},s);el('text',{x:X(v),y:y0+rowh*G.length+8,'text-anchor':'middle',class:'m'},s,(v/1000).toFixed(1));}
+  G.forEach((g,i)=>{const y=y0+i*rowh;
+    el('text',{x:10,y:y+14,class:'t'},s,['1st','2nd','3rd','4th','5th'][i]);
+    el('rect',{x:X(g[1]),y:y,width:X(g[2])-X(g[1]),height:18,class:'rng'},s);
+    el('circle',{cx:X(g[0]),cy:y+9,r:5,class:'val'},s);
+    el('text',{x:X(g[2])+6,y:y+14,class:'m'},s,(g[1]/1000).toFixed(3)+' .. '+(g[2]/1000).toFixed(3));});
+  /* TCS: interp(lo=0, hi=50, steps=50, v) as the game does,spec u8, car s16 (v<<12)/10 */
+  function interp(lo,hi,steps,v){if(steps<2)return lo;const t=(hi-lo)*(v-1);const q=Math.floor(Math.abs(t)/(steps-1));return lo+(t>=0?q:-q);}
+  const r=document.getElementById('tcs');
+  function upd(){const v=+r.value;const sp=interp(0,50,50,v)&255;let c=Math.trunc((sp*4096)/10)&0xFFFF;if(c>32767)c-=65536;
+    document.getElementById('o-show').textContent=String(v+1)+(v===1?' (off)':'');
+    document.getElementById('o-su').textContent=String(v);
+    const o=document.getElementById('o-spec');o.textContent=String(sp);o.className=sp>50?'bad':'';
+    const oc=document.getElementById('o-car');oc.textContent=String(c)+(sp===0?' (off)':'');oc.className=c<0?'bad':'';}
+  r.addEventListener('input',upd);upd();
+})();
+</script>
+</body>
+</html>

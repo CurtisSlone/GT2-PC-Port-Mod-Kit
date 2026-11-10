@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Modern Physics</title>
+<style>
+/* modern-physics: shared PAGES-3 sheet (system fonts only, no external loads) */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#131820; --ink-2:#465063; --ink-3:#717c8f; --rule:#d5dae2; --soft:#e7eaf0;
+  --code-bg:#edf0f4; --accent:#5246c8; --accent-soft:#e6e3fa;
+  --gt2:#2a6fb8; --ours:#c8641a; --ok:#0f7a43; --ok-bg:#e1f3e8; --bad:#b3261e; --bad-bg:#fbe5e3; --mid:#8a5a00; --mid-bg:#fbefd6;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:18px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:18px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:72ch}
+ul{margin:0;padding-left:20px;max-width:72ch;display:flex;flex-direction:column;gap:6px}
+.lede{color:var(--ink-2)}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-top:6px}
+.kpis div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule);border-radius:6px}
+.kpis b{font-family:var(--display);font-stretch:condensed;font-size:30px;line-height:1.05;font-variant-numeric:tabular-nums;color:var(--accent)}
+.kpis span{font-size:13px;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.cols>*{min-width:0}
+figure{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+figcaption{font-size:13px;color:var(--ink-3);max-width:80ch}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:680px;height:auto}
+.diagram.narrow svg{min-width:0}
+svg text{font-family:var(--body);fill:var(--ink);font-size:12px}
+svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+svg .t{font-family:var(--display);font-weight:700;font-size:16px}
+svg .n{font-size:11.5px;fill:var(--ink-2)}
+svg .acc-t{fill:var(--accent);font-weight:600}
+svg .gt2-t{fill:var(--gt2);font-weight:600}
+svg .ours-t{fill:var(--ours);font-weight:600}
+svg .bad-t{fill:var(--bad);font-weight:600}
+svg .ok-t{fill:var(--ok);font-weight:600}
+svg .box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+svg .card{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .accbox{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg .gt2box{fill:var(--panel);stroke:var(--gt2);stroke-width:1.6}
+svg .oursbox{fill:var(--panel);stroke:var(--ours);stroke-width:1.6}
+svg .badbox{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.4}
+svg .okbox{fill:var(--ok-bg);stroke:var(--ok);stroke-width:1.4}
+svg .wire{fill:none;stroke:var(--ink-3);stroke-width:1.4}
+svg .wire-acc{fill:none;stroke:var(--accent);stroke-width:1.8}
+svg .wire-gt2{fill:none;stroke:var(--gt2);stroke-width:1.6}
+svg .wire-ours{fill:none;stroke:var(--ours);stroke-width:1.6}
+svg .dash{stroke-dasharray:5 4}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .ah{fill:var(--ink-3)} svg .ah-acc{fill:var(--accent)} svg .ah-gt2{fill:var(--gt2)} svg .ah-ours{fill:var(--ours)}
+svg .f-acc{fill:var(--accent)} svg .f-gt2{fill:var(--gt2)} svg .f-ours{fill:var(--ours)} svg .f-ok{fill:var(--ok)} svg .f-bad{fill:var(--bad)} svg .f-soft{fill:var(--soft)} svg .f-ink3{fill:var(--ink-3)}
+.tablewrap{overflow-x:auto;min-width:0}
+.tablewrap table{min-width:600px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+tr.strike td{color:var(--ink-3);text-decoration:line-through}
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.03em;padding:1px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)} .b-bad{background:var(--bad-bg);color:var(--bad)} .b-mid{background:var(--mid-bg);color:var(--mid)} .b-acc{background:var(--accent-soft);color:var(--accent)}
+.bar{display:inline-block;height:9px;border-radius:2px;background:var(--accent);vertical-align:middle}
+.note{font-size:13px;color:var(--ink-3)}
+.callout{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:0 6px 6px 0;max-width:80ch;display:flex;flex-direction:column;gap:6px}
+dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0;font-size:14px}
+dl.kv dt{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);padding-top:2px}
+dl.kv dd{margin:0;min-width:0}
+@media (max-width:520px){dl.kv{grid-template-columns:1fr} dl.kv dd{margin-bottom:6px}}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+<nav class="xback" style="font-size:13px;margin:6px 0 0;padding:0"><a href="index.html" style="color:inherit;opacity:.8">&larr; All explainers</a></nav>
+  <div class="eyebrow">GT2 port · physics · classic and modern</div>
+  <h1>GT2 Modern Physics</h1>
+  <p class="lede">The port can drive the cars two ways. <b>Classic</b> is GT2's own physics, exactly: whole numbers (fixed point), 30 updates a second, every quirk kept. <b>Modern</b> is GT2's own car model rewritten in real-world units (meters, seconds, newtons) with decimal math, and run 120 times a second. Race rules, AI, HUD, sound and cameras are the same for both. This page shows where modern fits in each update, which GT2 habits it keeps and which it changes, and how it measures against classic.</p>
+  <p class="lede">Modern is the port's default. To play on GT2's own physics, set <code>PSX_PHYSICS=classic</code> before starting UGT2R (see the flags and settings guide). The numbers below are from the first version of modern physics; later changes to brakes, wheel mass and load transfer have their own pages.</p>
+  <div class="kpis">
+    <div><b>120 Hz</b><span>4 modern steps inside each 30 Hz game update</span></div>
+    <div><b>21 / 42</b><span>car checklist items inside tolerance (first version)</span></div>
+    <div><b>0–3 %</b><span>road-course lap difference, GT2's AI driving</span></div>
+    <div><b>bit-identical</b><span>two runs of the same race give exactly the same result</span></div>
+  </div>
+  <div class="callout">
+    <p><b>In short.</b> On the first version, 21 of 42 car checks landed inside their tolerances, plus the spread of AI finishing times; acceleration and braking came within about 2 to 5 % of GT2; AI laps ran 0 to 3 % faster. Modern was not tuned to match classic: it is GT2's own formulas, run more often and in real units.</p>
+  </div>
+</header>
+
+<section>
+  <h2>Two strategies, one world</h2>
+  <div class="cols">
+    <div class="panel">
+      <h3>Classic</h3>
+      <p>GT2's whole numbers: positions in 1/4096 m, angles in 4096ths of a turn, one update (a <b>tick</b>) every 2184/65536 s, about 1/30 s. GT2's order of steps, its timing and the order of its random draws are all kept. Classic is the yardstick: the comparisons below measure modern against it. The port's classic physics plays back recordings of real GT2 races identically.</p>
+    </div>
+    <div class="panel">
+      <h3>Modern</h3>
+      <p>Double-precision decimal numbers in meters, seconds, newtons and radians. The step rate can be set: 120, 150, 300 or 600 a second, any multiple of 30 that divides the race clock's 3000 units a second. The port uses 120.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Where modern sits in each update</h2>
+  <p>The race itself still updates 30 times a second. Inside each update, the physics stages are handed to the modern model, which takes four small steps. Everything else runs the same code as classic. The boxes T1 to T16 are the stages of one update, in order.</p>
+  <figure class="panel diagram">
+    <svg viewBox="0 0 1000 350" role="img" aria-label="One 30 Hz tick: shared stages in blue, modern stages in orange, skipped classic stages dashed. T8 expands into four 1/120 s steps of 25 clock units, each running all cars, then car pairs, then walls, followed by the projection into shared components.">
+      <defs><marker id="mp-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs>
+      <text x="10" y="22" class="m">one classic tick = 1/30 s = 100 units of the race clock (1/3000 s)</text>
+      <g>
+        <rect x="10" y="40" width="60" height="74" rx="5" class="gt2box"/><text x="18" y="62" class="t">T0</text><text x="18" y="82" class="n">input</text>
+        <rect x="76" y="40" width="70" height="74" rx="5" class="gt2box"/><text x="84" y="62" class="t">T1</text><text x="84" y="82" class="n">time step,</text><text x="84" y="96" class="n">time scale</text>
+        <rect x="152" y="40" width="70" height="74" rx="5" class="gt2box"/><text x="160" y="62" class="t">T2</text><text x="160" y="82" class="n">draft factor</text><text x="160" y="96" class="n">only</text>
+        <rect x="228" y="40" width="80" height="74" rx="5" class="card dash" style="stroke-dasharray:5 4"/><text x="236" y="62" class="t" style="fill:var(--ink-3)">T3 T4</text><text x="236" y="82" class="n">torque, grip,</text><text x="236" y="96" class="n">slip direction</text>
+        <rect x="314" y="40" width="80" height="74" rx="5" class="gt2box"/><text x="322" y="62" class="t">T5</text><text x="322" y="82" class="n">controls,</text><text x="322" y="96" class="n">AI driver</text>
+        <rect x="400" y="40" width="80" height="74" rx="5" class="card" style="stroke-dasharray:5 4"/><text x="408" y="62" class="t" style="fill:var(--ink-3)">T6 T7</text><text x="408" y="82" class="n">slip ratio,</text><text x="408" y="96" class="n">assists</text>
+        <rect x="486" y="40" width="130" height="74" rx="5" class="oursbox" style="stroke-width:2.4"/><text x="494" y="62" class="t ours-t" style="font-size:14px">T8 modern step</text><text x="494" y="82" class="n">forces, drivetrain,</text><text x="494" y="96" class="n">integration</text>
+        <rect x="622" y="40" width="90" height="74" rx="5" class="gt2box"/><text x="630" y="62" class="t">T9</text><text x="630" y="82" class="n">pair sensing</text><text x="630" y="96" class="n">only</text>
+        <rect x="718" y="40" width="80" height="74" rx="5" class="gt2box"/><text x="726" y="62" class="t">T10</text><text x="726" y="82" class="n">road probe</text>
+        <rect x="804" y="40" width="90" height="74" rx="5" class="oursbox"/><text x="812" y="62" class="t ours-t">T11</text><text x="812" y="82" class="n">body stage,</text><text x="812" y="96" class="n">emitter</text>
+        <rect x="900" y="40" width="90" height="74" rx="5" class="gt2box"/><text x="908" y="62" class="t">T12–16</text><text x="908" y="82" class="n">race flow,</text><text x="908" y="96" class="n">clock, rank</text>
+      </g>
+      <path d="M486 114 L150 176" class="wire dash"/>
+      <path d="M616 114 L850 176" class="wire dash"/>
+      <g>
+        <rect x="150" y="178" width="172" height="76" rx="5" class="oursbox"/>
+        <rect x="326" y="178" width="172" height="76" rx="5" class="oursbox"/>
+        <rect x="502" y="178" width="172" height="76" rx="5" class="oursbox"/>
+        <rect x="678" y="178" width="172" height="76" rx="5" class="oursbox"/>
+        <text x="162" y="200" class="t">step 1</text><text x="310" y="200" text-anchor="end" class="m">1/120 s · 25</text>
+        <text x="338" y="200" class="t">step 2</text><text x="486" y="200" text-anchor="end" class="m">1/120 s · 25</text>
+        <text x="514" y="200" class="t">step 3</text><text x="662" y="200" text-anchor="end" class="m">1/120 s · 25</text>
+        <text x="690" y="200" class="t">step 4</text><text x="838" y="200" text-anchor="end" class="m">1/120 s · 25</text>
+        <text x="162" y="222" class="n">all cars → car pairs</text><text x="162" y="238" class="n">→ swept walls</text>
+        <text x="338" y="222" class="n">all cars → car pairs</text><text x="338" y="238" class="n">→ swept walls</text>
+        <text x="514" y="222" class="n">all cars → car pairs</text><text x="514" y="238" class="n">→ swept walls</text>
+        <text x="690" y="222" class="n">all cars → car pairs</text><text x="690" y="238" class="n">→ swept walls</text>
+      </g>
+      <path d="M500 254 V284" class="wire" marker-end="url(#mp-a)"/>
+      <rect x="250" y="288" width="500" height="50" rx="5" class="card"/>
+      <text x="500" y="309" text-anchor="middle" class="t" style="font-size:14px">Projection into the shared components, in classic units</text>
+      <text x="500" y="326" text-anchor="middle" class="n">what HUD, sound, AI and cameras read, once a frame</text>
+      <g transform="translate(10,300)">
+        <rect x="0" y="-10" width="14" height="10" class="gt2box"/><text x="20" y="-1" class="m">shared</text>
+        <rect x="0" y="8" width="14" height="10" class="oursbox"/><text x="20" y="17" class="m">modern</text>
+        <rect x="0" y="26" width="14" height="10" class="card" style="stroke-dasharray:3 2"/><text x="20" y="35" class="m">inside the step</text>
+      </g>
+    </svg>
+    <figcaption>The modern step reads the tick's controls in all four steps: the controller and the AI still decide 30 times a second. The race clock still adds 100 units a tick (4 × 25). Timers stay in ticks. When another system moves a car between ticks (the pit jack, a placement), the modern car is taken over from the shared components again.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>What the modern step does</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Part</th><th>Modern</th></tr></thead>
+      <tbody>
+        <tr><td>Heave</td><td>The body rides a spring-damper over the ground plane (2 Hz, damping 0.8), normal force clamped to 0–3 g; zero above ride height is airborne.</td></tr>
+        <tr><td>Loads</td><td>Static per axle plus downforce, longitudinal and lateral transfer split by spring rates, lagged by 50 ms.</td></tr>
+        <tr><td>Tires</td><td>GT2's own curves, GT2's slip ratio and low-speed fades; slip angle from <code>atan(|v_lat| / |v_long|)</code>.</td></tr>
+        <tr><td>Brakes, assists</td><td>GT2's ABS, TCS and ASC laws, sampled at 30 Hz as in GT2 and held between samples.</td></tr>
+        <tr><td>Engine, drivetrain</td><td>GT2's torque curve, friction, rev-limit fuel cut, turbo lag stages, clutch phases, gearbox rules and differentials, in SI units.</td></tr>
+        <tr><td>Integration</td><td>Each wheel's spin is <b>implicit in its own tire force</b>; the body is <b>semi-implicit Euler</b> (velocity first, then position with the new velocity).</td></tr>
+        <tr><td>Collisions</td><td>Car pairs by separating axes, answered with an impulse (restitution 0.2, friction 0.3). Walls: each car's four corners <b>swept</b> from step start to end, so no tunneling at any speed (restitution 0.1, friction 0.35).</td></tr>
+        <tr><td>Wear</td><td>GT2's accumulator per second, on tarmac, outside the pit lane.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Kept, fixed, changed</h2>
+  <p>Each GT2 habit that the measurements showed to matter is a setting with GT2's value as the default. Some of these were changed in later versions: see the Wheel mass and Load transfer pages.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Code</th><th>What</th><th>Modern</th><th>Why, measured</th></tr></thead>
+      <tbody>
+        <tr><td>M1</td><td>The body gets the tire's full longitudinal force, the wheel's spin only k × it (0.5 at rest to 1 at 100 km/h): momentum is not conserved below 100 km/h</td><td><span class="badge b-acc">kept</span></td><td>One force on both made 0–100 km/h 10 % slower and 100–0 braking 27 % shorter</td></tr>
+        <tr><td>M3</td><td>Every loaded wheel's equivalent mass (about 85 kg each, 5× a real wheel) added to the longitudinal mass</td><td><span class="badge b-acc">kept</span></td><td>Without it braking was 26 % shorter: GT2's braking distance comes from here</td></tr>
+        <tr><td>-</td><td>Engine inertia at the wheels × ratio (real physics: × ratio²)</td><td><span class="badge b-acc">kept</span></td><td>A possible later change, together with M1 and M3</td></tr>
+        <tr><td>-</td><td>GT2's 30 Hz-tuned constants: slip fade 20 km/h, sticking 5 km/h, rest 1 km/h, slipstream floor 0.25, shift lock 0.2 s, …</td><td><span class="badge b-acc">kept</span></td><td>Each one is a setting; they would be retuned together with the AI</td></tr>
+        <tr><td>K3</td><td>The rolling wheel step used the last car's dt</td><td><span class="badge b-ok">fixed</span></td><td>Each car's own dt</td></tr>
+        <tr><td>C1</td><td>The camera lag spring used the last car's dt</td><td><span class="badge b-ok">fixed</span></td><td>Each car's own dt</td></tr>
+        <tr><td>BS</td><td>The brake-side force sum read wheel 0's lateral force for every wheel</td><td><span class="badge b-ok">fixed</span></td><td>Each wheel's own forces</td></tr>
+        <tr><td>H7</td><td>Car contacts weigh cars by their rubber-band time scale</td><td><span class="badge b-acc">kept</span></td><td>Kept as GT2 does it</td></tr>
+        <tr><td>I1</td><td>Integration: 30 Hz explicit</td><td><span class="badge b-mid">changed</span></td><td>120 Hz, implicit wheels, semi-implicit body: the stiff wheel / tire loop is stable at any speed</td></tr>
+        <tr><td>S1</td><td>Suspension: GT2's full 30 Hz spring / damper / bump-stop body</td><td><span class="badge b-mid">changed</span></td><td>Heave spring plus lagged load transfer. GT2's version bounces on faceted banking (wheel loads 2.9–16.5 kN for a 10.8 kN car in one turn of Super Speedway). A full modern suspension is not built yet</td></tr>
+        <tr><td>W1</td><td>Walls: velocity projected onto the wall, GT2's scrape loss</td><td><span class="badge b-mid">changed</span></td><td>Swept corners, impulse with restitution and friction, yaw response; hits still feed GT2's damage and penalty rules</td></tr>
+        <tr><td>A1</td><td>Assists</td><td><span class="badge b-acc">kept</span></td><td>ABS at 120 Hz changed nothing measurable once M1 and M3 were kept</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Modern against classic</h2>
+  <p>A test script runs every scenario on both physics from the same start and judges modern against a checklist of tolerances (how far from GT2 each result may land). Classic is GT2 update for update, so the classic number is GT2's. Seven cars: kei, FF, FR, MR, 4WD, turbo FR and a race car. Codes like <code>q2mon</code> are GT2's own car IDs. Hover a dot for the car.</p>
+  <figure class="panel diagram">
+    <svg viewBox="0 0 990 356" role="img" aria-label="Modern minus classic, in percent, for six checklist items and seven cars; shaded bands are each item's tolerance.">
+<line x1="248" y1="28" x2="248" y2="308" class="grid"/>
+<text x="248" y="326" text-anchor="middle" class="m">-6 %</text>
+<line x1="352" y1="28" x2="352" y2="308" class="grid"/>
+<text x="352" y="326" text-anchor="middle" class="m">-4 %</text>
+<line x1="456" y1="28" x2="456" y2="308" class="grid"/>
+<text x="456" y="326" text-anchor="middle" class="m">-2 %</text>
+<line x1="560" y1="28" x2="560" y2="308" class="grid"/>
+<text x="560" y="326" text-anchor="middle" class="m">0</text>
+<line x1="664" y1="28" x2="664" y2="308" class="grid"/>
+<text x="664" y="326" text-anchor="middle" class="m">+2 %</text>
+<line x1="768" y1="28" x2="768" y2="308" class="grid"/>
+<text x="768" y="326" text-anchor="middle" class="m">+4 %</text>
+<line x1="872" y1="28" x2="872" y2="308" class="grid"/>
+<text x="872" y="326" text-anchor="middle" class="m">+6 %</text>
+<text x="560" y="344" text-anchor="middle" class="n">modern vs classic (classic = GT2 tick for tick)</text>
+<text x="16" y="52.0" class="t" style="font-size:14px">0-100 km/h</text>
+<text x="16" y="68.0" class="m">t_0_100_s · ±2 %</text>
+<rect x="456" y="41.0" width="208" height="28" rx="3" style="fill:var(--ok-bg)"/>
+<circle cx="643.2" cy="45.4" r="5" class="f-ok" style="fill-opacity:.85"><title>q2mon kei 4WD turbo: +1.6 % (pass)</title></circle>
+<circle cx="653.6" cy="48.6" r="5" class="f-ok" style="fill-opacity:.85"><title>t2t1n FF: +1.8 % (pass)</title></circle>
+<circle cx="398.8" cy="51.8" r="5" class="f-bad" style="fill-opacity:.85"><title>vst6n FR: -3.1 % (FAIL)</title></circle>
+<circle cx="591.2" cy="55.0" r="5" class="f-ok" style="fill-opacity:.85"><title>t2mgn MR: +0.6 % (pass)</title></circle>
+<circle cx="866.8" cy="58.2" r="5" class="f-bad" style="fill-opacity:.85"><title>m2g6n 4WD: +5.9 % (FAIL)</title></circle>
+<circle cx="476.8" cy="61.4" r="5" class="f-ok" style="fill-opacity:.85"><title>a2gcn turbo FR: -1.6 % (pass)</title></circle>
+<circle cx="497.6" cy="64.6" r="5" class="f-ok" style="fill-opacity:.85"><title>h2cnr race car: -1.2 % (pass)</title></circle>
+<text x="16" y="98.0" class="t" style="font-size:14px">0-400 m</text>
+<text x="16" y="114.0" class="m">t_0_400m_s · ±1 %</text>
+<rect x="508" y="87.0" width="104" height="28" rx="3" style="fill:var(--ok-bg)"/>
+<circle cx="591.2" cy="91.4" r="5" class="f-ok" style="fill-opacity:.85"><title>q2mon kei 4WD turbo: +0.6 % (pass)</title></circle>
+<circle cx="580.8" cy="94.6" r="5" class="f-ok" style="fill-opacity:.85"><title>t2t1n FF: +0.4 % (pass)</title></circle>
+<circle cx="508.0" cy="97.8" r="5" class="f-ok" style="fill-opacity:.85"><title>vst6n FR: -1.0 % (pass)</title></circle>
+<circle cx="560.0" cy="101.0" r="5" class="f-ok" style="fill-opacity:.85"><title>t2mgn MR: +0.0 % (pass)</title></circle>
+<circle cx="648.4" cy="104.2" r="5" class="f-bad" style="fill-opacity:.85"><title>m2g6n 4WD: +1.7 % (FAIL)</title></circle>
+<circle cx="534.0" cy="107.4" r="5" class="f-ok" style="fill-opacity:.85"><title>a2gcn turbo FR: -0.5 % (pass)</title></circle>
+<circle cx="544.4" cy="110.6" r="5" class="f-ok" style="fill-opacity:.85"><title>h2cnr race car: -0.3 % (pass)</title></circle>
+<text x="16" y="144.0" class="t" style="font-size:14px">top speed (Machine Test)</text>
+<text x="16" y="160.0" class="m">v_max_kmh · ±1 %</text>
+<rect x="508" y="133.0" width="104" height="28" rx="3" style="fill:var(--ok-bg)"/>
+<g><title>q2mon kei 4WD turbo: +19.4 % (FAIL)</title><path d="M890.0 131.4 L902.0 137.4 L890.0 143.4 z" class="f-bad"/><text x="906.0" y="141.4" class="m">kei +19.4 %</text></g>
+<circle cx="627.6" cy="140.6" r="5" class="f-bad" style="fill-opacity:.85"><title>t2t1n FF: +1.3 % (FAIL)</title></circle>
+<circle cx="617.2" cy="143.8" r="5" class="f-bad" style="fill-opacity:.85"><title>vst6n FR: +1.1 % (FAIL)</title></circle>
+<circle cx="679.6" cy="147.0" r="5" class="f-bad" style="fill-opacity:.85"><title>t2mgn MR: +2.3 % (FAIL)</title></circle>
+<circle cx="710.8" cy="150.2" r="5" class="f-bad" style="fill-opacity:.85"><title>m2g6n 4WD: +2.9 % (FAIL)</title></circle>
+<circle cx="700.4" cy="153.4" r="5" class="f-bad" style="fill-opacity:.85"><title>a2gcn turbo FR: +2.7 % (FAIL)</title></circle>
+<circle cx="653.6" cy="156.6" r="5" class="f-bad" style="fill-opacity:.85"><title>h2cnr race car: +1.8 % (FAIL)</title></circle>
+<text x="16" y="190.0" class="t" style="font-size:14px">100-0 km/h distance</text>
+<text x="16" y="206.0" class="m">d_100_0_m · ±3 %</text>
+<rect x="404" y="179.0" width="312" height="28" rx="3" style="fill:var(--ok-bg)"/>
+<circle cx="305.2" cy="183.4" r="5" class="f-bad" style="fill-opacity:.85"><title>q2mon kei 4WD turbo: -4.9 % (FAIL)</title></circle>
+<circle cx="341.6" cy="186.6" r="5" class="f-bad" style="fill-opacity:.85"><title>t2t1n FF: -4.2 % (FAIL)</title></circle>
+<circle cx="372.8" cy="189.8" r="5" class="f-bad" style="fill-opacity:.85"><title>vst6n FR: -3.6 % (FAIL)</title></circle>
+<circle cx="497.6" cy="193.0" r="5" class="f-ok" style="fill-opacity:.85"><title>t2mgn MR: -1.2 % (pass)</title></circle>
+<circle cx="305.2" cy="196.2" r="5" class="f-bad" style="fill-opacity:.85"><title>m2g6n 4WD: -4.9 % (FAIL)</title></circle>
+<circle cx="570.4" cy="199.4" r="5" class="f-ok" style="fill-opacity:.85"><title>a2gcn turbo FR: +0.2 % (pass)</title></circle>
+<circle cx="658.8" cy="202.6" r="5" class="f-ok" style="fill-opacity:.85"><title>h2cnr race car: +1.9 % (pass)</title></circle>
+<text x="16" y="236.0" class="t" style="font-size:14px">best 1 s lateral g</text>
+<text x="16" y="252.0" class="m">best_1s_g · ±3 %</text>
+<rect x="404" y="225.0" width="312" height="28" rx="3" style="fill:var(--ok-bg)"/>
+<circle cx="851.2" cy="229.4" r="5" class="f-bad" style="fill-opacity:.85"><title>q2mon kei 4WD turbo: +5.6 % (FAIL)</title></circle>
+<circle cx="575.6" cy="232.6" r="5" class="f-ok" style="fill-opacity:.85"><title>t2t1n FF: +0.3 % (pass)</title></circle>
+<circle cx="570.4" cy="235.8" r="5" class="f-ok" style="fill-opacity:.85"><title>vst6n FR: +0.2 % (pass)</title></circle>
+<circle cx="669.2" cy="239.0" r="5" class="f-ok" style="fill-opacity:.85"><title>t2mgn MR: +2.1 % (pass)</title></circle>
+<circle cx="617.2" cy="242.2" r="5" class="f-ok" style="fill-opacity:.85"><title>m2g6n 4WD: +1.1 % (pass)</title></circle>
+<circle cx="684.8" cy="245.4" r="5" class="f-ok" style="fill-opacity:.85"><title>a2gcn turbo FR: +2.4 % (pass)</title></circle>
+<circle cx="638.0" cy="248.6" r="5" class="f-ok" style="fill-opacity:.85"><title>h2cnr race car: +1.5 % (pass)</title></circle>
+<text x="16" y="282.0" class="t" style="font-size:14px">best lap</text>
+<text x="16" y="298.0" class="m">lap_s · ±0.5 %</text>
+<rect x="534.0" y="271.0" width="52.0" height="28" rx="3" style="fill:var(--ok-bg)"/>
+<circle cx="440.4" cy="275.4" r="5" class="f-bad" style="fill-opacity:.85"><title>q2mon kei 4WD turbo: -2.3 % (FAIL)</title></circle>
+<circle cx="544.4" cy="278.6" r="5" class="f-ok" style="fill-opacity:.85"><title>t2t1n FF: -0.3 % (pass)</title></circle>
+<circle cx="424.8" cy="281.8" r="5" class="f-bad" style="fill-opacity:.85"><title>vst6n FR: -2.6 % (FAIL)</title></circle>
+<circle cx="482.0" cy="285.0" r="5" class="f-bad" style="fill-opacity:.85"><title>t2mgn MR: -1.5 % (FAIL)</title></circle>
+<circle cx="508.0" cy="288.2" r="5" class="f-bad" style="fill-opacity:.85"><title>m2g6n 4WD: -1.0 % (FAIL)</title></circle>
+<circle cx="497.6" cy="291.4" r="5" class="f-bad" style="fill-opacity:.85"><title>a2gcn turbo FR: -1.2 % (FAIL)</title></circle>
+<circle cx="523.6" cy="294.6" r="5" class="f-bad" style="fill-opacity:.85"><title>h2cnr race car: -0.7 % (FAIL)</title></circle>
+</svg>
+
+    <figcaption>Green bands are each item's tolerance; green dots pass, red dots fail. 21 of the 42 car items pass, and the AI finish spread on a 6-car Red Rock Valley race passes too (classic 0.57 s, modern 0.49 s). Top speed fails for every car because the game's top-speed Machine Test runs on a banked oval: on a straight both reach the same speed (the NSX on Max Speed Attack: 306.9 against 306.6 km/h).</figcaption>
+  </figure>
+  <div class="panel tablewrap">
+    <h3>Straight line, scripted full throttle and full brake (game time)</h3>
+    <table>
+      <thead><tr><th>Car</th><th>Layout, kg</th><th class="n">0–100 km/h s<br>classic / modern</th><th class="n">0–400 m s</th><th class="n">0–1000 m s</th><th class="n">100–0 m</th></tr></thead>
+      <tbody>
+        <tr><td><code>q2mon</code> Daihatsu Mira TR-XX '90</td><td>4WD, 810</td><td class="n">21.69 / 22.03</td><td class="n">22.26 / 22.39</td><td class="n">40.79 / 40.96</td><td class="n">41.5 / 39.5</td></tr>
+        <tr><td><code>t2t1n</code> Tom's T111</td><td>FF, 1020</td><td class="n">7.66 / 7.80</td><td class="n">15.40 / 15.46</td><td class="n">28.33 / 28.43</td><td class="n">34.5 / 33.1</td></tr>
+        <tr><td><code>vst6n</code> TVR Tuscan Speed 6</td><td>FR, 1060</td><td class="n">5.57 / 5.40</td><td class="n">13.33 / 13.20</td><td class="n">23.19 / 23.03</td><td class="n">34.5 / 33.2</td></tr>
+        <tr><td><code>t2mgn</code> Toyota MR2 G-Limited '98</td><td>MR, 1220</td><td class="n">6.86 / 6.90</td><td class="n">15.10 / 15.10</td><td class="n">27.59 / 27.59</td><td class="n">32.4 / 32.0</td></tr>
+        <tr><td><code>m2g6n</code> Lancer Evolution VI GSR '99</td><td>4WD, 1360</td><td class="n">5.10 / 5.40</td><td class="n">13.36 / 13.60</td><td class="n">24.66 / 24.89</td><td class="n">30.4 / 29.0</td></tr>
+        <tr><td><code>a2gcn</code> Mazdaspeed RX-7 GT-C '99</td><td>FR, 1280</td><td class="n">6.30 / 6.20</td><td class="n">14.23 / 14.16</td><td class="n">25.26 / 25.16</td><td class="n">31.1 / 31.2</td></tr>
+        <tr><td><code>h2cnr</code> Castrol Mugen NSX GT</td><td>MR, 1180</td><td class="n">3.37 / 3.33</td><td class="n">10.66 / 10.63</td><td class="n">18.70 / 18.70</td><td class="n">23.1 / 23.5</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <h3>Every large difference, explained</h3>
+    <ul>
+      <li><b>Laps, 0 to 2.9 % faster.</b> Smoother loads from the S1 suspension give more mean grip; the classic car also hit walls more (the TVR at Grindelwald: 4 hits against 0).</li>
+      <li><b>Braking, −5 to +2 %.</b> With M1 and M3 kept the stop is GT2's within 5 %; the rest is the 120 Hz wheel and ABS loop settling nearer the brake peak.</li>
+      <li><b>4WD launch, +5.9 % on 0–100.</b> The Lancer's center coupling is modeled as a split plus a capped coupling; GT2 uses a locked shaft that slips at 784 N·m. A later version could model the locked mode exactly.</li>
+      <li><b>A 6-car Red Rock Valley race is 8 % shorter</b> on modern (192.6 s against 210.4 s for 2 laps): Red Rock Valley is fast and banked, and a pack in the slipstream adds to the oval effect.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>The kei car in the Machine Test</h2>
+  <div class="callout">
+    <p>A test run saw the Mira TR-XX take 2:15 for 400 m in the Machine Test with the AI driving. Classic does exactly that: <b>135.2 s for 400 m, 31.6 km/h top speed</b>. Modern does nearly the same (84.9 s, 37.8 km/h). It is GT2's behavior, not a physics bug.</p>
+    <p>Machine Test events cap the AI at 75 % throttle (the AI throttle cap is 3072 out of 4096 for every class). The Mira is turbocharged (0.2 bar at 7,500 rpm). At three-quarter throttle its turbo lag state settles below the engine speed, so the delivered throttle is about 0.6, and at the launch revs (about 6,500 rpm) the engine's torque barely exceeds its friction. The launch clutch passes 1.125 × almost nothing, and the car creeps until the clutch engages. Scripted at full throttle it runs 0–400 m in 22.3 s on both strategies.</p>
+    <p class="note">So the cause is the Machine Test rules and the AI, not either physics.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Determinism</h2>
+  <div class="panel">
+    <ul>
+      <li>The step uses only +, −, ×, ÷ and sqrt, which give the same result on every computer, and its own sin, cos and atan2 instead of the system's: the same numbers on Windows, Linux and in the browser.</li>
+      <li>No threads, no wall clock, no hash-ordered iteration, no random draws in the physics.</li>
+      <li>A test runs one 6-car race with every car AI-driven, 2,400 updates, twice: every value of the whole race is exactly equal. Two different builds of the port also produce exactly the same states.</li>
+      <li>This is what lets replays and ghosts store only a seed and inputs (see the replays page).</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div>Percentages are modern minus classic, divided by classic. Laps and Machine Tests are driven by GT2's AI; straight-line runs are scripted.</div>
+<p class="xfoot" style="font-size:12px;line-height:1.5;opacity:.7;margin:28px 0 0;padding:0;max-width:none">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</footer>
+</div>
+</body></html>

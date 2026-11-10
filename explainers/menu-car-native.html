@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Native Showroom Car</title>
+<style>
+
+:root{
+  --bg:#f4f5f8; --panel:#ffffff; --ink:#1a1f2b; --ink-2:#4b5366; --ink-3:#7c8496; --rule:#d9dde6; --grid:#e8ebf1;
+  --accent:#d35400; --accent-soft:#fbe9dc; --code-bg:#eef0f5;
+  --c1:#2b6cb0; --c2:#d35400; --c3:#1f8a5b; --c4:#8a4bd1; --c5:#b7791f;
+  --ok:#1f7a45; --ok-bg:#e2f3e8; --warn:#8a5a00; --warn-bg:#fbf1d8;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13161c; --panel:#1c2029; --ink:#edf0f5; --ink-2:#b6bdcb; --ink-3:#86909f; --rule:#2d3340; --grid:#262c37;
+  --accent:#ff7a2f; --accent-soft:#3a2416; --code-bg:#242a35;
+  --c1:#5b9be0; --c2:#ff7a2f; --c3:#3fb37e; --c4:#ad7ff0; --c5:#dca341;
+  --ok:#5fd394; --ok-bg:#17352a; --warn:#f1c46b; --warn-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13161c; --panel:#1c2029; --ink:#edf0f5; --ink-2:#b6bdcb; --ink-3:#86909f; --rule:#2d3340; --grid:#262c37;
+  --accent:#ff7a2f; --accent-soft:#3a2416; --code-bg:#242a35;
+  --c1:#5b9be0; --c2:#ff7a2f; --c3:#3fb37e; --c4:#ad7ff0; --c5:#dca341;
+  --ok:#5fd394; --ok-bg:#17352a; --warn:#f1c46b; --warn-bg:#3a2f16; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:8px;border-bottom:3px solid var(--accent);padding-bottom:16px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:20px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:70ch}
+.lede{color:var(--ink-2);font-size:16px}
+section{display:flex;flex-direction:column;gap:14px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.fig{width:100%;overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto;max-width:100%;font-family:var(--mono);font-size:11px}
+.fig .lbl{fill:var(--ink-2)}
+.fig .ttl{fill:var(--ink);font-family:var(--body);font-size:12px;font-weight:600}
+.fig .grid{stroke:var(--grid);stroke-width:1}
+.fig .axis{stroke:var(--ink-3);stroke-width:1}
+.cap{font-size:13px;color:var(--ink-3)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+code,.mono{font-family:var(--mono);font-size:.92em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.kv dt{color:var(--ink-3);font-family:var(--mono);font-size:12px;padding-top:2px}
+.kv dd{margin:0}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-warn{background:var(--warn-bg);color:var(--warn)}
+.b-acc{background:var(--accent-soft);color:var(--accent)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px}
+.step{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.step .k{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+.step b{font-family:var(--display);font-size:17px;font-weight:600}
+.step small{color:var(--ink-2);font-size:13px}
+ul{margin:0;padding-left:1.2em;max-width:70ch}
+li{margin:0 0 4px 0}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.fig svg .pulse{animation:none}}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation (SCUS-94488) · the showroom car in the port · the design study</div>
+  <h1>The Showroom Car, Native</h1>
+  <p class="lede">Can the dealer, garage and shop cars in GT Mode be drawn by the same modern car renderer the port's remaster look uses in races, with the upscaled body (about 5,400 triangles) and the upscaled paints? Yes: the menu car is GT2's race car drawing with the most detailed model forced, and that model is exactly the one the upscaled body is made from. What differs is the room around the car, not the car. This page lists what the race already has, what the menu adds, and how the game itself stays untouched. It is a study; the menus still show GT2's own car today.</p>
+  <p><b>Now built.</b> The port draws the dealer, garage and shop cars this way by default (<code>--scene-menu-car on</code>; <code>off</code> gives GT2's own drawing, guide 13). This page is the study it was built from; a few details were settled while building it: the menu car keeps GT2's own studio reflection map, softened, and no live reflections.</p>
+</header>
+
+<section>
+  <h2>One car, two rooms</h2>
+  <p>The port converts each car once into its own scene format. The race and the menu would read the same converted car; only the frame around the car changes.</p>
+  <div class="panel"><div class="fig">
+  <svg viewBox="0 0 900 300" role="img" aria-label="Diagram: one car cache folder feeds both the race frame and the menu frame">
+    <rect x="330" y="20" width="240" height="110" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/>
+    <text x="450" y="44" text-anchor="middle" class="ttl">one converted car (day model)</text>
+    <text x="450" y="64" text-anchor="middle" class="lbl">detail-dense: upscaled LOD 0</text>
+    <text x="450" y="80" text-anchor="middle" class="lbl">median 338 → 5,408 triangles</text>
+    <text x="450" y="96" text-anchor="middle" class="lbl">tex-upscaled: 4x paints + light mask</text>
+    <text x="450" y="112" text-anchor="middle" class="lbl">garage tires, hub image, tread strip</text>
+    <rect x="30" y="180" width="330" height="100" rx="6" fill="var(--panel)" stroke="var(--c1)"/>
+    <text x="195" y="204" text-anchor="middle" class="ttl">Race frame (built)</text>
+    <text x="195" y="224" text-anchor="middle" class="lbl">course layers, sky, particles</text>
+    <text x="195" y="240" text-anchor="middle" class="lbl">course light row j, crstim sky map</text>
+    <text x="195" y="256" text-anchor="middle" class="lbl">120 Hz step poses</text>
+    <text x="195" y="272" text-anchor="middle" class="lbl">which car: the race entry</text>
+    <rect x="540" y="180" width="330" height="100" rx="6" fill="var(--panel)" stroke="var(--c3)"/>
+    <text x="705" y="204" text-anchor="middle" class="ttl">Menu frame (proposed)</text>
+    <text x="705" y="224" text-anchor="middle" class="lbl">turntable camera, item rectangle</text>
+    <text x="705" y="240" text-anchor="middle" class="lbl">unlit (row 0), studio map, strength 64</text>
+    <text x="705" y="256" text-anchor="middle" class="lbl">native floor disc + soft shadow</text>
+    <text x="705" y="272" text-anchor="middle" class="lbl">which car: the menu's car</text>
+    <line x1="400" y1="130" x2="230" y2="178" stroke="var(--c1)" stroke-width="2"/>
+    <line x1="500" y1="130" x2="670" y2="178" stroke="var(--c3)" stroke-width="2" stroke-dasharray="6 4"/>
+  </svg></div>
+  <p class="cap">The menu always loads the day model, so it uses the day version of each car. Solid: built and in every race. Dashed: what the port adds for the menus.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Each part of the car, menu against race</h2>
+  <p>GT2 draws a car in pieces. Here is each piece as the menu draws it, and what the port's race renderer already has for it.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Piece</th><th>In the menu</th><th>Port's race renderer has</th><th>Menu still needs</th></tr></thead>
+    <tbody>
+      <tr><td>body</td><td>most detailed model, unlit paint, shine 64 by dirt</td><td>upscaled body, unlit paint + light mask, reflection</td><td><span class="badge b-warn">which car, light, map</span></td></tr>
+      <tr><td>body, clipped</td><td>when the car crosses the edge of the view</td><td>same</td><td><span class="badge b-ok">nothing</span></td></tr>
+      <tr><td>hubs</td><td>menu x positions, no steer; the garage wheel's hub image</td><td>hubs per wheel, from the game and <code>/carwheel</code></td><td><span class="badge b-warn">which wheel the car wears</span></td></tr>
+      <tr><td>treads</td><td>the garage tire (menu radius and width, hub 0.75)</td><td>the garage tire already</td><td><span class="badge b-ok">nothing</span></td></tr>
+      <tr><td>shadow</td><td>on, flat</td><td>GT2's or a soft one</td><td><span class="badge b-ok">nothing</span></td></tr>
+      <tr><td>floor disc</td><td>24 triangles, 4 m, gray 0x525252 to black</td><td>none</td><td><span class="badge b-acc">its own disc</span></td></tr>
+      <tr><td>car view</td><td>turntable camera, the item rectangle, H 800</td><td>none: races only</td><td><span class="badge b-acc">menu frame</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="cap">The one new piece of data the menu needs is its own reflection map.</p>
+</section>
+
+<section>
+  <h2>The menu's own reflection map</h2>
+  <div class="two">
+    <div class="panel">
+      <h3>A studio, not a sky</h3>
+      <p>The menu car's shine reads texture page 9 with the palette at (576, 152). In GT Mode that page holds <code>gt_cursor.tim</code>, the sheet with the hand cursor and the badges. Its top-left 128 x 128 texels are a dark sphere map (a round picture used as a fake reflection) with two soft studio lights. The race cars reflect a blue sky and a tree line instead (<code>crstim.arc</code> element 3).</p>
+      <dl class="kv">
+        <dt>record</dt><dd><code>0x800508AC</code> (menu code's data) = CLUT 0x2624, tpage 9, read in RAM at the wheel shop</dd>
+        <dt>map</dt><dd>texels (0..127, 0..127), 16 grays, black with two light spots</dd>
+        <dt>strength</dt><dd>64 at most in menus, 96 in races</dd>
+        <dt>port</dt><dd>a reflection texture picked per car on screen; the car itself stays the same</dd>
+      </dl>
+    </div>
+    <div class="panel"><div class="fig">
+      <svg viewBox="0 0 300 300" role="img" aria-label="Sketch of the menu studio reflection map: a dark sphere with a large oval highlight upper right and a small round one upper left">
+        <defs>
+          <radialGradient id="big" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="#d8d8d8"/><stop offset="1" stop-color="#202020" stop-opacity="0"/></radialGradient>
+          <radialGradient id="small" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#cfcfcf"/><stop offset="1" stop-color="#202020" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect x="20" y="20" width="260" height="260" fill="#0b0b0b" stroke="var(--rule)"/>
+        <ellipse cx="200" cy="100" rx="42" ry="58" fill="url(#big)" transform="rotate(20 200 100)"/>
+        <circle cx="95" cy="75" r="26" fill="url(#small)"/>
+        <text x="150" y="272" text-anchor="middle" style="fill:#9a9a9a">sketch, not the game's pixels</text>
+      </svg></div>
+      <p class="cap">A sketch of the map's layout (the picture itself is not included: no game data on this page).</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Memory and time stay GT2's</h2>
+  <p>In the menus, GT2 even stores how long its own drawing took. So the plan leaves the game completely alone: GT2 still runs its camera, car and floor drawing as before, and the port only reads what it needs (the camera, which car, its paint and dirt). When the picture is put together, the port draws its own car into the item's rectangle in place of GT2's polygons. If the port's car is not ready yet, GT2's car is shown as today. The game's memory and timing come out identical; only the picture changes.</p>
+</section>
+
+<section>
+  <h2>What the menu needs that the race does not</h2>
+  <div class="two">
+    <div class="panel">
+      <h3>Camera and light</h3>
+      <ul>
+        <li><b>Camera:</b> GT2's own, read after it is set up; the viewport is the item's rectangle.</li>
+        <li><b>Light:</b> none in GT2: the paint as stored. The port does the same.</li>
+        <li><b>Turntable lights:</b> come from the reflection, which follows the camera's heading: the highlights slide over the body as the camera orbits, as in GT2.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Floor, fade, wheels, paints</h3>
+      <ul>
+        <li><b>Floor:</b> the port's own disc under a soft shadow; over GT2's floor a soft shadow would show as a dark patch.</li>
+        <li><b>Fade-in:</b> GT2 has none. Proposed: load ahead, and a short cross-fade only when the port's car arrives late.</li>
+        <li><b>Wheel sizes:</b> the menu's narrower track and garage tires are already known.</li>
+        <li><b>Paint chips:</b> load all of a dealer car's paints when it loads, so changing paint never stutters.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Race car and menu car settings</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Setting</th><th>Race car</th><th>Menu car (proposed)</th></tr></thead>
+    <tbody>
+      <tr><td>scene detail: dense</td><td>upscaled body</td><td>same mesh</td></tr>
+      <tr><td>scene textures: upscaled</td><td>4x paints, mipmaps, 8x anisotropic filtering</td><td>same textures (day set)</td></tr>
+      <tr><td>paint lighting</td><td>the course's light by the wheels' shade</td><td>none, as GT2</td></tr>
+      <tr><td>reflections</td><td>course sky, strength up to 96</td><td>studio map, strength 64</td></tr>
+      <tr><td>shadow, bloom, anti-aliasing</td><td>on</td><td>on</td></tr>
+      <tr><td>120 Hz steps, smoothing</td><td>race only</td><td>none; menus run at 60 Hz</td></tr>
+      <tr><td>16:9</td><td>wider view</td><td>menus with side bars, rectangle unchanged</td></tr>
+    </tbody>
+  </table></div>
+  <p class="cap">Drawing cost: one car of about 5,400 triangles plus wheels, shadow and disc, far less than a race picture.</p>
+</section>
+
+<section>
+  <h2>How it was checked</h2>
+  <ul>
+    <li>The camera the port reads equals GT2's every frame; the turn steps by 12 a frame.</li>
+    <li>Original and port at the PS1 look: the same car outline on screen (within 1 pixel) and the floor circle in the same place, over 30 frames.</li>
+    <li>The same paint colors, and the studio highlights in the same places.</li>
+    <li>Side-by-side sheets: original, port at the PS1 look, port at the remaster look, and the same car in a race, for several cars on the dealer, garage, wheel shop, wash and car info pages.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Addresses are the US Simulation disc's. No game pictures on this page; the figures are drawings.</p>
+</footer>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+</body>
+</html>

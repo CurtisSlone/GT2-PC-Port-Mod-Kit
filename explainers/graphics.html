@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How GT2 Draws a Picture</title>
+<style>
+:root{
+  --bg:#f4f5f8; --panel:#ffffff; --ink:#1a1f2b; --ink-2:#4b5366; --ink-3:#7c8496; --rule:#d9dde6; --grid:#e8ebf1;
+  --accent:#d35400; --accent-soft:#fbe9dc; --code-bg:#eef0f5;
+  --c1:#2b6cb0; --c2:#d35400; --c3:#1f8a5b; --c4:#8a4bd1; --c5:#b7791f;
+  --ok:#1f7a45; --ok-bg:#e2f3e8; --warn:#8a5a00; --warn-bg:#fbf1d8;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13161c; --panel:#1c2029; --ink:#edf0f5; --ink-2:#b6bdcb; --ink-3:#86909f; --rule:#2d3340; --grid:#262c37;
+  --accent:#ff7a2f; --accent-soft:#3a2416; --code-bg:#242a35;
+  --c1:#5b9be0; --c2:#ff7a2f; --c3:#3fb37e; --c4:#ad7ff0; --c5:#dca341;
+  --ok:#5fd394; --ok-bg:#17352a; --warn:#f1c46b; --warn-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13161c; --panel:#1c2029; --ink:#edf0f5; --ink-2:#b6bdcb; --ink-3:#86909f; --rule:#2d3340; --grid:#262c37;
+  --accent:#ff7a2f; --accent-soft:#3a2416; --code-bg:#242a35;
+  --c1:#5b9be0; --c2:#ff7a2f; --c3:#3fb37e; --c4:#ad7ff0; --c5:#dca341;
+  --ok:#5fd394; --ok-bg:#17352a; --warn:#f1c46b; --warn-bg:#3a2f16; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:8px;border-bottom:3px solid var(--accent);padding-bottom:16px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:20px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:70ch}
+.lede{color:var(--ink-2);font-size:16px}
+section{display:flex;flex-direction:column;gap:14px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.fig{width:100%;overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto;max-width:100%;font-family:var(--mono);font-size:11px}
+.fig .lbl{fill:var(--ink-2)}
+.fig .ttl{fill:var(--ink);font-family:var(--body);font-size:12px;font-weight:600}
+.fig .grid{stroke:var(--grid);stroke-width:1}
+.fig .axis{stroke:var(--ink-3);stroke-width:1}
+.cap{font-size:13px;color:var(--ink-3)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+code,.mono{font-family:var(--mono);font-size:.92em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.kv dt{color:var(--ink-3);font-family:var(--mono);font-size:12px;padding-top:2px}
+.kv dd{margin:0}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-warn{background:var(--warn-bg);color:var(--warn)}
+.b-acc{background:var(--accent-soft);color:var(--accent)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px}
+.step{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.step .k{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+.step b{font-family:var(--display);font-size:17px;font-weight:600}
+.step small{color:var(--ink-2);font-size:13px}
+ul{margin:0;padding-left:1.2em;max-width:70ch}
+li{margin:0 0 4px 0}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.fig svg .pulse{animation:none}}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation (SCUS-94488) · graphics</div>
+  <h1>How GT2 Draws a Picture</h1>
+  <p class="lede">What Gran Turismo 2 does between a car's position in the world and the pixels on the screen. Every number here comes from the game's code or from the game's own values in a recorded race. It explains the wobble, the shimmer and the pop-in PlayStation players know.</p>
+</header>
+
+<section>
+  <h2>Thirty times a second, in five steps</h2>
+  <p class="lede">The PlayStation has no depth buffer and no floating point. GT2 sorts every polygon into one of 4,096 depth bins and sends the whole frame to the GPU as one linked list, drawn from the farthest bin to the nearest. The CPU builds frame N while the GPU paints frame N&minus;1.</p>
+  <div class="steps">
+    <div class="step"><span class="k">1 · FRAME</span><b>Flip and send</b><small>Last frame's list goes to the GPU by DMA. The ordering table and the primitive pool switch halves; the new half is cleared by the DMA engine.</small></div>
+    <div class="step"><span class="k">2 · VIEW</span><b>Camera to GTE block</b><small>The camera becomes 104 bytes of fixed-point constants: a rotation scaled by the window, a translation, the screen center, the focal length and four frustum planes.</small></div>
+    <div class="step"><span class="k">3 · RENDER</span><b>Project, cull, bin</b><small>Hand-written machine code pushes every corner point (vertex) through the GTE, the PlayStation's geometry coprocessor that does the 3D math, culls faces against the planes, clips the ones that cross them, and links each polygon into a depth bin.</small></div>
+    <div class="step"><span class="k">4 · 2D</span><b>HUD and text</b><small>Sprites and flat polygons at fixed bins: the tachometer, the lap panel, every glyph of text (two sprites each), the pause panel, the fades.</small></div>
+    <div class="step"><span class="k">5 · SYNC</span><b>Wait for the picture</b><small>DrawSync polls the GPU, VSync waits for the next field. These waits are where the game's clock ticks for the drawing code.</small></div>
+  </div>
+  <div class="panel">
+    <div class="fig">
+      <svg viewBox="0 0 900 230" role="img" aria-label="One race frame in draw order: HUD, mirror, view set-up, cars, course, env link, then flip">
+        <text class="ttl" x="10" y="18">One race frame (single player, mirror on), in the order the code runs</text>
+        <g>
+          <rect x="10" y="40" width="110" height="46" rx="4" fill="var(--c5)" opacity=".85"/><text x="65" y="59" text-anchor="middle" fill="#fff" font-weight="600">frame begin</text><text x="65" y="76" text-anchor="middle" fill="#fff">send N-1, flip</text>
+          <rect x="132" y="40" width="110" height="46" rx="4" fill="var(--c4)" opacity=".85"/><text x="187" y="59" text-anchor="middle" fill="#fff" font-weight="600">HUD</text><text x="187" y="76" text-anchor="middle" fill="#fff">panels, text</text>
+          <rect x="254" y="40" width="110" height="46" rx="4" fill="var(--c1)" opacity=".85"/><text x="309" y="59" text-anchor="middle" fill="#fff" font-weight="600">mirror view</text><text x="309" y="76" text-anchor="middle" fill="#fff">120 x 32, H 120</text>
+          <rect x="376" y="40" width="110" height="46" rx="4" fill="var(--c1)"/><text x="431" y="59" text-anchor="middle" fill="#fff" font-weight="600">view set-up</text><text x="431" y="76" text-anchor="middle" fill="#fff">GTE block</text>
+          <rect x="498" y="40" width="110" height="46" rx="4" fill="var(--c2)"/><text x="553" y="59" text-anchor="middle" fill="#fff" font-weight="600">cars</text><text x="553" y="76" text-anchor="middle" fill="#fff">sort, LOD, draw</text>
+          <rect x="620" y="40" width="110" height="46" rx="4" fill="var(--c3)"/><text x="675" y="59" text-anchor="middle" fill="#fff" font-weight="600">course</text><text x="675" y="76" text-anchor="middle" fill="#fff">sky, sections, objects</text>
+          <rect x="742" y="40" width="110" height="46" rx="4" fill="var(--c5)" opacity=".85"/><text x="797" y="59" text-anchor="middle" fill="#fff" font-weight="600">flip</text><text x="797" y="76" text-anchor="middle" fill="#fff">DrawSync, VSync</text>
+        </g>
+        <line class="axis" x1="10" y1="150" x2="852" y2="150"/>
+        <g class="lbl">
+          <text x="10" y="172">GPU, meanwhile:</text>
+          <rect x="120" y="140" width="732" height="20" rx="3" fill="var(--accent-soft)"/>
+          <text x="486" y="155" text-anchor="middle" fill="var(--accent)">paints frame N-1 from its ordering table, far bin to near bin, one DMA linked list</text>
+          <text x="10" y="205">A race frame is every second VBlank (30 Hz). Menus run the same five steps on their own task at 60 Hz, interlaced.</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How big is the drawing code?</h2>
+  <p class="lede">227,888 bytes: 28.9% of the game's 770 KB of code. A third of it is hand-written machine code, all of it in the mesh renderers (the parts that draw 3D models).</p>
+  <div class="two">
+    <div class="panel">
+      <div class="fig">
+        <svg viewBox="0 0 520 330" role="img" aria-label="Bytes per drawing system">
+          <text class="ttl" x="0" y="14">Code bytes per system</text>
+          <g class="lbl" font-size="11">
+            <text x="0" y="48">Menus and screens</text><rect x="150" y="38" width="340" height="14" fill="var(--c4)"/><text x="494" y="49" fill="var(--ink)">81,432</text>
+            <text x="0" y="72">Course renderers</text><rect x="150" y="62" width="251" height="14" fill="var(--c3)"/><text x="405" y="73" fill="var(--ink)">60,020</text>
+            <text x="0" y="96">Car renderers</text><rect x="150" y="86" width="123" height="14" fill="var(--c2)"/><text x="277" y="97" fill="var(--ink)">29,500</text>
+            <text x="0" y="120">Race HUD</text><rect x="150" y="110" width="78" height="14" fill="var(--c4)" opacity=".7"/><text x="232" y="121" fill="var(--ink)">18,760</text>
+            <text x="0" y="144">Text and fonts</text><rect x="150" y="134" width="59" height="14" fill="var(--c4)" opacity=".5"/><text x="213" y="145" fill="var(--ink)">14,108</text>
+            <text x="0" y="168">VRAM uploads</text><rect x="150" y="158" width="32" height="14" fill="var(--c5)"/><text x="186" y="169" fill="var(--ink)">7,748</text>
+            <text x="0" y="192">View set-up, GTE</text><rect x="150" y="182" width="22" height="14" fill="var(--c1)"/><text x="176" y="193" fill="var(--ink)">5,260</text>
+            <text x="0" y="216">Frame, OT, DMA</text><rect x="150" y="206" width="16" height="14" fill="var(--c5)" opacity=".7"/><text x="170" y="217" fill="var(--ink)">3,732</text>
+            <text x="0" y="240">Transitions</text><rect x="150" y="230" width="14" height="14" fill="var(--c5)" opacity=".5"/><text x="168" y="241" fill="var(--ink)">3,380</text>
+            <text x="0" y="264">Primitive builders</text><rect x="150" y="254" width="10" height="14" fill="var(--c1)" opacity=".6"/><text x="164" y="265" fill="var(--ink)">2,492</text>
+            <text x="0" y="288">Tire smoke</text><rect x="150" y="278" width="6" height="14" fill="var(--c3)" opacity=".6"/><text x="160" y="289" fill="var(--ink)">1,456</text>
+          </g>
+          <line class="axis" x1="150" y1="30" x2="150" y2="300"/>
+          <text class="lbl" x="150" y="318">0</text><text class="lbl" x="490" y="318" text-anchor="end">80 KB</text>
+        </svg>
+      </div>
+      <p class="cap">Not counted: the camera logic, physics code that happens to use the GTE, menu logic behind the page engine, and the unused Arcade-menu code (25 KB, never run on this disc).</p>
+    </div>
+    <div class="panel">
+      <h3>The renderers are hand-written</h3>
+      <p>Seven functions carry the 3D: two course section renderers (23 KB), two trackside-object renderers (23 KB), two car body renderers (22 KB) and the ground-plane shadow renderer. They were written by hand in machine code, not compiled. Together with the two polygon clippers they are 76 KB of the 228.</p>
+      <div class="tablewrap"><table>
+        <tr><th>Renderer</th><th class="n">Bytes</th><th>Scheme</th></tr>
+        <tr><td>Section mesh, clipped</td><td class="n">14,012</td><td>per-vertex records, NCLIP, clippers</td></tr>
+        <tr><td>Object model, clipped</td><td class="n">13,948</td><td>same</td></tr>
+        <tr><td>Car body, clipped</td><td class="n">12,292</td><td>same, plus reflection pass</td></tr>
+        <tr><td>Car body</td><td class="n">10,076</td><td>RTPT per face, subdivision</td></tr>
+        <tr><td>Object model</td><td class="n">9,764</td><td>RTPT per face, subdivision</td></tr>
+        <tr><td>Section mesh</td><td class="n">9,356</td><td>RTPT per face, subdivision</td></tr>
+        <tr><td>Ground mesh (shadow)</td><td class="n">1,528</td><td>G3/G4, subtractive</td></tr>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>From a point in the world to a pixel</h2>
+  <p class="lede">The view set-up turns the camera into a block of integers. The GTE multiplies, divides once, and truncates. No sub-pixel survives: that truncation is the wobble players know.</p>
+  <div class="two">
+    <div class="panel">
+      <div class="fig">
+        <svg viewBox="0 0 520 300" role="img" aria-label="The projection pipeline: world point, rotation and window scale, translation, perspective divide, whole pixel">
+          <text class="ttl" x="0" y="14">The projection, as the GTE does it</text>
+          <g font-size="11">
+            <rect x="0" y="34" width="150" height="54" rx="4" fill="var(--panel)" stroke="var(--c1)" stroke-width="1.5"/>
+            <text x="75" y="54" text-anchor="middle" class="lbl">world point</text><text x="75" y="72" text-anchor="middle" fill="var(--ink)">(x, y, z) in 1/65536 m</text>
+            <path d="M150 61 L185 61" stroke="var(--ink-3)" marker-end="url(#ar)"/>
+            <rect x="185" y="34" width="150" height="54" rx="4" fill="var(--panel)" stroke="var(--c1)" stroke-width="1.5"/>
+            <text x="260" y="54" text-anchor="middle" class="lbl">rotate, scale, move</text><text x="260" y="72" text-anchor="middle" fill="var(--ink)">(RT v) &gt;&gt; 12 + TR</text>
+            <path d="M335 61 L370 61" stroke="var(--ink-3)" marker-end="url(#ar)"/>
+            <rect x="370" y="34" width="150" height="54" rx="4" fill="var(--panel)" stroke="var(--c2)" stroke-width="1.5"/>
+            <text x="445" y="54" text-anchor="middle" class="lbl">one division</text><text x="445" y="72" text-anchor="middle" fill="var(--ink)">sx = W/2 + H x / z</text>
+            <path d="M445 88 L445 118" stroke="var(--ink-3)" marker-end="url(#ar)"/>
+            <rect x="370" y="118" width="150" height="54" rx="4" fill="var(--accent-soft)" stroke="var(--c2)" stroke-width="1.5"/>
+            <text x="445" y="138" text-anchor="middle" class="lbl">whole pixel</text><text x="445" y="156" text-anchor="middle" fill="var(--ink)">s16, truncated</text>
+          </g>
+          <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--ink-3)"/></marker></defs>
+          <g class="lbl" font-size="11">
+            <text x="0" y="200">RT = window scale x camera rotation (4.12 fixed point, 4096 = 1.0)</text>
+            <text x="0" y="218">window scale: x by W/320 = 1.0, y by 240/264 = 0.909, z by -1</text>
+            <text x="0" y="236">TR = -RT x camera position; OFX, OFY = screen center (16.16)</text>
+            <text x="0" y="254">H = focal length in pixels: 216 default chase, 277 / 190 options, 120 mirror, up to 3,664 TV zoom</text>
+            <text x="0" y="272">the divide is the GTE's UNR reciprocal: off by one pixel in 3.4% of vertices</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>What the block holds</h3>
+      <dl class="kv">
+        <dt>+0x00</dt><dd>rotation: window scale S times the transposed camera matrix</dd>
+        <dt>+0x14</dt><dd>translation: that rotation applied to minus the camera position</dd>
+        <dt>+0x2C, +0x40</dt><dd>four frustum planes, stored where the GTE's light and color matrices go (GT2 never lights anything, so it borrows them)</dd>
+        <dt>+0x54, +0x58</dt><dd>OFX = W/2, OFY = h/2</dd>
+        <dt>+0x5C</dt><dd>H; +0x62 the near plane = H/2</dd>
+        <dt>+0x78 (view)</dt><dd><code>lod_zoom = 160 x 4096 / H</code>: how large things look, used by every distance rule</dd>
+      </dl>
+      <p>The planes carry a 16-pixel guard band, so objects just off screen are still drawn: 7% of the polygons GT2 submits lie wholly outside the picture. The race view's picture is 1.1 times wider per metre than it is tall, because 320 x 240 pixels show a 320 x 264 window.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Sixteen bits are not enough, so GT2 shrinks the world</h2>
+  <p class="lede">The GTE multiplies 16-bit vertices. A car's model counts in 1/2048 m, so anything farther than 8 m would overflow. Before each object the game measures how many bits its distance plus its size needs and drops the excess: one bit of vertex precision, and one bit of the rotation matrix, per doubling of distance.</p>
+  <div class="two">
+    <div class="panel">
+      <div class="fig">
+        <svg viewBox="0 0 520 260" role="img" aria-label="Bits dropped versus distance for a car">
+          <text class="ttl" x="0" y="14">Bits dropped (e) for a car, by distance</text>
+          <g class="grid"><line x1="60" y1="40" x2="500" y2="40"/><line x1="60" y1="70" x2="500" y2="70"/><line x1="60" y1="100" x2="500" y2="100"/><line x1="60" y1="130" x2="500" y2="130"/><line x1="60" y1="160" x2="500" y2="160"/><line x1="60" y1="190" x2="500" y2="190"/></g>
+          <line class="axis" x1="60" y1="190" x2="500" y2="190"/><line class="axis" x1="60" y1="40" x2="60" y2="190"/>
+          <g class="lbl" font-size="10">
+            <text x="54" y="194" text-anchor="end">0</text><text x="54" y="164" text-anchor="end">1</text><text x="54" y="134" text-anchor="end">2</text><text x="54" y="104" text-anchor="end">3</text><text x="54" y="74" text-anchor="end">4</text><text x="54" y="44" text-anchor="end">5</text>
+            <text x="60" y="208" text-anchor="middle">0</text><text x="133" y="208" text-anchor="middle">8 m</text><text x="206" y="208" text-anchor="middle">16</text><text x="279" y="208" text-anchor="middle">32</text><text x="352" y="208" text-anchor="middle">64</text><text x="425" y="208" text-anchor="middle">128</text><text x="498" y="208" text-anchor="middle">256 m</text>
+            <text x="280" y="232" text-anchor="middle">distance of the car from the camera (log scale)</text>
+            <text x="20" y="118" transform="rotate(-90 20 118)" text-anchor="middle">bits dropped</text>
+          </g>
+          <path d="M60 190 L133 190 L133 160 L206 160 L206 130 L279 130 L279 100 L352 100 L352 70 L425 70 L425 40 L500 40" fill="none" stroke="var(--c2)" stroke-width="2.5"/>
+          <g class="lbl" font-size="10"><text x="140" y="152">vertex step 1/1024 m, matrix 1/2048</text><text x="286" y="92">1/256 m, matrix 1/512</text><text x="432" y="34">1/64 m, matrix 1/128</text></g>
+        </svg>
+      </div>
+      <p class="cap"><code>e = max(bits(|t| + extent) - scale - 2, 0)</code>, <code>sh = scale - 12 + e</code>; the translation is shifted by sh, the 4.12 rotation by e. The shimmer of distant cars is this: their matrix has 7 fractional bits left at 256 m.</p>
+    </div>
+    <div class="panel">
+      <h3>Depth bins</h3>
+      <p>Every polygon gets one depth (its farthest or nearest corner) and goes into bin <code>(SZ &lt;&lt; sh) &gt;&gt; 13</code>. Because the shift undoes the shrink, a bin is always <b>0.125 m</b> of camera depth. 4,096 bins cover 512 m; everything farther lands in the last bin, drawn first and unsorted.</p>
+      <div class="fig">
+        <svg viewBox="0 0 440 120" role="img" aria-label="The ordering table: 4096 bins from near to far, walked from far to near">
+          <g class="lbl" font-size="10">
+            <rect x="10" y="30" width="400" height="26" fill="var(--panel)" stroke="var(--rule)"/>
+            <g stroke="var(--grid)"><line x1="60" y1="30" x2="60" y2="56"/><line x1="110" y1="30" x2="110" y2="56"/><line x1="160" y1="30" x2="160" y2="56"/><line x1="210" y1="30" x2="210" y2="56"/><line x1="260" y1="30" x2="260" y2="56"/><line x1="310" y1="30" x2="310" y2="56"/><line x1="360" y1="30" x2="360" y2="56"/></g>
+            <rect x="380" y="30" width="30" height="26" fill="var(--accent-soft)"/>
+            <text x="10" y="22">bin 0: 0 m</text><text x="200" y="22" text-anchor="middle">one bin = 12.5 cm</text><text x="410" y="22" text-anchor="end">bin 4095: 512 m and beyond</text>
+            <path d="M400 80 L30 80" stroke="var(--c2)" stroke-width="2" marker-end="url(#ar2)"/>
+            <text x="215" y="100" text-anchor="middle" fill="var(--c2)">the GPU walks far to near; later links at the same bin are drawn first</text>
+          </g>
+          <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--c2)"/></marker></defs>
+        </svg>
+      </div>
+      <p class="cap">Two polygons in the same bin keep their insertion order: that is the flicker where a car's shadow, drawn by its own bin and not against the road, darkens a neighboring car.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>What gets drawn at all</h2>
+  <p class="lede">Nothing is drawn by distance alone. The course has hand-made visibility lists; cars and trackside objects have level tables compared against an apparent-size measure. The thresholds scale with the camera's zoom: a telephoto replay camera keeps detail far longer than the chase view.</p>
+  <div class="two">
+    <div class="panel">
+      <div class="fig">
+        <svg viewBox="0 0 520 250" role="img" aria-label="Car LOD switch distances against focal length H">
+          <text class="ttl" x="0" y="14">Car detail by distance, for three camera focal lengths</text>
+          <g class="lbl" font-size="10">
+            <text x="0" y="52">H 216 (chase)</text>
+            <rect x="110" y="40" width="7" height="16" fill="var(--c2)"/><rect x="117" y="40" width="14" height="16" fill="var(--c2)" opacity=".65"/><rect x="131" y="40" width="279" height="16" fill="var(--c2)" opacity=".3"/>
+            <text x="112" y="70">6.75 m</text><text x="134" y="70">20 m</text><text x="412" y="52">405 m: not drawn</text>
+            <text x="0" y="108">H 277 (close option)</text>
+            <rect x="110" y="96" width="9" height="16" fill="var(--c2)"/><rect x="119" y="96" width="17" height="16" fill="var(--c2)" opacity=".65"/><rect x="136" y="96" width="374" height="16" fill="var(--c2)" opacity=".3"/>
+            <text x="112" y="126">8.7 m</text><text x="140" y="126">26 m</text><text x="470" y="108" text-anchor="end" fill="var(--ink)">519 m</text>
+            <text x="0" y="164">H 918 (a TV camera)</text>
+            <rect x="110" y="152" width="29" height="16" fill="var(--c2)"/><rect x="139" y="152" width="57" height="16" fill="var(--c2)" opacity=".65"/><rect x="196" y="152" width="314" height="16" fill="var(--c2)" opacity=".3"/>
+            <text x="112" y="182">29 m</text><text x="200" y="182">86 m</text><text x="470" y="164" text-anchor="end" fill="var(--ink)">1,721 m</text>
+            <line class="axis" x1="110" y1="200" x2="510" y2="200"/>
+            <text x="110" y="214">0</text><text x="310" y="214" text-anchor="middle">bar = 1 m per pixel (LOD 0, LOD 1, LOD 2)</text><text x="510" y="214" text-anchor="end">400 m</text>
+          </g>
+        </svg>
+      </div>
+      <p class="cap">Rule: LOD i while <code>d &lt; maxdist_i x H / 160</code>, with maxdist 5 / 15 / 300 m in every car file. Fitted from the game's own choices over 7,822 frames of a race. Wheels: full under 8.1 m, 8-gon under 16 m, hexagon under 32 m, none beyond (H 216). The player's own car is always LOD 0.</p>
+    </div>
+    <div class="panel">
+      <h3>Course: lists, not distance</h3>
+      <ul>
+        <li>Each track section carries a hand-made list of the sections to draw from it (a median of 17; 256 at most). Nothing off the list is ever drawn: the list is the draw distance.</li>
+        <li>Listed sections are box-tested against the frustum, sorted by an octagonal distance (<code>max + mid/2 + min/4</code>) and drawn; level-3 entries draw only their lamp glows.</li>
+        <li>Trackside objects use the same apparent-size measure against a per-model level table; past the last level the object vanishes.</li>
+        <li>The mirror draws the low-detail mesh, cars within 100 m, no objects and no sky mesh.</li>
+      </ul>
+      <h3>No light, no fog</h3>
+      <p>The GTE's lighting commands are never used; shade is painted into vertex colors and the cars' palettes are dimmed per course. The fog path exists in all four model renderers but is switched off: they set the depth-cue factor to zero before using it. The one moving highlight is the car's reflection, a 128 x 128 sphere map looked up by the camera-space normal: <code>u = 64 + 64 n.x</code>, <code>v = 64 + 64 n.y</code>, and it fades not with distance but with the dirt a car has picked up.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Six cars, nailed down in video memory</h2>
+  <p class="lede">A car's texture lives in a 64 x 224 slot and its four palette variants (open, shaded, dark, black) in four rows under it. Slot k = 26 &minus; i: car i sits at (640 &minus; 64 i, 256). A seventh car would land at x 256, inside the frame buffer.</p>
+  <div class="panel">
+    <div class="fig">
+      <svg viewBox="0 0 1040 300" role="img" aria-label="PlayStation VRAM during a race: two frame buffers, course texture pages, six car slots and their palettes">
+        <text class="ttl" x="0" y="14">VRAM, 1024 x 512 halfwords, during a race (one column = 1 pixel)</text>
+        <rect x="0" y="30" width="1024" height="256" fill="var(--panel)" stroke="var(--rule)"/>
+        <rect x="0" y="30" width="320" height="120" fill="var(--c1)" opacity=".35"/><text x="160" y="95" text-anchor="middle" fill="var(--ink)" font-size="12">frame buffer 0 (320 x 240)</text>
+        <rect x="0" y="150" width="320" height="120" fill="var(--c1)" opacity=".55"/><text x="160" y="215" text-anchor="middle" fill="var(--ink)" font-size="12">frame buffer 1</text>
+        <rect x="320" y="30" width="704" height="128" fill="var(--c3)" opacity=".3"/><text x="672" y="100" text-anchor="middle" fill="var(--ink)" font-size="12">course texture pages (4-bit), race font at 384, smoke at 576</text>
+        <g>
+          <rect x="640" y="158" width="64" height="112" fill="var(--c2)" opacity=".9"/><text x="672" y="220" text-anchor="middle" fill="#fff" font-size="12">car 0</text>
+          <rect x="576" y="158" width="64" height="112" fill="var(--c2)" opacity=".75"/><text x="608" y="220" text-anchor="middle" fill="#fff" font-size="12">car 1</text>
+          <rect x="512" y="158" width="64" height="112" fill="var(--c2)" opacity=".62"/><text x="544" y="220" text-anchor="middle" fill="#fff" font-size="12">car 2</text>
+          <rect x="448" y="158" width="64" height="112" fill="var(--c2)" opacity=".52"/><text x="480" y="220" text-anchor="middle" fill="#fff" font-size="12">car 3</text>
+          <rect x="384" y="158" width="64" height="112" fill="var(--c2)" opacity=".44"/><text x="416" y="220" text-anchor="middle" fill="#fff" font-size="12">car 4</text>
+          <rect x="320" y="158" width="64" height="112" fill="var(--c2)" opacity=".38"/><text x="352" y="220" text-anchor="middle" fill="#fff" font-size="12">car 5</text>
+          <rect x="320" y="270" width="384" height="8" fill="var(--c5)"/><text x="512" y="294" text-anchor="middle" class="lbl" font-size="11">palette rows y 480..495: four variants per car (blended toward dark, INTPL)</text>
+          <rect x="256" y="158" width="64" height="112" fill="none" stroke="var(--c2)" stroke-dasharray="4 3"/><text x="288" y="220" text-anchor="middle" fill="var(--c2)" font-size="11">car 6?</text>
+        </g>
+        <rect x="704" y="158" width="320" height="112" fill="var(--c3)" opacity=".2"/><text x="864" y="220" text-anchor="middle" class="lbl" font-size="12">more course pages, CLUTs in rows 481-511</text>
+        <g class="lbl" font-size="10"><text x="0" y="298">x 0</text><text x="320" y="298" text-anchor="middle">320</text><text x="640" y="298" text-anchor="middle">640</text><text x="1024" y="298" text-anchor="end">1023</text></g>
+      </svg>
+    </div>
+    <p class="cap">Texture rect <code>x = (k &amp; 15) &lt;&lt; 6, y = (k &lt;&lt; 4) &amp; 0x100</code>, 64 x 224; palette rows at <code>y + 0xE0 + 4 j</code>. Models go to six 20 KB slots in RAM, and the car draw list's head word sits right after the sixth car record. Course pages are 4-bit only; GT2 never reads VRAM back and never uses 15-bit textures.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Text: two sprites per glyph, with kerning</h2>
+  <p class="lede">Every letter on the HUD, the card screens and the boot "Loading Save Data..." screen comes from one routine: a sprite from the glyph's main image, an optional second sprite for an accent, both linked at the font's ordering-table entry. The advance to the next glyph is kerned from a bit-packed pair table.</p>
+  <div class="two">
+    <div class="panel">
+      <div class="fig">
+        <svg viewBox="0 0 520 230" role="img" aria-label="A glyph: main image sprite, overlay sprite, advance and kerning">
+          <text class="ttl" x="0" y="14">One glyph, as the font code places it</text>
+          <g class="lbl" font-size="10">
+            <line class="axis" x1="30" y1="170" x2="500" y2="170"/><text x="30" y="186">baseline y</text>
+            <line x1="80" y1="60" x2="80" y2="180" stroke="var(--ink-3)" stroke-dasharray="3 3"/><text x="80" y="200" text-anchor="middle">x</text>
+            <rect x="92" y="100" width="54" height="70" fill="var(--c4)" opacity=".35" stroke="var(--c4)"/>
+            <text x="119" y="140" text-anchor="middle" fill="var(--ink)" font-family="serif" font-size="56" font-weight="700">e</text>
+            <text x="150" y="112" fill="var(--ink)">main image</text><text x="150" y="126">px = x + (g1 &amp; 0x3F)</text><text x="150" y="140">py = y - ((g1 &gt;&gt; 6) &amp; 0x3F)</text><text x="150" y="154">w = 2 ((d &gt;&gt; 16) &amp; 0x1F), h = (d &gt;&gt; 21) &amp; 0x3F</text>
+            <rect x="100" y="70" width="38" height="20" fill="var(--c2)" opacity=".35" stroke="var(--c2)"/><text x="119" y="86" text-anchor="middle" fill="var(--ink)" font-family="serif" font-size="20">´</text>
+            <text x="150" y="80" fill="var(--ink)">overlay image (accent)</text><text x="150" y="94">at x + ((g1 &gt;&gt; 12) &amp; 0x3F), py - ((g1 &gt;&gt; 18) &amp; 0x1F)</text>
+            <path d="M80 215 L170 215" stroke="var(--c2)" stroke-width="2" marker-end="url(#ar3)"/><text x="180" y="219" fill="var(--ink)">advance = base + width(e) - kern(e, next) + spacing</text>
+          </g>
+          <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--c2)"/></marker></defs>
+        </svg>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Three fonts</h3>
+      <ul>
+        <li>This sprite font, used in races, the card screens and the boot screen.</li>
+        <li>A fixed-pitch text stream, with an unused kanji (Japanese character) drawer.</li>
+        <li>The GT Mode menu font: 12-byte image records, no kerning.</li>
+      </ul>
+      <p>Each glyph is described by two small records:</p>
+      <pre>glyph entry (8 bytes)        image descriptor (4 bytes)
+w0: 6..13 image, 14..16       0..15 uv, 16..20 width/2,
+    overlay, 17..22 pre-adv   21..26 height, 27..28 CLUT,
+w1: 0..5/6..11 main x,y       29..31 tpage offset
+    12..17/18..22 overlay x,y</pre>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>In the port</h2>
+  <p class="lede">The classic look shows GT2's own picture, made the way this page describes. The remaster look draws the course and cars with a new renderer from the game's own scene data, at a higher resolution, so the whole-pixel wobble, the 12.5 cm depth bins and the warped road textures do not apply there. The game still decides what is in the scene: the same cars, the same detail levels and visibility lists.</p>
+</section>
+
+<section>
+  <h2>Artifacts players know, traced</h2>
+  <div class="tablewrap"><table>
+    <tr><th>What you see</th><th>Where it comes from</th><th>Kind</th></tr>
+    <tr><td>Edges crawl as the camera moves (wobble)</td><td>RTPS truncates to whole pixels; nothing finer exists</td><td><span class="badge b-warn">design</span></td></tr>
+    <tr><td>Road textures warp; thin kinked lines on the road</td><td>affine texturing; big faces split up to 6 levels with filler triangles over the cracks</td><td><span class="badge b-warn">design</span></td></tr>
+    <tr><td>Far cars shimmer and change shape</td><td>one bit of vertex and matrix precision lost per doubling of distance past 8 m</td><td><span class="badge b-acc">code</span></td></tr>
+    <tr><td>Polygons flicker through each other; a shadow darkens a neighboring car</td><td>one depth per polygon in 12.5 cm bins; equal bins keep insertion order</td><td><span class="badge b-warn">design</span></td></tr>
+    <tr><td>Scenery pops in; wheels vanish on distant cars</td><td>visibility lists, level tables with hard switches, wheels dropped past 32 m</td><td><span class="badge b-acc">data + code</span></td></tr>
+    <tr><td>A dirty car stops shining</td><td>the reflection strength follows the dirt accumulator, not the distance</td><td><span class="badge b-acc">code</span></td></tr>
+    <tr><td>Fog flags in the models do nothing</td><td>all renderers force the depth-cue factor to zero</td><td><span class="badge b-acc">code</span></td></tr>
+    <tr><td>The tachometer needle steps by a pixel</td><td>its points are rotated in integers</td><td><span class="badge b-acc">code</span></td></tr>
+    <tr><td>Missing wheels or faces in heavy frames</td><td>the renderers stop 8 KB before the pool's end and drop what does not fit</td><td><span class="badge b-acc">code</span></td></tr>
+    <tr><td>Menus flicker on a CRT</td><td>480i screens drawn field by field into the displayed buffer</td><td><span class="badge b-warn">design</span></td></tr>
+  </table></div>
+  <p class="cap">"design" is how the PlayStation hardware path works, and does not exist in the remaster look's renderer; "code" is a specific choice in GT2's code.</p>
+</section>
+
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

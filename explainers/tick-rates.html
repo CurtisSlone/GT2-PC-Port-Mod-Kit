@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>30 Hz and 120 Hz</title>
+<style>
+/* modern-physics: shared PAGES-3 sheet (system fonts only, no external loads) */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#131820; --ink-2:#465063; --ink-3:#717c8f; --rule:#d5dae2; --soft:#e7eaf0;
+  --code-bg:#edf0f4; --accent:#5246c8; --accent-soft:#e6e3fa;
+  --gt2:#2a6fb8; --ours:#c8641a; --ok:#0f7a43; --ok-bg:#e1f3e8; --bad:#b3261e; --bad-bg:#fbe5e3; --mid:#8a5a00; --mid-bg:#fbefd6;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:18px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:18px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:72ch}
+ul{margin:0;padding-left:20px;max-width:72ch;display:flex;flex-direction:column;gap:6px}
+.lede{color:var(--ink-2)}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-top:6px}
+.kpis div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule);border-radius:6px}
+.kpis b{font-family:var(--display);font-stretch:condensed;font-size:30px;line-height:1.05;font-variant-numeric:tabular-nums;color:var(--accent)}
+.kpis span{font-size:13px;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.cols>*{min-width:0}
+figure{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+figcaption{font-size:13px;color:var(--ink-3);max-width:80ch}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:680px;height:auto}
+.diagram.narrow svg{min-width:0}
+svg text{font-family:var(--body);fill:var(--ink);font-size:12px}
+svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+svg .t{font-family:var(--display);font-weight:700;font-size:16px}
+svg .n{font-size:11.5px;fill:var(--ink-2)}
+svg .acc-t{fill:var(--accent);font-weight:600}
+svg .gt2-t{fill:var(--gt2);font-weight:600}
+svg .ours-t{fill:var(--ours);font-weight:600}
+svg .bad-t{fill:var(--bad);font-weight:600}
+svg .ok-t{fill:var(--ok);font-weight:600}
+svg .box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+svg .card{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .accbox{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg .gt2box{fill:var(--panel);stroke:var(--gt2);stroke-width:1.6}
+svg .oursbox{fill:var(--panel);stroke:var(--ours);stroke-width:1.6}
+svg .badbox{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.4}
+svg .okbox{fill:var(--ok-bg);stroke:var(--ok);stroke-width:1.4}
+svg .wire{fill:none;stroke:var(--ink-3);stroke-width:1.4}
+svg .wire-acc{fill:none;stroke:var(--accent);stroke-width:1.8}
+svg .wire-gt2{fill:none;stroke:var(--gt2);stroke-width:1.6}
+svg .wire-ours{fill:none;stroke:var(--ours);stroke-width:1.6}
+svg .dash{stroke-dasharray:5 4}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .ah{fill:var(--ink-3)} svg .ah-acc{fill:var(--accent)} svg .ah-gt2{fill:var(--gt2)} svg .ah-ours{fill:var(--ours)}
+svg .f-acc{fill:var(--accent)} svg .f-gt2{fill:var(--gt2)} svg .f-ours{fill:var(--ours)} svg .f-ok{fill:var(--ok)} svg .f-bad{fill:var(--bad)} svg .f-soft{fill:var(--soft)} svg .f-ink3{fill:var(--ink-3)}
+.tablewrap{overflow-x:auto;min-width:0}
+.tablewrap table{min-width:600px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+tr.strike td{color:var(--ink-3);text-decoration:line-through}
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.03em;padding:1px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)} .b-bad{background:var(--bad-bg);color:var(--bad)} .b-mid{background:var(--mid-bg);color:var(--mid)} .b-acc{background:var(--accent-soft);color:var(--accent)}
+.bar{display:inline-block;height:9px;border-radius:2px;background:var(--accent);vertical-align:middle}
+.note{font-size:13px;color:var(--ink-3)}
+.callout{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:0 6px 6px 0;max-width:80ch;display:flex;flex-direction:column;gap:6px}
+dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0;font-size:14px}
+dl.kv dt{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);padding-top:2px}
+dl.kv dd{margin:0;min-width:0}
+@media (max-width:520px){dl.kv{grid-template-columns:1fr} dl.kv dd{margin-bottom:6px}}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* tick-rates: three setups (classic = GT2 blue, modern 30 Hz = accent violet, modern 120 Hz = ours orange) */
+.sw{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin:0 3px 0 6px}
+.sw.c{background:var(--gt2)} .sw.m30{background:var(--accent)} .sw.m120{background:var(--ours)}
+svg .zero{stroke:var(--gt2);stroke-width:2}
+svg .link{stroke:var(--rule);stroke-width:3;stroke-linecap:round}
+svg .pt{stroke:var(--panel);stroke-width:1.5}
+svg .pt.m30{fill:var(--accent)} svg .pt.m120{fill:var(--ours)} svg .pt.truept{fill:var(--ink-3)}
+svg .diag{stroke:var(--ink-3);stroke-width:1.4;stroke-dasharray:5 4}
+svg .stair{fill:none;stroke:var(--ours);stroke-width:2.2;stroke-linejoin:round}
+svg .f-c{fill:var(--gt2)} svg .f-m30{fill:var(--accent)} svg .f-m120{fill:var(--ours)}
+.legend{margin:0;font-size:13px;color:var(--ink-2)}
+.calc{display:grid;grid-template-columns:1fr;gap:6px}
+.calc label{font-size:13px;color:var(--ink-2)}
+.calc output{font-family:var(--mono);color:var(--ink)}
+.calc input{width:100%;accent-color:var(--ours)}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+<nav class="xback" style="font-size:13px;margin:6px 0 0;padding:0"><a href="index.html" style="color:inherit;opacity:.8">&larr; All explainers</a></nav>
+  <div class="eyebrow">GT2 port · physics · step rate</div>
+  <h1>30 Hz and 120 Hz</h1>
+  <p class="lede">GT2 runs its race 30 times a second: every force, every input and every timer moves once per tick of 2184/65536 s. The port's <b>classic</b> physics keeps exactly that. <b>Modern</b> physics uses new formulas in real units, and cuts every GT2 tick into four world ticks of 546/65536 s. This page separates the two changes. A third setup, modern forced back to 30 Hz, shows what the step rate does on its own and what the formulas do. Then the math shows where the rate matters: the stiff loops (ABS, wheel spin), the heading step, the inputs, and the per-step jolt.</p>
+  <div class="kpis">
+    <div><b>× 4</b><span>steps per GT2 tick: 2184 → 4 × 546 (1/65536 s)</span></div>
+    <div><b>0.0–0.7 %</b><span>straight-line change from the rate alone (8 cars)</span></div>
+    <div><b>0.046 rad/s</b><span>GT2's heading step, kept as a rate at any step size</span></div>
+    <div><b>1.02 → 0.34</b><span>first-step jolt, m/s² RMS (lateral, Mustang)</span></div>
+  </div>
+  <div class="callout">
+    <p><b>The short version.</b> On a straight, modern at 30 Hz and modern at 120 Hz are within about 0.7 % of each other. The 0.5–1 % gap to classic comes from the new formulas, not the step. The rate matters in the stiff, fast loops: the ABS releasing a locked wheel, wheel spin at launch, and the 30 Hz staircase in every input. There, 1/30 s is too long a step. Three setups are measured: <span class="sw c"></span> classic 30 Hz, <span class="sw m30"></span> modern at 30 Hz, <span class="sw m120"></span> modern at 120 Hz.</p>
+  </div>
+</header>
+
+<section>
+  <h2>The same second, cut in four</h2>
+  <div class="cols">
+    <div class="panel">
+      <h3>The time step</h3>
+<pre>GT2 tick     dt = 2184 / 65536 s  = 0.033325 s   (30 a "second")
+world tick   dt =  546 / 65536 s  = 0.008331 s   (546 × 4 = 2184 exactly)
+race clock   +100 units a tick  →  +25 a world tick   (3000 units/s both)</pre>
+      <p>2184 is round(65536/30). 1/30 s would be 2184.53, so a GT2 "second" of ticks is 0.99976 s. Modern keeps GT2's tick exactly: four world ticks add up to the same 2184, so lap times and the race clock are unchanged by the rate.</p>
+    </div>
+    <div class="panel">
+      <h3>Why a shorter step helps</h3>
+<pre>explicit step     x(t+dt) = x + v·dt,   v(t+dt) = v + a(x,v)·dt
+error per second  ∝ dt          → 4× smaller at 120 Hz
+a stiff loop      v' = −λ·v   is stable only if  λ·dt &lt; 2
+                  oscillates (overshoots zero) if  λ·dt &gt; 1</pre>
+      <p>Most of a car is slow next to 1/30 s: the body and the suspension don't care much. A few loops are fast. A tire's grip acts on a wheel's spin within milliseconds, and the ABS reacts to that slip. For those, λ·dt at 1/30 s is past 1, so the step overshoots, and that overshoot is what you feel. At 120 Hz, λ·dt is four times smaller.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>What runs at which rate</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>System</th><th>Classic</th><th>Modern</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Forces, drivetrain, integration</td><td>30 Hz</td><td><b>120 Hz</b></td><td>The stiff loops (below)</td></tr>
+        <tr><td>Controller handling (stick slew, pedal ramps), AI driver</td><td>30 Hz</td><td><b>120 Hz</b></td><td>Inputs change every step, not in 30 Hz stairs</td></tr>
+        <tr><td>Lap and sector lines, race clock, license checks, rank, rubber band</td><td>30 Hz</td><td><b>120 Hz</b></td><td>Lines timed to 1/12000 s of travel, not 1/3000</td></tr>
+        <tr><td>Digital steering spring (d-pad, keys)</td><td>30 Hz</td><td>30 Hz</td><td>Its 30 Hz law answers a tap 20 % less when stepped at 120 Hz</td></tr>
+        <tr><td>Road probe (height filter, bumps)</td><td>30 Hz</td><td>30 Hz</td><td>GT2's two-tick filter; at 120 Hz the Tuscan's pitch jerk tripled</td></tr>
+        <tr><td>GT2 tick counters (hit timer, HUD priority, pit timer, scrape decay)</td><td>30 Hz</td><td>30 Hz</td><td>Counted in GT2 ticks; the seconds stay the same</td></tr>
+        <tr><td>Controller sampling in the window</td><td>30 Hz</td><td>30 Hz</td><td>Kept so recordings stay compatible</td></tr>
+        <tr><td>Time trial</td><td>30 Hz</td><td>30 Hz</td><td>Its ghost ring is GT2's card format at GT2's tick</td></tr>
+        <tr><td>The drawn picture between frames</td><td>blend of 30 Hz frames</td><td>chase camera at every physics step; replays from 120 Hz car poses</td><td>Smooth motion at high frame rates (<code>PSX_CAMERA_RATE=physics</code>)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Acceleration: the formulas, not the rate</h2>
+  <p>Eight stock cars on an endless flat straight with full throttle and the wheel held straight. Each row shows modern's change against classic, at 30 Hz and at 120 Hz. The zero line is classic. Times are read once per 30 Hz frame, so they're good to about ±0.033 s, which is 0.2–0.8 % of a 0-100 run.</p>
+  <div class="cols">
+    <figure class="panel"><h3>0-100 km/h</h3><div class="diagram narrow" id="ch-t100"></div></figure>
+    <figure class="panel"><h3>Top speed</h3><div class="diagram narrow" id="ch-vmax"></div></figure>
+  </div>
+  <div class="panel tablewrap" id="tb-accel"></div>
+  <p class="note">Median against classic: 0-100 is −0.5 % at 30 Hz and −1.0 % at 120 Hz. Top speed is +0.7 % at both. 400 m is −0.35 % and −0.5 %. Top speed doesn't depend on the rate at all, since it's a balance of drive force and drag. The 0-100 difference between the rates is about one frame of timing.</p>
+</section>
+
+<section>
+  <h2>Launch: the force at the end of the step</h2>
+  <div class="cols">
+    <div class="panel">
+      <p>A spinning wheel and the tire's push on the body have to agree. Modern steps the wheel implicitly, solving for the end-of-step spin ω′. At first, the body still took the force at the start-of-step spin ω. The gap is one step of the wheel's change:</p>
+<pre>body force before   F(ω)
+wheel balanced at   F(ω′),   ω′ = ω + α·dt
+lag per step        ΔF ≈ S·α·dt     (S = dF/dω, the tire's slope)</pre>
+      <p>During a launch the slope S is steep and α is large, so the lag cost 5–12 % of the launch force, even at 120 Hz. The fix is an integration correction: the body now takes the end-of-step force. No constant moved.</p>
+    </div>
+    <div class="panel tablewrap">
+      <table>
+        <thead><tr><th>Car</th><th class="n">classic</th><th class="n">before</th><th class="n">after</th></tr></thead>
+        <tbody>
+          <tr><td>R34 GT-R, 0-100 (s)</td><td class="n">4.86</td><td class="n">5.20</td><td class="n">4.84</td></tr>
+          <tr><td>Impreza, 0-100 (s)</td><td class="n">5.08</td><td class="n">5.61</td><td class="n">5.29</td></tr>
+          <tr><td>Vitz, 0-100 (s)</td><td class="n">16.03</td><td class="n">16.88</td><td class="n">16.26</td></tr>
+          <tr><td>R34 GT-R tuned, 0-100 (s)</td><td class="n">3.03</td><td class="n">3.20</td><td class="n">3.07</td></tr>
+          <tr><td>B-1 license demo (s)</td><td class="n">38.672</td><td class="n">no finish</td><td class="n">38.566</td></tr>
+        </tbody>
+      </table>
+      <p class="note">The 1000 m Machine Test with standing starts.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Turning: GT2's heading step</h2>
+  <div class="cols">
+    <div class="panel">
+      <p>GT2 turns the car's heading once a tick. It multiplies the yaw rate by dt and keeps only whole heading units (4096 to a turn), truncated toward zero:</p>
+<pre>dh = (yaw × dt) >> 23            (heading units per tick)
+one unit per tick  =  (2π / 4096) / (2184 / 65536 s)
+                   =  0.046 rad/s  =  2.64 °/s
+GT2's turning rate =  0.046 × trunc(r / 0.046)</pre>
+      <p>So the heading turns at the true yaw rate rounded down to whole steps of 0.046 rad/s. Below one step it doesn't turn at all. Without this rule, modern turned 8 % more than classic on the same inputs (path gain 1.133 on the flat plane, 1.079 on the license demos). Modern now keeps the step as a <b>rate</b>, so it's the same at 30 Hz or 120 Hz: path gain 0.999.</p>
+      <p class="note">Applied as "one unit per step" at 120 Hz, the step would become 4 times coarser (0.184 rad/s). So it's kept in seconds, not ticks.</p>
+    </div>
+    <div class="panel">
+      <h3>Try a corner</h3>
+      <div class="calc">
+        <label for="kmh">Speed <output id="kmh-o">100</output> km/h</label>
+        <input type="range" id="kmh" min="20" max="300" step="5" value="100">
+        <label for="rad">Radius <output id="rad-o">500</output> m</label>
+        <input type="range" id="rad" min="20" max="2000" step="10" value="500">
+      </div>
+      <dl class="kv" id="calc-out"></dl>
+      <div class="diagram narrow" id="ch-heading"></div>
+      <p class="note">True yaw rate r = v / R. The orange line is GT2's turning rate, a staircase of 0.046 rad/s steps; the gray diagonal is the true rate. The car is still steered by its tires, so a missing step shows up as a slightly wider line that the driver corrects.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Grip on the skidpad</h2>
+  <p>The highest steady lateral g on a 50 m circle, for the same eight cars. The 618-car comparison found that one car's skidpad result repeats only to about ±5 % between two circles, so the per-car spread here is mostly measurement. The medians are the fair reading: modern grips +2.3 % more than classic at 30 Hz and +3.5 % at 120 Hz.</p>
+  <figure class="panel"><div class="diagram narrow" id="ch-g"></div></figure>
+</section>
+
+<section>
+  <h2>Braking: the ABS loop</h2>
+  <div class="cols">
+    <div class="panel">
+      <p>GT2's ABS looks at each wheel's slip once a tick and sets the brake for the next. How much one tick of braking moves the slip is the loop gain:</p>
+<pre>L = g · grip · r² · dt / (I_w · v)
+
+g     ABS gain           r    tire radius
+grip  tire grip (N)      I_w  wheel inertia (kg·m²)
+v     speed (m/s)        dt   the step</pre>
+      <p>The brake torque cancels out. With L above about 3 the loop can't settle. The wheel locks within a tick, the ABS lets go completely, the free wheel spins back up past the road speed and pushes the car forward, and the cycle repeats at 10–15 Hz. L grows with dt, so <b>at 120 Hz every car's L is a quarter of its 30 Hz value</b>. A car at L = 8 on classic sits at 2 on modern.</p>
+      <p>The cars with the highest L are heavy front-engine, rear-drive cars. Their front wheels are undriven, carry the most load and have little inertia. A full tune makes it worse twice over: more grip, and lighter drive-line parts that cut wheel inertia by about 37 %.</p>
+    </div>
+    <div class="panel tablewrap">
+      <h3>DB7 Volante, 100-0 km/h (m)</h3>
+      <table>
+        <thead><tr><th>Setup</th><th class="n">stock</th><th class="n">full tune</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sw c"></span> classic, 30 Hz</td><td class="n">30.6</td><td class="n">36.1</td></tr>
+          <tr><td><span class="sw m30"></span> modern, 30 Hz</td><td class="n">29.7</td><td class="n">32.5</td></tr>
+          <tr><td>modern, 60 Hz</td><td class="n">29.2</td><td class="n">22.9</td></tr>
+          <tr><td><span class="sw m120"></span> modern, 120 Hz</td><td class="n">28.5</td><td class="n">23.1</td></tr>
+        </tbody>
+      </table>
+      <p class="note">At 30 Hz even modern's formulas show GT2's reversal: the tune stops <i>longer</i>. At 60 Hz it's gone. Fleet-wide, FR cars with a front L of 3.5 or more stop 18 % shorter on modern. Modern at 120 Hz holds the slip at the brake peak on every car measured (0.97–0.98 of grip).</p>
+      <p class="note">The eight cars here are mostly low-L: modern stops 0.3–0.5 % shorter at the median, and the rate moves them under ±1 %.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The 30 Hz staircase</h2>
+  <p>With the world at 30 Hz, the inputs and the AI changed once a GT2 tick, so all of a tick's change landed in its first physics step and the other three were nearly flat. Below is the change in acceleration per 120 Hz step, by its place in the GT2 tick: the Mustang, the classic AI driving Grindelwald for 3 minutes, RMS in m/s².</p>
+  <figure class="panel"><div class="diagram narrow" id="ch-stair"></div><figcaption>Lateral, all moving. Before: step 1 carried 1.02 and steps 2–4 about 0.20. After: every step 0.33–0.34. The total per GT2 tick fell from 1.08 to 0.68 m/s² (sum of squares). Longitudinal went from 0.57 / 0.35 / 0.26 / 0.17 to 0.35 / 0.40 / 0.31 / 0.40.</figcaption></figure>
+</section>
+
+<section>
+  <h2>Constants re-derived for 120 Hz</h2>
+  <p>A value written "per tick" in GT2 has to be re-stated per world tick so that the per-second value stays GT2's. Where GT2's own integer truncation changes the answer, that's noted.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Constant</th><th>GT2 at 30 Hz</th><th>World tick at 120 Hz</th><th>Per second</th></tr></thead>
+      <tbody>
+        <tr><td>Race clock step</td><td><code>+100</code> units</td><td><code>+25</code></td><td>3000 units/s, unchanged</td></tr>
+        <tr><td>Analog steering slew</td><td><code>2184 × 1479 &gt;&gt; 16 = 49</code></td><td><code>546 × 1479 &gt;&gt; 16 = 12</code></td><td>1470 → 1440 units/s (−2 %, the shift truncates)</td></tr>
+        <tr><td>Digital pedal ramp</td><td><code>409600 / (centis × 30)</code> a tick</td><td><code>ceil(step / 4)</code></td><td>The same ramp time, centis / 100 s</td></tr>
+        <tr><td>Line time fraction</td><td>× 100 units</td><td>× 25 units</td><td>Lines resolved 4× finer</td></tr>
+        <tr><td>License stop-time bonus</td><td><code>v × 100 / 1138</code></td><td><code>v × 25 / 1138</code></td><td>The speed left over one step</td></tr>
+        <tr><td>AI shift-timer bump</td><td>+1 tick a call</td><td>+1/120 s a call</td><td>1/30 s per GT2 tick held</td></tr>
+        <tr><td>Damper stroke speed</td><td>Two-tick mean (1/15 s window)</td><td>Per-step mean; GT2's curves × 0.6</td><td>GT2's 30 Hz step damps less than its own curves say</td></tr>
+        <tr><td>Ground height filter</td><td>Two-tap mean (1/60 s delay)</td><td>1/60 s time constant</td><td>Re-stated in seconds</td></tr>
+        <tr><td>Heading step</td><td>1 unit per tick</td><td>0.046 rad/s as a rate</td><td>Unchanged by the rate</td></tr>
+        <tr><td>AI controllers, rubber band</td><td>Memoryless per call</td><td>The same per world tick</td><td>No rescale needed</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Every number</h2>
+  <div class="panel tablewrap" id="tb-all"></div>
+  <p class="note">Stock cars on a flat straight, 100-0 braking from 120 km/h, and a 50 m skidpad. Modern at 30 Hz runs both the physics and the world ticks at 30 a second. Classic was identical in both runs. Codes like <code>t2vzn</code> are GT2's own car IDs.</p>
+</section>
+
+<footer>
+  <p>Measured before three later fixes to modern (the 1- and 2-speed gearboxes, the 4WD center coupling, the ATTESA lock), which change a few 4WD numbers.</p>
+<p class="xfoot" style="font-size:12px;line-height:1.5;opacity:.7;margin:28px 0 0;padding:0;max-width:none">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var D=[["t2vzn","Toyota Vitz F '99","FF",852.0,68,[[17.029,20.762,173.711,37.197,1.253],[16.996,20.762,174.833,36.232,1.325],[16.996,20.762,174.838,36.472,1.313]]],["n2man","Nissan March G# '97","FF",858.0,77,[[15.863,20.228,190.04,38.657,1.12],[15.763,20.128,191.76,38.325,1.234],[15.796,20.162,191.755,38.629,1.308]]],["a26sn","Mazda MX-5 Miata 1.6","FR",1020.0,124,[[11.431,18.062,215.8,34.973,1.217],[11.397,18.029,215.816,34.495,1.234],[11.364,18.029,215.773,34.49,1.211]]],["ufm9n","Mustang GT '99","FR",1485.0,210,[[6.932,15.196,256.061,30.547,1.319],[6.832,15.13,258.217,29.944,1.36],[6.832,15.096,258.211,29.662,1.253]]],["t2ssn","Toyota Supra RZ '97","FR",1510.0,330,[[6.732,14.596,308.413,29.454,1.35],[6.632,14.53,309.541,29.719,1.346],[6.565,14.463,309.537,29.515,1.394]]],["n24rn","Skyline GT-R(R34) '99","4WD",1540.0,328,[[5.332,13.697,297.039,29.816,1.249],[5.365,13.697,299.071,29.869,1.185],[5.332,13.697,299.068,29.572,1.369]]],["dvpgn","Viper GTS","FR",1531.0,470,[[4.932,12.897,335.912,29.692,1.204],[4.899,12.864,338.412,29.789,1.217],[4.832,12.797,338.415,30.458,1.248]]],["a-a7r","\u007fMazda RX-7 A-spec LM","FR",1050.0,549,[[3.966,11.464,338.392,23.775,1.547],[3.966,11.397,338.675,24.04,1.607],[3.899,11.364,338.675,24.454,1.585]]]];
+var NS='http://www.w3.org/2000/svg';
+function el(n,a,t){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e;}
+var SET=[['c','classic, 30 Hz'],['m30','modern, 30 Hz'],['m120','modern, 120 Hz']];
+var MET={t100:[0,'0-100 km/h','s',2],t400:[1,'400 m','s',2],vmax:[2,'top speed','km/h',1],d100:[3,'100-0 km/h','m',2],g:[4,'skidpad','g',3]};
+function val(r,s,k){return r[5][s][MET[k][0]];}
+function pct(a,b){return 100*(a-b)/b;}
+// dumbbell: per car, modern 30 and 120 as % of classic
+function dumb(id,k,lo,hi){
+  var host=document.getElementById(id);if(!host)return;
+  var W=460,rowH=26,top=26,left=150,right=20,H=top+D.length*rowH+30;
+  var svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':MET[k][1]+': modern at 30 and 120 Hz against classic, percent'});
+  function x(p){return left+(p-lo)/(hi-lo)*(W-left-right);}
+  for(var t=Math.ceil(lo);t<=Math.floor(hi);t++){var gx=x(t);svg.appendChild(el('line',{x1:gx,x2:gx,y1:top-6,y2:H-24,class:t===0?'zero':'grid'}));svg.appendChild(el('text',{x:gx,y:H-8,'text-anchor':'middle',class:'m'},(t>0?'+':'')+t+' %'));}
+  svg.appendChild(el('text',{x:x(0),y:14,'text-anchor':'middle',class:'m'},'classic'));
+  D.forEach(function(r,i){
+    var y=top+i*rowH+rowH/2,c=val(r,0,k),a=pct(val(r,1,k),c),b=pct(val(r,2,k),c);
+    svg.appendChild(el('text',{x:left-8,y:y+4,'text-anchor':'end',class:'n'},r[1].replace(/ '\d\d$/,'')));
+    var ca=Math.max(lo,Math.min(hi,a)),cb=Math.max(lo,Math.min(hi,b));
+    svg.appendChild(el('line',{x1:x(ca),x2:x(cb),y1:y,y2:y,class:'link'}));
+    [[ca,a,'m30',1],[cb,b,'m120',2]].forEach(function(p){
+      var d=el('circle',{cx:x(p[0]),cy:y,r:6,class:'pt '+p[2]});
+      d.appendChild(el('title',{},r[1]+', '+SET[p[3]][1]+': '+val(r,p[3],k).toFixed(MET[k][3])+' '+MET[k][2]+' ('+(p[1]>=0?'+':'')+p[1].toFixed(2)+' % against classic '+c.toFixed(MET[k][3])+')'));
+      svg.appendChild(d);
+    });
+  });
+  host.appendChild(svg);
+  var lg=document.createElement('p');lg.className='legend';lg.innerHTML='<span class="sw m30"></span> modern, 30 Hz <span class="sw m120"></span> modern, 120 Hz <span class="note">· hover a dot for the numbers</span>';host.appendChild(lg);
+}
+dumb('ch-t100','t100',-3,2);
+dumb('ch-vmax','vmax',-1,2);
+dumb('ch-g','g',-8,18);
+function table(id,keys){
+  var host=document.getElementById(id);if(!host)return;
+  var h='<table><thead><tr><th>Car</th><th>Layout</th>';
+  keys.forEach(function(k){h+='<th class="n">'+MET[k][1]+' ('+MET[k][2]+')<br>C / M30 / M120</th>';});
+  h+='</tr></thead><tbody>';
+  D.forEach(function(r){h+='<tr><td>'+r[1]+'</td><td>'+r[2]+'</td>';keys.forEach(function(k){var f=MET[k][3];h+='<td class="n">'+val(r,0,k).toFixed(f)+' / '+val(r,1,k).toFixed(f)+' / <b>'+val(r,2,k).toFixed(f)+'</b></td>';});h+='</tr>';});
+  host.innerHTML=h+'</tbody></table>';
+}
+table('tb-accel',['t100','t400','vmax']);
+table('tb-all',['t100','t400','vmax','d100','g']);
+// heading staircase
+var Q=(2*Math.PI/4096)/(2184/65536);
+var hs=document.getElementById('ch-heading');
+var W=420,H=230,L=48,B=34,T=10,Rt=12,RMAX=0.32;
+var svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'True yaw rate against GT2 turning rate: a staircase of 0.046 rad/s steps'});
+function sx(r){return L+r/RMAX*(W-L-Rt);} function sy(r){return H-B-r/RMAX*(H-B-T);}
+for(var i=0;i<=6;i++){var v=i*0.05;svg.appendChild(el('line',{x1:sx(v),x2:sx(v),y1:T,y2:H-B,class:'grid'}));svg.appendChild(el('text',{x:sx(v),y:H-B+16,'text-anchor':'middle',class:'m'},v.toFixed(2)));svg.appendChild(el('line',{x1:L,x2:W-Rt,y1:sy(v),y2:sy(v),class:'grid'}));svg.appendChild(el('text',{x:L-6,y:sy(v)+4,'text-anchor':'end',class:'m'},v.toFixed(2)));}
+svg.appendChild(el('text',{x:(L+W-Rt)/2,y:H-4,'text-anchor':'middle',class:'n'},'true yaw rate r = v / R (rad/s)'));
+svg.appendChild(el('line',{x1:sx(0),y1:sy(0),x2:sx(RMAX),y2:sy(RMAX),class:'diag'}));
+var p='M'+sx(0)+','+sy(0);for(var n=0;n*Q<RMAX;n++){var a=n*Q,b=Math.min(RMAX,(n+1)*Q);p+=' L'+sx(a)+','+sy(a)+' L'+sx(b)+','+sy(a);}
+svg.appendChild(el('path',{d:p,class:'stair'}));
+var mk=el('circle',{r:6,class:'pt m120'});svg.appendChild(mk);
+var mk2=el('circle',{r:4,class:'pt truept'});svg.appendChild(mk2);
+hs.appendChild(svg);
+var kmh=document.getElementById('kmh'),rad=document.getElementById('rad'),out=document.getElementById('calc-out');
+function upd(){
+  var v=kmh.value/3.6,R=+rad.value,r=v/R,e=Q*Math.trunc(r/Q),loss=r>0?100*(1-e/r):0;
+  document.getElementById('kmh-o').textContent=kmh.value;document.getElementById('rad-o').textContent=R;
+  out.innerHTML='<dt>true yaw rate</dt><dd>'+r.toFixed(4)+' rad/s ('+(r*180/Math.PI).toFixed(2)+' °/s)</dd>'+
+   '<dt>GT2 steps</dt><dd>'+Math.trunc(r/Q)+' × 0.04603 = '+e.toFixed(4)+' rad/s</dd>'+
+   '<dt>heading turns</dt><dd><b>'+(100-loss).toFixed(1)+' %</b> of the true rate'+(e===0?' (below one step: no turn at all)':'')+'</dd>'+
+   '<dt>per GT2 tick</dt><dd>'+(r*2184/65536*4096/(2*Math.PI)).toFixed(2)+' heading units, kept: '+Math.trunc(r/Q)+'</dd>';
+  var rc=Math.min(r,RMAX);mk.setAttribute('cx',sx(rc));mk.setAttribute('cy',sy(Math.min(e,RMAX)));mk2.setAttribute('cx',sx(rc));mk2.setAttribute('cy',sy(rc));
+}
+kmh.addEventListener('input',upd);rad.addEventListener('input',upd);upd();
+// staircase bars
+var st=document.getElementById('ch-stair');
+var SV=[[1.02,0.20,0.20,0.21],[0.34,0.34,0.33,0.34]],LB=['30 Hz world (before)','120 Hz world (after)'];
+var W2=460,H2=220,L2=40,B2=40,T2=14;var s2=el('svg',{viewBox:'0 0 '+W2+' '+H2,role:'img','aria-label':'Change per 120 Hz step by its place in the GT2 tick, before and after'});
+function y2(v){return H2-B2-v/1.1*(H2-B2-T2);}
+[0,0.25,0.5,0.75,1.0].forEach(function(v){s2.appendChild(el('line',{x1:L2,x2:W2-10,y1:y2(v),y2:y2(v),class:'grid'}));s2.appendChild(el('text',{x:L2-6,y:y2(v)+4,'text-anchor':'end',class:'m'},v.toFixed(2)));});
+var gw=(W2-L2-20)/4;
+for(var ph=0;ph<4;ph++){for(var g=0;g<2;g++){var bx=L2+10+ph*gw+g*(gw/2-6)+4,bw=gw/2-14,v=SV[g][ph];var rr=el('rect',{x:bx,y:y2(v),width:bw,height:y2(0)-y2(v),rx:3,class:g?'f-m120':'f-m30'});rr.appendChild(el('title',{},LB[g]+', step '+(ph+1)+' of the GT2 tick: '+v.toFixed(2)+' m/s² RMS'));s2.appendChild(rr);s2.appendChild(el('text',{x:bx+bw/2,y:y2(v)-4,'text-anchor':'middle',class:'m'},v.toFixed(2)));}
+ s2.appendChild(el('text',{x:L2+10+ph*gw+gw/2-6,y:H2-B2+16,'text-anchor':'middle',class:'n'},'step '+(ph+1)));}
+s2.appendChild(el('text',{x:(L2+W2)/2,y:H2-6,'text-anchor':'middle',class:'n'},'place of the 120 Hz step inside the GT2 tick'));
+st.appendChild(s2);
+var lg2=document.createElement('p');lg2.className='legend';lg2.innerHTML='<span class="sw m30"></span> 30 Hz world (before) <span class="sw m120"></span> 120 Hz world (after)';st.appendChild(lg2);
+})();
+</script>
+</body></html>

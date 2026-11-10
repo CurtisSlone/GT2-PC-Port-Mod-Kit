@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Career and Saves</title>
+<style>
+
+:root{
+  --bg:#eef1f3; --panel:#ffffff; --ink:#15202b; --ink-2:#44515e; --ink-3:#74808c; --rule:#d6dce2; --code-bg:#e9eef2;
+  --accent:#0d7480; --money:#b26a00; --lic:#6a4fb3; --garage:#2f7d3b; --stats:#c0392b; --opt:#5b6b7a; --free:#cfd6dc;
+  --ok:#11703a; --ok-bg:#e1f2e7;
+  --display:"Avenir Next Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10161b; --panel:#182128; --ink:#e8edf1; --ink-2:#b3bec8; --ink-3:#86929d; --rule:#2a3540; --code-bg:#1f2a33;
+  --accent:#3fb6c2; --money:#e8a33a; --lic:#a58cf0; --garage:#5cc06b; --stats:#ef6b5c; --opt:#8d9cab; --free:#33404b;
+  --ok:#6ad79a; --ok-bg:#163526; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10161b; --panel:#182128; --ink:#e8edf1; --ink-2:#b3bec8; --ink-3:#86929d; --rule:#2a3540; --code-bg:#1f2a33;
+  --accent:#3fb6c2; --money:#e8a33a; --lic:#a58cf0; --garage:#5cc06b; --stats:#ef6b5c; --opt:#8d9cab; --free:#33404b;
+  --ok:#6ad79a; --ok-bg:#163526; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:8px;border-bottom:3px solid var(--accent);padding-bottom:16px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,6vw,50px);line-height:1.02;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:20px;margin:0}
+p{margin:0;max-width:70ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.svgwrap{overflow-x:auto}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--ink-2)}
+svg .lbl{fill:var(--ink);font-size:12px}
+svg .onfill{fill:#ffffff;font-size:11px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+td.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:9px;background:var(--ok-bg);color:var(--ok);white-space:nowrap}
+.pill.code{background:var(--code-bg);color:var(--ink-2)}
+.big{display:flex;flex-wrap:wrap;gap:12px}
+.big div{flex:1 1 150px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:12px 14px}
+.big b{display:block;font-family:var(--display);font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.big span{font-size:13px;color:var(--ink-2)}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:72ch}
+pre{margin:0;font-family:var(--mono);font-size:12.5px;background:var(--code-bg);padding:12px;border-radius:5px;overflow-x:auto;line-height:1.45}
+footer{font-size:13px;color:var(--ink-3)}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">Gran Turismo 2 · Simulation disc US v1.0 · career and saves</div>
+  <h1>One 31,900-byte block is the whole career</h1>
+  <p class="lede">Money, days, licenses, every car with its tune, event results, options and controller set-up all live in one block of the PlayStation's RAM, starting at address <code>0x801C9340</code>. The memory card gets a copy only when you choose Save Game. This page maps that block, every rule that changes it, and how the port can import it.</p>
+</header>
+
+<div class="big">
+  <div><b>0x7C9C</b><span>bytes in the save block (31,900)</span></div>
+  <div><b>30</b><span>rules change it (all whole-number math, all listed)</span></div>
+  <div><b>100</b><span>garage slots, half of the save</span></div>
+  <div><b>248</b><span>event results stored, 4 bits each</span></div>
+</div>
+
+<section>
+  <h2>On the memory card</h2>
+  <p>A PS1 card has 15 blocks of 8 KB. GT2's career file takes 4 of them; saved replays are a separate file. The file is a 512-byte header (icon and Japanese-encoded title), the save block, a standard CRC-32 checksum (a number computed from the data that shows whether it was damaged or edited), and leftover bytes.</p>
+  <div class="panel svgwrap">
+    <svg viewBox="0 0 900 190" role="img" aria-label="Card blocks: blocks 1 to 4 hold the GAME file, 5 to 8 the REPLAY file, the rest free. The GAME file: header 0x200, save block 0x7C9C, CRC at 0x7E9C, leftovers to 0x7F00.">
+      <g>
+        <text x="0" y="14" class="lbl">card blocks (8 KB each)</text>
+        <rect x="0" y="22" width="56" height="40" fill="var(--ink-3)"/><text x="28" y="47" text-anchor="middle" class="onfill">dir</text>
+      </g>
+      <g id="blocks"></g>
+      <text x="0" y="96" class="lbl">GAME file (32,768 bytes allocated, 0x7F00 written)</text>
+      <rect x="0" y="104" width="12" height="40" fill="var(--opt)"/>
+      <rect x="12" y="104" width="812" height="40" fill="var(--accent)"/>
+      <rect x="824" y="104" width="6" height="40" fill="var(--stats)"/>
+      <rect x="830" y="104" width="70" height="40" fill="var(--free)"/>
+      <text x="418" y="129" text-anchor="middle" class="onfill">save block 0x7C9C = 0x801C9340 in RAM</text>
+      <text x="0" y="162">+0x000 header</text>
+      <text x="12" y="178">+0x200</text>
+      <text x="760" y="162">CRC +0x7E9C</text>
+      <text x="836" y="178">unused</text>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <h2>Inside the save block</h2>
+  <p>Drawn to scale. The garage is half the file: 100 slots of 164 bytes, each a car code, color, the full 0x84-byte (132-byte) set-up, the parts bought, the money put in, and its dirt. There is no mileage, oil or damage field anywhere. Offsets below (+0x...) are byte positions inside the block.</p>
+  <div class="panel svgwrap">
+    <svg id="mapsvg" viewBox="0 0 900 150" role="img" aria-label="Save block map to scale"></svg>
+    <div class="legend" id="maplegend"></div>
+  </div>
+  <div class="tablewrap panel">
+    <table>
+      <thead><tr><th>Offset</th><th>What</th><th>Written by</th></tr></thead>
+      <tbody>
+        <tr><td><code>+0x000</code></td><td>language, race options (laps, damage, tire wear, handicap, boost)</td><td>power-on, Options</td></tr>
+        <tr><td><code>+0x00A</code></td><td>controller set-up per pad: 4 button / axis maps of 11 bytes, vibration, analog settings</td><td>Key Configuration, Analog Settings</td></tr>
+        <tr><td><code>+0x0AE</code></td><td>camera, course map, view angle, music and SFX volume, ghost display</td><td>Options</td></tr>
+        <tr><td><code>+0x0B8</code></td><td>Arcade course flags (unused on this disc)</td><td>Arcade race won</td></tr>
+        <tr><td><code>+0x0F8</code></td><td><b>days</b>, battle wins, races entered, wins, place sum, results, prize money</td><td>GO!, result pages</td></tr>
+        <tr><td><code>+0x118</code></td><td><b>best place for each of the 248 events</b>, 4 bits each</td><td>result pages</td></tr>
+        <tr><td><code>+0x218</code></td><td>course records (128 slots, empty on every card we have seen)</td><td>race</td></tr>
+        <tr><td><code>+0x1418</code></td><td><b>license tests</b> 6 × 10: grade, near misses, top-5 times</td><td>license result page</td></tr>
+        <tr><td><code>+0x3A88</code></td><td>machine test records: 400 m, 1000 m, top speed</td><td>machine test</td></tr>
+        <tr><td><code>+0x3C74</code></td><td><b>garage</b>: count, 100 cars, <b>credits</b>, current car, AT / MT, name</td><td>shops, prizes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>The career loop</h2>
+  <p>GT Mode alternates between the menus and the race. The career changes only at the marked points; everything the menus show (licenses held, unlocks, completion, win ratio) is worked out from the stored fields each time.</p>
+  <div class="panel svgwrap">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Career loop: card load into RAM career; menus change money and garage; GO! adds a day; race result pays prizes and records; Save Game writes the card.">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/></marker></defs>
+      <rect x="350" y="115" width="200" height="70" rx="6" fill="var(--accent)"/>
+      <text x="450" y="146" text-anchor="middle" class="onfill" style="font-size:14px">career in RAM</text>
+      <text x="450" y="165" text-anchor="middle" class="onfill">0x801C9340</text>
+      <rect x="20" y="20" width="200" height="60" rx="6" fill="var(--panel)" stroke="var(--rule)"/>
+      <text x="120" y="45" text-anchor="middle" class="lbl">power-on defaults</text><text x="120" y="63" text-anchor="middle">10,000 Cr, day 1</text>
+      <rect x="20" y="220" width="200" height="60" rx="6" fill="var(--panel)" stroke="var(--rule)"/>
+      <text x="120" y="245" text-anchor="middle" class="lbl">memory card</text><text x="120" y="263" text-anchor="middle">GAME file, CRC</text>
+      <rect x="680" y="20" width="200" height="70" rx="6" fill="var(--panel)" stroke="var(--money)"/>
+      <text x="780" y="43" text-anchor="middle" class="lbl">menus (GT Mode)</text><text x="780" y="61" text-anchor="middle">buy, sell, parts, wash</text><text x="780" y="77" text-anchor="middle">get in, move car</text>
+      <rect x="680" y="210" width="200" height="80" rx="6" fill="var(--panel)" stroke="var(--stats)"/>
+      <text x="780" y="233" text-anchor="middle" class="lbl">race result pages</text><text x="780" y="251" text-anchor="middle">prize, stats, best place</text><text x="780" y="267" text-anchor="middle">prize car, license grade</text><text x="780" y="283" text-anchor="middle">records, dirt</text>
+      <path d="M220,55 C300,60 330,110 350,130" fill="none" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <path d="M220,240 C300,230 330,190 350,170" fill="none" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <text x="255" y="222">Load Game</text>
+      <path d="M350,180 C300,215 270,260 222,262" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+      <text x="262" y="292">Save Game (only then)</text>
+      <path d="M550,130 C600,90 640,60 678,55" fill="none" stroke="var(--money)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <path d="M680,80 C640,110 600,130 552,140" fill="none" stroke="var(--money)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <path d="M780,92 L780,206" fill="none" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <text x="790" y="140" class="lbl">GO!</text><text x="790" y="156">days + 1</text><text x="790" y="172">races + 1</text>
+      <path d="M680,250 C620,230 590,195 552,170" fill="none" stroke="var(--stats)" stroke-width="1.5" marker-end="url(#ar)"/>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <h2>The rules, in plain numbers</h2>
+  <div class="grid2">
+    <div class="panel"><h3 style="color:var(--money)">Money</h3>
+      <ul>
+        <li>Prizes add to credits, clamped to 0 … 99,999,999.</li>
+        <li>A new car costs its catalog price, a used car its lot price; selling returns a quarter of the catalog price, whatever you paid or fitted.</li>
+        <li>Wheels cost 2,000 Cr; the car wash 50 Cr (the sign says 5,000).</li>
+        <li>Championship bonuses reach your credits but never the "total prize money" figure.</li>
+      </ul></div>
+    <div class="panel"><h3 style="color:var(--stats)">Calendar and results</h3>
+      <ul>
+        <li>One day per event or license test entered, counted at the GO!, even if you leave before racing.</li>
+        <li>Win ratio = wins ÷ events entered, so backing out lowers it; average place uses finished races only.</li>
+        <li>Each event keeps its best place; completion = events won × 100 ÷ 223.</li>
+        <li>A new used-car lot every 10 days: 60 lots in a 600-day cycle, nothing random.</li>
+      </ul></div>
+    <div class="panel"><h3 style="color:var(--lic)">Licenses</h3>
+      <ul>
+        <li>Gold, silver, bronze by strictly beating the target time.</li>
+        <li>A "kids" time (the lowest pass) is given only after 5 to 30 tries (each test has its own limit); the best grade stays.</li>
+        <li>A license is held when all ten tests have a grade; no flag is stored.</li>
+        <li>All gold the first time adds the license's prize car.</li>
+      </ul></div>
+    <div class="panel"><h3 style="color:var(--garage)">Garage</h3>
+      <ul>
+        <li>100 cars at most; a prize car won with a full garage is lost without a warning.</li>
+        <li>Prize cars are picked from the frame counter: the exact frame the result page appears.</li>
+        <li>Dirt carries between races as <code>(acc &lt;&lt; 12) / 600000</code>; the rounding cleans a car by one unit on a clean drive.</li>
+        <li>Selling the current car leaves no current car.</li>
+      </ul></div>
+  </div>
+  <p class="note">Each of these rules was checked against the real game: applying the rule to a saved state gives exactly the state the game produces, on all 31,900 bytes.</p>
+</section>
+
+<section>
+  <h2>Importing a GT2 card into the port</h2>
+  <p>The port can keep its own save file. A GT2 card can be imported into it: the importer checks the CRC, reads only the career file, and maps each field to a value, reporting anything it had to clamp or drop.</p>
+  <div class="tablewrap panel">
+    <table>
+      <thead><tr><th>From the card</th><th>Becomes</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>days, credits, statistics</td><td>calendar, credits, race statistics</td><td>the two halves of the prize money total joined into one number</td></tr>
+        <tr><td>248 best-place values</td><td>progress per event</td><td>extra values written by cheat codes are ignored</td></tr>
+        <tr><td>60 license tests</td><td>licenses: grade, near misses, times</td><td>stored order S … B mapped to the license classes</td></tr>
+        <tr><td>garage cars</td><td>owned cars: car, body, color, set-up, parts, value, dirt</td><td>stored power and weight worked out again; unknown car codes refused</td></tr>
+        <tr><td>options, pad maps, analog settings</td><td>settings, controller set-up</td><td>vibration stored once</td></tr>
+        <tr><td>machine test, course records</td><td>records</td><td>machine test counts clamped to 8 (see the bugs below)</td></tr>
+        <tr><td>replay file</td><td>skipped</td><td>no replay or ghost import</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Quirks in the original game</h2>
+  <ul>
+    <li>Dirt rounding: a clean drive cleans the car by one unit.</li>
+    <li>Win ratio divides by events entered, not races run.</li>
+    <li>A day passes at the GO! even when you back out.</li>
+    <li>Championship bonuses are missing from total prize money.</li>
+    <li>A hidden garage-move bug that could point the current car at the wrong car.</li>
+    <li>Prize cars are lost at 100 cars. The machine test record count can run past its limit of 8, and completion tops out at 98.20 %.</li>
+  </ul>
+</section>
+
+<footer>Offsets and addresses are for the US Simulation disc v1.0. No game data on this page.</footer>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  function el(n,a,t){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(t)e.textContent=t;return e;}
+  // card blocks
+  var g=document.getElementById('blocks');
+  for(var i=1;i<=15;i++){
+    var x=56+(i-1)*56.27, f=i<=4?'var(--accent)':(i<=8?'var(--opt)':'var(--free)');
+    g.appendChild(el('rect',{x:x+2,y:22,width:52,height:40,fill:f}));
+    g.appendChild(el('text',{x:x+28,y:47,'text-anchor':'middle','class':i<=8?'onfill':''},String(i)));
+  }
+  g.appendChild(el('text',{x:140,y:78},'GAME (4 blocks)'));
+  g.appendChild(el('text',{x:365,y:78},'REPLAY (saved replays)'));
+  g.appendChild(el('text',{x:620,y:78},'free'));
+  // save map to scale
+  var R=[[0x000,0x0AE,'options + pads','var(--opt)'],[0x0AE,0x0B8,'','var(--opt)'],[0x0B8,0x0F8,'arcade','var(--free)'],
+    [0x0F8,0x218,'stats + best places','var(--stats)'],[0x218,0x1418,'course records','var(--free)'],
+    [0x1418,0x3A88,'licenses','var(--lic)'],[0x3A88,0x3C74,'machine','var(--ink-3)'],[0x3C74,0x7C88,'garage: 100 cars','var(--garage)'],
+    [0x7C88,0x7C9C,'Cr','var(--money)']];
+  var s=document.getElementById('mapsvg'), W=900, T=0x7C9C;
+  R.forEach(function(r){
+    var x=r[0]/T*W, w=Math.max((r[1]-r[0])/T*W,2);
+    s.appendChild(el('rect',{x:x,y:20,width:w,height:60,fill:r[3]}));
+    if(w>60&&r[2])s.appendChild(el('text',{x:x+w/2,y:55,'text-anchor':'middle','class':'onfill'},r[2]));
+  });
+  [[0,'0'],[0x1418,'0x1418'],[0x3C74,'0x3C74'],[0x7C9C,'0x7C9C']].forEach(function(t){
+    var x=t[0]/T*W; s.appendChild(el('line',{x1:x,y1:84,x2:x,y2:92,stroke:'var(--ink-3)'}));
+    s.appendChild(el('text',{x:Math.min(Math.max(x,20),870),y:108,'text-anchor':'middle'},t[1]));
+  });
+  s.appendChild(el('text',{x:W,y:138,'text-anchor':'end'},'credits at +0x7C88: 4 bytes, the thin amber edge'));
+  var L=document.getElementById('maplegend');
+  [['options and pads','var(--opt)'],['stats and best places','var(--stats)'],['licenses','var(--lic)'],['garage','var(--garage)'],['credits','var(--money)'],['unused','var(--free)']].forEach(function(l){
+    var sp=document.createElement('span'), i=document.createElement('i'); i.style.background=l[1]; sp.appendChild(i); sp.appendChild(document.createTextNode(l[0])); L.appendChild(sp);
+  });
+})();
+</script>
+</body>
+</html>

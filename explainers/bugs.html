@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2's Classic Bugs</title>
+<style>
+:root{
+  --bg:#f1f3f6; --panel:#ffffff; --ink:#131923; --ink-2:#444e60; --ink-3:#6f798b; --rule:#dce0e7; --grid:#e8ebf0; --code-bg:#edf0f4;
+  --accent:#c4122f; --accent-soft:#fbe3e6;
+  --ok:#0b7a3e; --ok-bg:#e1f3e8; --mid:#875800; --mid-bg:#faeed3; --bad:#b42318; --bad-bg:#fbe4e1; --hold:#5640b0; --hold-bg:#ebe7fa;
+  --display:"Bahnschrift SemiCondensed","Bahnschrift","DIN Alternate","DIN Condensed","Roboto Condensed","Arial Narrow",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141a; --panel:#181d25; --ink:#edf0f4; --ink-2:#b5bdca; --ink-3:#8a93a3; --rule:#2a313c; --grid:#222832; --code-bg:#212732;
+  --accent:#ff6170; --accent-soft:#45161c;
+  --ok:#5fd394; --ok-bg:#15342a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff7b72; --bad-bg:#3d1c1c; --hold:#b7a8ff; --hold-bg:#2a2348; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141a; --panel:#181d25; --ink:#edf0f4; --ink-2:#b5bdca; --ink-3:#8a93a3; --rule:#2a313c; --grid:#222832; --code-bg:#212732;
+  --accent:#ff6170; --accent-soft:#45161c;
+  --ok:#5fd394; --ok-bg:#15342a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff7b72; --bad-bg:#3d1c1c; --hold:#b7a8ff; --hold-bg:#2a2348; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.58}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--accent);padding-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:clamp(36px,6.5vw,56px);line-height:1;margin:0;letter-spacing:.005em;text-wrap:balance}
+h2{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:29px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-stretch:condensed;font-weight:600;font-size:21px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+ul,ol{margin:0;padding-left:1.25em;max-width:68ch;display:flex;flex-direction:column;gap:6px}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px}
+.stat{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-left:3px solid var(--accent);background:var(--panel)}
+.stat b{font-family:var(--display);font-stretch:condensed;font-size:32px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--ink-2)}
+.fig{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig svg{display:block;width:100%;height:auto}
+.fig.wide svg{min-width:660px}
+.fig svg.mx{max-width:860px;margin:0 auto}
+.cap{font-size:13px;color:var(--ink-3);max-width:80ch}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+td.n,th.n{text-align:right}
+td.n{font-family:var(--mono);white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px}
+.card .k{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.05em;padding:2px 7px;border-radius:3px;white-space:nowrap;text-transform:uppercase}
+.c-ok{background:var(--ok-bg);color:var(--ok)} .c-mid{background:var(--mid-bg);color:var(--mid)}
+.c-bad{background:var(--bad-bg);color:var(--bad)} .c-hold{background:var(--hold-bg);color:var(--hold)}
+.c-acc{background:var(--accent-soft);color:var(--accent)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+code{font-family:var(--mono);font-size:.9em;background:var(--code-bg);padding:1px 4px;border-radius:3px}
+.where{font-family:var(--mono);font-size:12px;color:var(--ink-3);overflow-wrap:anywhere}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px;align-items:start}
+.two>*{min-width:0}
+.callout{border-left:3px solid var(--accent);padding:4px 0 4px 14px;color:var(--ink-2);max-width:72ch}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+nav.series{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+nav.series a{color:var(--accent)}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg text{font-family:var(--mono);font-size:12px;fill:var(--ink-2)}
+svg .tl{font-family:var(--body);font-size:13px;fill:var(--ink)}
+svg .tb{font-family:var(--body);font-size:13px;font-weight:600;fill:var(--ink)}
+svg .t3{fill:var(--ink-3)}
+svg .ta{fill:var(--accent);font-weight:600}
+svg .box{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .boxa{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg .ln{fill:none;stroke:var(--ink-3);stroke-width:1.3}
+svg .lna{fill:none;stroke:var(--accent);stroke-width:2.2}
+svg .gr{fill:none;stroke:var(--grid);stroke-width:1}
+svg .fa{fill:var(--accent)} svg .fi{fill:var(--ink-3)} svg .fp{fill:var(--panel)} svg .fg{fill:var(--grid)}
+svg .fok{fill:var(--ok)} svg .fbad{fill:var(--bad)} svg .fmid{fill:var(--mid)}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+.bug{display:flex;flex-direction:column;gap:10px}
+.bug .k{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.bug .id{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.06em}
+.bug dl{display:grid;grid-template-columns:7.5em 1fr;gap:6px 14px;margin:0}
+.bug dt{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);padding-top:2px}
+.bug dd{margin:0;min-width:0}
+@media (max-width:520px){.bug dl{grid-template-columns:1fr}.bug dt{padding-top:6px}}
+.chips{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:13px;color:var(--ink-2);align-items:center}
+.chips span{display:inline-flex;gap:6px;align-items:center}
+.c-gray{background:var(--grid);color:var(--ink-2)}
+.chips .chip{font-style:normal}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation · original bugs</div>
+  <h1>GT2's Classic Bugs</h1>
+  <p class="lede">The bugs GT2 players know, each traced to its cause in the game's code or data. Everything here was checked on one disc: the US Simulation disc, v1.0 (SCUS-94488). Polyphony fixed some of these in later versions; only v1.0 was checked, so later behavior is never claimed here.</p>
+  <nav class="series" aria-label="Other explainers"><span class="eyebrow">Also:</span><a href="inside-gt2-physics.html">Inside GT2's Physics</a><a href="ai.html">Inside GT2's AI</a><a href="events.html">Inside GT2's Events</a></nav>
+</header>
+
+<section>
+  <h2>Before you read</h2>
+  <ul>
+    <li><b>This page describes the original game.</b> The port's classic mode reproduces the disc, bugs included. Where a fix is sketched below, it is a description of what a fix would take, not a promise.</li>
+    <li><b>Odd physics is not on this list.</b> Strange but harmless physics behavior is GT2's character and is noted only at the end.</li>
+    <li>Numbers like <code>+0x3A88</code> are byte offsets inside the save data in memory.</li>
+  </ul>
+  <div class="chips" aria-label="Status legend">
+    <span><i class="chip c-ok">reproduced</i> made to happen with the game's own code</span>
+    <span><i class="chip c-mid">cause found</i> cause read in code or data</span>
+    <span><i class="chip c-gray">not reproduced</i></span>
+  </div>
+</section>
+
+<section>
+  <h2>Save and progress bugs</h2>
+
+  <article class="panel bug">
+    <div class="k"><div><div class="id">B1</div><h3>Machine Test records eat the garage</h3></div><span class="chip c-ok">reproduced</span></div>
+    <p>The most serious bug on the list, because it destroys saves. Players report hundreds of "No Name" cars, a garage over 100, corrupted credits and licenses after Machine Test runs.</p>
+    <div class="fig wide">
+      <svg viewBox="0 0 1000 200" role="img" aria-label="The three Machine Test tables sit back to back in the save, with the garage right after the max speed table; a ninth record lands in the next block">
+        <g class="t3"><text x="20" y="28">+0x3A88</text><text x="282.4" y="28">+0x3B2C</text><text x="544.8" y="28">+0x3BD0</text><text x="807.2" y="28">+0x3C74</text></g>
+        <g>
+          <rect x="20" y="40" width="262.4" height="44" class="box"/><rect x="20" y="40" width="6.4" height="44" class="fi"/>
+          <rect x="282.4" y="40" width="262.4" height="44" class="box"/><rect x="282.4" y="40" width="6.4" height="44" class="fi"/>
+          <rect x="544.8" y="40" width="262.4" height="44" class="box"/><rect x="544.8" y="40" width="6.4" height="44" class="fi"/>
+          <rect x="807.2" y="40" width="172.8" height="44" class="boxa"/>
+        </g>
+        <g class="gr" style="stroke:var(--rule)">
+          <path d="M58.4,40v44M90.4,40v44M122.4,40v44M154.4,40v44M186.4,40v44M218.4,40v44M250.4,40v44"/>
+          <path d="M320.8,40v44M352.8,40v44M384.8,40v44M416.8,40v44M448.8,40v44M480.8,40v44M512.8,40v44"/>
+          <path d="M583.2,40v44M615.2,40v44M647.2,40v44M679.2,40v44M711.2,40v44M743.2,40v44M775.2,40v44"/>
+        </g>
+        <text x="151" y="67" text-anchor="middle" class="tl">400 m: 8 records</text>
+        <text x="413.6" y="67" text-anchor="middle" class="tl">1000 m: 8 records</text>
+        <text x="676" y="67" text-anchor="middle" class="tl">max speed: 8 records</text>
+        <text x="910" y="60" text-anchor="middle" class="tb">garage</text><text x="910" y="76" text-anchor="middle">count, car 0 …</text>
+        <rect x="282.4" y="36" width="32" height="52" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="4 3"/>
+        <rect x="544.8" y="36" width="32" height="52" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="4 3"/>
+        <rect x="807.2" y="36" width="32" height="52" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="4 3"/>
+        <path d="M298.4,92 V112 M560.8,92 V112 M823.2,92 V112" stroke="var(--bad)" stroke-width="1.5"/>
+        <text x="20" y="130" class="tl">A 9th record has no slot of its own. It lands on the next block's start:</text>
+        <text x="20" y="150">400 m → the 1000 m table's header · 1000 m → the max speed header · max speed → the garage count and car 0</text>
+        <text x="20" y="176" class="t3">Each table: 1 count byte, 3 padding, 8 × 20-byte records = 164 bytes. Dark strip = count.</text>
+      </svg>
+    </div>
+    <dl>
+      <dt>Cause</dt><dd>The step that inserts a record adds one to the table's count with no cap at 8. A 9th qualifying run leaves the count at 9 in an 8-slot table. From then on both of its loops run past the table and write into whatever comes next, and every insert raises the count again. The max speed table sits right before the garage, which is why players see it as a max speed bug.</dd>
+      <dt>What happens</dt><dd>Run on a GT Mode save in memory: a 9th max speed record leaves count 9; when that car improves its record, garage car 0's ID becomes FFFFFFFF, the unknown "No Name" car. A slow 1000 m run is placed in slot 9 and sets the max speed count to 153.</dd>
+      <dt>Fix sketch</dt><dd>Only raise the count while it is under 8, loop to at most 8, and clamp the three counts on load. That repairs the tables of a save that already overflowed, not a garage that was already overwritten. It changes nothing for saves that never overflowed.</dd>
+    </dl>
+  </article>
+
+  <div class="grid">
+    <article class="panel bug">
+      <div class="k"><div><div class="id">B2</div><h3>Completion stops at 98.20 %</h3></div><span class="chip c-ok">reproduced</span></div>
+      <p>The completion figure divides event wins by 223. Four of those 223 can't be won on the US disc: the two Vauxhall Tigra events (the car is hidden in the US region and its dealer isn't linked) and the two Peugeot 206 events (no menu item leads to them). 219 / 223 = 98.20 %.</p>
+      <p class="cap">Full walk-through with the math on <a href="events.html">Inside GT2's Events</a>.</p>
+    </article>
+    <article class="panel bug">
+      <div class="k"><div><div class="id">B2b</div><h3>Completion over 100 %</h3></div><span class="chip c-ok">reproduced</span></div>
+      <p>The same count covers all 248 event slots but still divides by 223. Play can never write the other 25 (license prize records, machine tests, championship races 2 to 5), but a cheat can. The v1.0 cheat-device code "All Races Completed" marks all 248 as won: 248 / 223 = 111.21 %.</p>
+      <p>No path past 100 % was found on an unmodified US v1.0 card. A fix would count only the 223 slots play can write, capped at 100.00.</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>Opponent and event bugs</h2>
+  <p class="lede">Causes traced, no fix chosen: a later disc version (v1.1 or v1.2) would show which opponents Polyphony intended.</p>
+
+  <article class="panel bug">
+    <div class="k"><div><div class="id">B3</div><h3>The stray endurance opponent</h3></div><span class="chip c-mid">cause found</span></div>
+    <p>Each listed endurance race sometimes fields one car that doesn't belong. The cause is in the data: each event's opponent list is a run of consecutive records with one stray record at the front, exactly the car players name. The five opponents are drawn at random, so the stray car appears in some races only.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Event</th><th>Stray car</th></tr></thead>
+      <tbody>
+        <tr><td>Apricot Hill 200 km (EGV0001)</td><td>RUF BTR2</td></tr>
+        <tr><td>Laguna Seca 200 Miles (ELS0001)</td><td>Viper GTS</td></tr>
+        <tr><td>Rome 2 Hours (ERM0001)</td><td>Taisan Viper</td></tr>
+        <tr><td>Trial Mountain 30 Laps (ETM0001)</td><td>Vector M12 LM (also over the 300 PS limit, B4)</td></tr>
+        <tr><td>SSR5 All-Night (ES50001)</td><td>Citroën Xantia</td></tr>
+        <tr><td>Seattle 100 Miles (EST0001)</td><td>TVR</td></tr>
+        <tr><td>Tuned NA Car Cup (TCN0001-3)</td><td>a race-modified 306 on dirt tires: the record of a rally opponent at the end of the list</td></tr>
+      </tbody>
+    </table></div>
+    <p class="cap">Fix sketch: drop the stray entry from each list, a data fix touching 9 events. Players also tell of a Shelby GT500KR record moved late in development; that can't be checked without a v1.1 disc.</p>
+  </article>
+
+  <div class="grid">
+    <article class="panel bug">
+      <div class="k"><div><div class="id">B4</div><h3>AI over the power limit</h3></div><span class="chip c-mid">cause found</span></div>
+      <p>The power limit is checked only against your car. The opponent draw re-rolls repeats and region-hidden cars, never power. Building each opponent the game's way and reading the peak of its engine curve:</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Event</th><th class="n">Limit</th><th>Opponent</th><th class="n">Peak</th></tr></thead>
+        <tbody>
+          <tr><td>ETM0001</td><td class="n">300</td><td>Vector M12 LM</td><td class="n">~690</td></tr>
+          <tr><td>MRC0003</td><td class="n">600</td><td>Vector W8</td><td class="n">~643</td></tr>
+          <tr><td>HTC0002</td><td class="n">300</td><td>Ford GT40</td><td class="n">~311</td></tr>
+          <tr><td>HTC0003</td><td class="n">400</td><td>Corvette Sting Ray '67</td><td class="n">~441</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">Peak power in PS, a lower bound: turbo boost is not counted, so turbo cars read low, and the Grand Touring Car Trophy list (Supra, GT-R, 3000GT) was not finished.</p>
+    </article>
+    <article class="panel bug">
+      <div class="k"><div><div class="id">B5</div><h3>Themed cups accept any car</h3></div><span class="chip c-mid">cause found</span></div>
+      <p>The entry check has no country, maker or body-type rule; those exist only through eligible-car lists. The national GT Leagues, the Wagon Cup, the Muscle Car Cup, the Light-weight K Cup and the Historic Car Cup have no list, so any car under the power limit with the right license gets in.</p>
+      <p>This may be a design choice. A fix could add lists built from each theme (the data has room for 162 more) or keep GT2's open rules.</p>
+    </article>
+  </div>
+
+  <article class="panel bug">
+    <div class="k"><div><div class="id">B6</div><h3>Tahiti Maze race 2: the opponent crashes at the start</h3></div><span class="chip c-ok">reproduced</span></div>
+    <p>Players report the opponent turns left too early, hits the barrier and stays there. The rally opponent is not the AI: it is a recorded run of pad inputs played back and simulated by the physics every time. The recording for this event drifts off the line it was made on, hits the wall shortly after the start, and the replayed inputs never bring it back.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Ghost run</th><th class="n">Launch tick</th><th class="n">First wall contact</th><th class="n">Top speed</th><th class="n">Time under 5 km/h</th></tr></thead>
+      <tbody>
+        <tr><td>DO70002 (the bug)</td><td class="n">278</td><td class="n">tick 527</td><td class="n">107 km/h</td><td class="n"><b>73 %</b></td></tr>
+        <tr><td>DO70001 (same course, for comparison)</td><td class="n">272</td><td class="n">none</td><td class="n">193 km/h</td><td class="n">0 %</td></tr>
+      </tbody>
+    </table></div>
+    <p class="cap">Share of the 1,656 ticks (1/30 s steps) after launch. Fix sketch: a new input recording, or hand a ghost stuck against a wall to the AI driver, which already takes the ghost over after its finish.</p>
+  </article>
+</section>
+
+<section>
+  <h2>Menu and label bugs</h2>
+  <div class="grid">
+    <article class="panel bug">
+      <div class="k"><div><div class="id">B7</div><h3>Car Wash price</h3></div><span class="chip c-mid">cause found</span></div>
+      <p>The page art says "ONE WASH Cr5,000", the yen figure. The game checks for and charges 50 credits. The charge is right; the label is wrong. Fix sketch: re-letter the picture.</p>
+    </article>
+    <article class="panel bug">
+      <div class="k"><div><div class="id">B8</div><h3>Rome Short Course Preview starts the race</h3></div><span class="chip c-mid">cause found</span></div>
+      <p>Each event page has a Preview item (no player car) and a GO! item. On the Italian GT League page, the Preview item for GIL0001 lacks the "no player car" flag bit, so it starts a real race. It is the only such item in all 3,382 menu pages. Fix: one bit in one menu word.</p>
+    </article>
+    <article class="panel bug">
+      <div class="k"><div><div class="id">B9</div><h3>Muscle Car Cup license badges</h3></div><span class="chip c-mid">cause found</span></div>
+      <p>The Special Events page draws the badges as art. The Muscle Car Cup row shows A, IC, IB, copied from the Luxury Sedan Cup's row. The event records require IA for all three races, and the entry check uses the records.</p>
+    </article>
+    <article class="panel bug">
+      <div class="k"><div><div class="id">K1</div><h3>A misspelled random course</h3></div><span class="chip c-mid">cause found</span></div>
+      <p>The list of courses for random-course events spells <code>new_parmaS</code> as <code>new_paramaS</code>. No course has that name, so a 1-in-39 pick would load course 0 under that name. Not seen in play yet. Fix: one string.</p>
+    </article>
+  </div>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>#</th><th>What players see</th><th>Cause</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>P1</td><td>"NOMAL" in the Event Generator</td><td>the page picture (it also says "events that meets")</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>P2</td><td>Pikes Peak Downhill lists a "Lancer EVO IV GSR"</td><td>the picture; the event's car is the Lancer Evolution VI GSR</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>P3</td><td>Tahiti Dirt Route 3 Reverse lists an "Impreza Rally Car"</td><td>the picture; the car is the Impreza Sedan STi version III '96</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>P4</td><td>Ride height shown in inches</td><td>the values are millimeters; the "in." is part of the page picture</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>P5</td><td>"HP" after power parts</td><td>the game computes PS; the "HP" is part of the picture</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>P6</td><td>Demio A-Spec turbo sound</td><td>its sound set has only placeholder turbo recordings, so the exhaust plays 1.7 to 2.9 times too high with a turbo kit; the only one of 618 cars that can reach a placeholder</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>P7</td><td>Car texture errors</td><td>the race-modified 3000GT VR-4 Turbo is missing two nameplate files; other texture reports not checked</td><td><span class="chip c-mid">partly found</span></td></tr>
+        <tr><td>P8</td><td>IB-4 license demo goes off course</td><td>the demo replays correctly on v1.0; a demo run under the wrong start rules does leave the road, which fits the report from a later version</td><td><span class="chip c-gray">not reproduced</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Picture fixes would need a picture mod made from the player's own disc: the menu pages are bitmaps.</p>
+</section>
+
+<section>
+  <h2>Less known bugs</h2>
+  <p>Looking at the camera, sound, HUD and loading turned up bugs nobody had listed. A selection:</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>#</th><th>Bug</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>CR1</td><td>Every car's camera lag uses the last car's time step, so the player's chase camera follows AI car 5's rubber band.</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>CR3</td><td>Analog steering fills the 17,408-byte replay buffer in 5 to 7 minutes (about 42 minutes digital); recording then stops silently while the race goes on.</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>CR4</td><td>32 TV cameras in 18 course files have their zoom limits in the wrong order, so the zoom jumps between two values.</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>SH1</td><td>Speed records are printed with the wrong format: 123.05 mph shows as "123.5".</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>SH2</td><td>A dropped minus sign makes locked wheels squeal with the wheelspin factor; the lock factor never applies.</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>SH3</td><td>The crash sound plays only for the camera's car, never in replays.</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>L5</td><td>The opponent draw follows load timing: faster loads change the field (see <a href="rng.html">random numbers</a>).</td><td><span class="chip c-mid">cause found</span></td></tr>
+        <tr><td>L6</td><td>All AI cars share two engine sound banks, so every opponent sounds the same.</td><td><span class="chip c-mid">cause found</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Physics quirks found along the way: the roll damper uses pitch inertia terms, the wheel spin step uses the last car's time step, and a few number overflows only matter for new car data or speeds over 240 m/s.</p>
+</section>
+
+<section>
+  <h2>Community reports, checked</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Report</th><th>On the US v1.0 disc</th></tr></thead>
+      <tbody>
+        <tr><td>"No Name No Name" cars after a Machine Test; a save that lost every car after a 400 m test</td><td>B1</td></tr>
+        <tr><td>A Gulf GT40 showing 10,579 HP, then a lock-up</td><td>not reproduced; garage records written by B1 would look like this</td></tr>
+        <tr><td>Over 100 % completion</td><td>B2b</td></tr>
+        <tr><td>Tahiti Maze opponent swerves off at the start</td><td>B6</td></tr>
+        <tr><td>100 % needs a rare used car (SVX, 22B)</td><td>intended: the used-car lots rotate through 60 weekly lists</td></tr>
+        <tr><td>Cars under a power limit that make more real power</td><td>intended: a hidden engine multiplier; the limit checks the shown PS</td></tr>
+        <tr><td>Car data errors listed in a fan mod's changelog</td><td>the ones checked are on this disc (BMW 528i 142 PS, A4 / S4 prices in the wrong order, and more); thumbnails, liveries and names not checked</td></tr>
+        <tr><td>Cars disappearing after races</td><td>not reproduced; a prize car is silently not added when the garage holds 100, and B1 can remove cars</td></tr>
+        <tr><td>License times always 0.023 s off</td><td>no fixed offset exists; see <a href="licenses.html">license tests</a></td></tr>
+        <tr><td>Cars bouncing on clear straights</td><td>not checked</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Not bugs: car depreciation, re-racing after a wrong upgrade, and SELECT hiding the ghost (a feature). Not on this disc: the Japanese and PAL spellings, PAL's 100.91 % completion, and the Arcade disc's own bugs.</p>
+</section>
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

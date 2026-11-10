@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Input</title>
+<style>
+:root{
+  --bg:#eef1f0; --panel:#ffffff; --ink:#141a19; --ink-2:#465251; --ink-3:#768382; --rule:#d6dddc; --soft:#e6ebea;
+  --accent:#d6a400; --go:#118a4f; --stop:#c62f2f; --cool:#2a6fb8; --code-bg:#edf1f0;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --go:#3fcf86; --stop:#ff6464; --cool:#5fa2ec; --code-bg:#1f2726; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --go:#3fcf86; --stop:#ff6464; --cool:#5fa2ec; --code-bg:#1f2726; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1060px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;border-bottom:2px solid var(--rule)}
+.lights{display:flex;gap:8px}
+.lights i{width:16px;height:16px;border-radius:50%;background:var(--stop);display:block}
+.lights i.go{background:var(--go)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:640px;height:auto}
+.diagram svg text{font-family:var(--body);fill:var(--ink)}
+.diagram svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.diagram svg .lbl{font-size:12px;fill:var(--ink-2)}
+.box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+.box.hot{fill:var(--panel);stroke:var(--accent);stroke-width:2}
+.box.go{stroke:var(--go);stroke-width:2;fill:var(--panel)}
+.box.stop{stroke:var(--stop);stroke-width:2;fill:var(--panel)}
+.edge{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+.edge.go{stroke:var(--go)} .edge.stop{stroke:var(--stop)} .edge.cool{stroke:var(--cool)}
+.arrowhead{fill:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.badge{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:3px;align-self:flex-start;border:1px solid currentColor}
+.ok{color:var(--go)} .rd{color:var(--ink-3)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n{text-align:right;font-family:var(--mono)}
+.note{font-size:13px;color:var(--ink-3)}
+.kpis{display:flex;flex-wrap:wrap;gap:10px 28px}
+.kpis div{display:flex;flex-direction:column}
+.kpis b{font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kpis span{font-size:12px;color:var(--ink-3)}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--cool)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btns{display:flex;gap:8px}
+.btns i{width:18px;height:18px;border-radius:50%;display:block;border:2px solid var(--ink-3)}
+.btns i.x{border-color:var(--cool)} .btns i.o{border-color:var(--stop)} .btns i.t{border-color:var(--go)} .btns i.s{border-color:var(--accent)}
+code{font-family:var(--mono);font-size:12.5px}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="btns" aria-hidden="true"><i class="t"></i><i class="o"></i><i class="x"></i><i class="s"></i></div>
+  <div class="eyebrow">GT2 Simulation · input</div>
+  <h1>GT2 Input</h1>
+  <p class="lede">How Gran Turismo 2 turns a controller into a car's steering, throttle and brake: the pad read every VBlank (each 60 Hz screen refresh), the controller set-up saved on the memory card, the 5-byte record a replay stores, and the rules that shape it into the car's controls. Measured on a digital pad and on a DualShock.</p>
+  <div class="kpis">
+    <div><b>5</b><span>bytes per car per tick in a replay</span></div>
+    <div><b>16</b><span>steps per analog pedal</span></div>
+    <div><b>0.1 s</b><span>for a button pedal to reach full</span></div>
+    <div><b>±29 %</b><span>stick dead zone</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Five layers, each built from the one before</h2>
+  <p>Every layer only reads what the layer above it wrote. The <b>record</b> in the middle is the boundary: a replay stores it, and a ghost, a replay and the player all hand the car the same thing.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 900 360" role="img" aria-label="Input path: pad reading per VBlank, set-up map per frame, record and stream, player controls, effective controls">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect class="box" x="20" y="30" width="190" height="80" rx="6"/>
+      <text x="115" y="56" text-anchor="middle" font-weight="600">1 Pad reading</text>
+      <text x="115" y="76" text-anchor="middle" class="lbl">every VBlank, both ports</text>
+      <text x="115" y="94" text-anchor="middle" class="m">held, pressed, released</text>
+      <rect class="box" x="250" y="30" width="190" height="80" rx="6"/>
+      <text x="345" y="56" text-anchor="middle" font-weight="600">2 Set-up map</text>
+      <text x="345" y="76" text-anchor="middle" class="lbl">once a frame, card's row</text>
+      <text x="345" y="94" text-anchor="middle" class="m">your button layout</text>
+      <rect class="box hot" x="480" y="30" width="190" height="80" rx="6"/>
+      <text x="575" y="56" text-anchor="middle" font-weight="600">3 Record</text>
+      <text x="575" y="76" text-anchor="middle" class="lbl">5 bytes → 12-byte record</text>
+      <text x="575" y="94" text-anchor="middle" class="m">what a replay keeps</text>
+      <rect class="box go" x="710" y="30" width="170" height="80" rx="6"/>
+      <text x="795" y="56" text-anchor="middle" font-weight="600">4 Player controls</text>
+      <text x="795" y="76" text-anchor="middle" class="lbl">steer, pedals, requests</text>
+      <text x="795" y="94" text-anchor="middle" class="m">ramps and springs</text>
+      <path class="edge" d="M210,70 H248" marker-end="url(#ah)"/>
+      <path class="edge" d="M440,70 H478" marker-end="url(#ah)"/>
+      <path class="edge go" d="M670,70 H708" marker-end="url(#ah)"/>
+      <rect class="box" x="480" y="180" width="190" height="64" rx="6"/>
+      <text x="575" y="206" text-anchor="middle" font-weight="600">Replay stream</text>
+      <text x="575" y="226" text-anchor="middle" class="m">run-length coded, 17 KB</text>
+      <path class="edge cool" d="M545,110 V178" marker-end="url(#ah)"/><text x="490" y="150" class="lbl">record</text>
+      <path class="edge cool" d="M605,178 V112" marker-end="url(#ah)"/><text x="612" y="150" class="lbl">play back</text>
+      <rect class="box" x="710" y="180" width="170" height="64" rx="6"/>
+      <text x="795" y="206" text-anchor="middle" font-weight="600">5 Effective controls</text>
+      <text x="795" y="226" text-anchor="middle" class="m">car+0x734 · wheel+0x60</text>
+      <path class="edge" d="M795,110 V178" marker-end="url(#ah)"/>
+      <rect class="box stop" x="250" y="180" width="190" height="64" rx="6"/>
+      <text x="345" y="206" text-anchor="middle" font-weight="600">AI driver</text>
+      <text x="345" y="226" text-anchor="middle" class="m">writes the same controls</text>
+      <path class="edge stop" d="M440,212 C560,290 720,290 790,246" marker-end="url(#ah)"/>
+      <rect class="box" x="20" y="180" width="190" height="64" rx="6"/>
+      <text x="115" y="206" text-anchor="middle" font-weight="600">Pause, HUD, camera</text>
+      <text x="115" y="226" text-anchor="middle" class="m">read the pad, not the record</text>
+      <path class="edge" d="M300,110 C260,150 200,160 160,178" marker-end="url(#ah)"/>
+      <text x="20" y="300" class="lbl">Pad 0 only: pause, the HUD toggle, the finish sequence and the menus.</text>
+      <text x="20" y="320" class="lbl">The record carries 8 buttons, a steering byte and two 4-bit pedals; the camera buttons are not in it.</text>
+      <text x="20" y="340" class="lbl">Assists (TCS, ABS, ASC) scale layer 5 for every car, player or AI.</text>
+    </svg>
+  </div>
+  <p class="note">"car+0x734" means byte offset 0x734 inside the car's record in memory; "wheel+0x60" the same inside each wheel's record.</p>
+</section>
+
+<section>
+  <h2>The record a replay stores</h2>
+  <p>Five bytes per car per tick (one 1/30 s physics step), stored after your button layout has been applied, so a replay plays the same whatever buttons you chose. The car never gets more from a player than this.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Byte</th><th>What</th><th>Becomes (12-byte record)</th></tr></thead>
+      <tbody>
+        <tr><td class="n">0</td><td>flags: analog steer, analog throttle, analog brake, steering curve</td><td>+0 flags</td></tr>
+        <tr><td class="n">1</td><td>buttons: left, right, throttle, brake, handbrake, reverse, shift up, shift down</td><td>steer ±2, pedals 0 / 1, +8 shift ±1, +9 reverse, +10 handbrake</td></tr>
+        <tr><td class="n">2</td><td>steering byte, 128 = center</td><td>+2 steer = (128 − byte) × 32, ±4096</td></tr>
+        <tr><td class="n">3</td><td>throttle step 0..15</td><td>+6 throttle = 4096 × step / 15 (table)</td></tr>
+        <tr><td class="n">4</td><td>brake step 0..15</td><td>+4 brake, same table</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The replay does not store every tick in full. "Run-length coding" stores a value once plus how many ticks it stayed the same:</p>
+  <div class="panel">
+<pre>stream entry  = flag byte (changed values · run &amp; 7 · long run) + changed values + run length
+run length    = 0xxxxxxx | 10xxxxxx x | 110xxxxx x x | 1110xxxx x x x   (big-endian, run &gt;&gt; 3)
+full          = capacity − 17 bytes; closed 300 fields after the finish (60 in a license test)
+playback      = the step that brings "ticks left" to 0 returns an empty record: the last tick never plays</pre>
+  </div>
+</section>
+
+<section>
+  <h2>Who drives a car</h2>
+  <p>Two fields in the car's record, two jobs: one says who <b>supplies</b> the record, the other who <b>turns it into controls</b>.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Source car+0x18</th><th>Driver car+0x489</th><th>Car</th></tr></thead>
+      <tbody>
+        <tr><td class="n">2</td><td class="n">0</td><td>player 1: pad 0 live, its stream in a replay</td></tr>
+        <tr><td class="n">3</td><td class="n">0</td><td>player 2 (two-player battle): pad 1</td></tr>
+        <tr><td class="n">1</td><td class="n">0</td><td>ghost (rally, time trial): its stream, through the same player steps</td></tr>
+        <tr><td class="n">0</td><td class="n">2</td><td>AI: the record is not even built</td></tr>
+        <tr><td class="n">2</td><td class="n">1</td><td>player car with no controls (an event rule byte; never seen in play)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">A player car on its cool-down lap or in the pit lane is driven by the AI, but its pad is still read and recorded.</p>
+</section>
+
+<section>
+  <h2>The rules, as GT2 computes them</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Buttons and key repeat</h3>
+      <p>Each VBlank the game collects held, pressed and released bits until it reads them. A held button repeats on its 30th field (0.5 s), then every 7 fields.</p>
+<pre>pressed  |= (old ^ new) &amp; new
+c[i]     = held ? c[i] + 1 : 0
+c[i]==37 → c[i] = 30;  c[i]==30 → repeat</pre>
+    </div>
+    <div class="card">
+      <h3>Stick dead zone</h3>
+      <p>A stick byte from 91 to 164 reads as center (about ±29 % of the throw); outside it the travel is stretched back to the ends.</p>
+<pre>v &lt; 91   → v × 128 / 91
+v &lt; 165  → 128
+else     → 128 + (v − 165) × 128 / 91</pre>
+    </div>
+    <div class="card">
+      <h3>The controller set-up</h3>
+      <p>Eleven slots per row; a byte below 0x80 is a button, above it an axis: the whole axis, one half, or both halves folded.</p>
+<pre>row = card block + 11 × (digital 0 · stick 1 · neGcon 2 · jogcon 3)
+0xA0 low half:  ch = 2 × clamp(127 − v)
+0xC0 high half: ch = 2 × clamp(v − 128)</pre>
+    </div>
+    <div class="card">
+      <h3>Throttle and brake</h3>
+      <p>Buttons ramp the pedal over 0.1 s each way (1365 of 4096 per tick, from values rebuilt at race start); handbrake is instant. Analog pedals jump to 12.5 % plus 87.5 % of the step.</p>
+<pre>digital: x = clamp(x ± 1365, 0, 4096)
+analog:  x = x ? 7x/8 + 512 : 0
+reverse: request + full throttle</pre>
+    </div>
+    <div class="card">
+      <h3>Steering</h3>
+      <p>The d-pad drives a spring toward the speed-sensitive lock; a stick sets a target (square law, or a curve while d-pad Up is held) that the wheel follows at a fixed rate.</p>
+<pre>digital: rate += K1(target − x) − K2 rate − K3 x
+analog:  target = lock × s|s| / 4096
+         x moves 49 / 4096 turn a tick</pre>
+    </div>
+    <div class="card">
+      <h3>Rumble</h3>
+      <p>One place sets it: the big motor follows a level from the front wheels, the road and hits; the small motor buzzes just after a hit. Off by the card's vibration setting, after your finish, in replays and while paused.</p>
+<pre>pad+0x5C = level_big &lt;&lt; 4
+pad+0x5E = level_small &lt;&lt; 4
+pad+0x60 = 2  (keep-alive, −1 a field)</pre>
+    </div>
+    <div class="card">
+      <h3>Menus and pause</h3>
+      <p>Menus confirm with Cross or Circle, cancel with Triangle or Square, and move on a press or a repeat. Only player 1 pauses: Start, or unplugging pad 0.</p>
+<pre>confirm = pressed &amp; (Cross | Circle)
+cancel  = pressed &amp; (Triangle | Square)
+move    = pressed | repeat</pre>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Quirks a player can feel</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>#</th><th>What</th></tr></thead>
+      <tbody>
+        <tr><td>IN1</td><td>In a two-player battle only player 1 can pause.</td></tr>
+        <tr><td>IN4</td><td>Holding d-pad Up while steering with a stick switches the steering response to a curve.</td></tr>
+        <tr><td>IN5</td><td>With a stick (or a neGcon) the d-pad never steers.</td></tr>
+        <tr><td>IN7</td><td>Analog pedals have 16 steps, whatever the controller.</td></tr>
+        <tr><td>IN11</td><td>Rumble stops at your finish and during pause.</td></tr>
+        <tr><td>IN2, IN3</td><td>An edited save can write past the pad's memory or make two buttons share one action (the menus cannot do this).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

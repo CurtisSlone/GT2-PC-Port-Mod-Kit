@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Modern Physics Census</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800&family=Archivo+Narrow:wght@500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#0e1015; --card:#14171d; --line:#262b35; --grid:#20242d;
+  --ink:#eef0f4; --ink2:#a9b0bf; --ink3:#727b8d;
+  --modern:#c98226; --modern-soft:rgba(201,130,38,.4); --classic:#5e8bd6;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Archivo,"Segoe UI",Arial,sans-serif}
+.card{width:1200px;max-width:100%;min-height:1380px;padding:64px 72px 48px;background:
+  linear-gradient(180deg,rgba(201,130,38,.07),transparent 260px),var(--card);display:flex;flex-direction:column;gap:34px}
+.kicker{font:600 15px/1 "Archivo Narrow",Archivo,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--modern)}
+h1{margin:12px 0 0;font-weight:800;font-size:60px;line-height:1.02;letter-spacing:-.01em;text-wrap:balance}
+.lede{margin:18px 0 0;font-size:20px;line-height:1.5;color:var(--ink2);max-width:62ch}
+.lede b{color:var(--ink);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tile{border:1px solid var(--line);border-radius:10px;padding:20px 22px;background:rgba(255,255,255,.015)}
+.tile .n{font-weight:800;font-size:46px;line-height:1;font-variant-numeric:tabular-nums}
+.tile .l{margin-top:10px;font-size:15px;line-height:1.4;color:var(--ink2)}
+.sec{font:600 14px/1 "Archivo Narrow",sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.chart h2{margin:0 0 4px;font-size:26px;font-weight:600}
+.chart p{margin:0;color:var(--ink2);font-size:16px;line-height:1.45}
+svg text{font-family:Archivo,sans-serif}
+.legend{display:flex;gap:26px;margin-top:12px;font-size:14px;color:var(--ink2);align-items:center}
+.sw{display:inline-block;vertical-align:middle;margin-right:8px}
+.limits{border-top:1px solid var(--line);padding-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:10px 40px}
+.limits h3{grid-column:1/-1;margin:0 0 4px;font:600 14px/1 "Archivo Narrow",sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3)}
+.limits div{font-size:15px;line-height:1.45;color:var(--ink2)}
+.limits b{color:var(--ink);font-weight:600}
+.foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;font-size:12.5px;line-height:1.5;color:var(--ink3)}
+.foot .who{font:500 14px "JetBrains Mono",monospace;color:var(--ink2);white-space:nowrap}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+</style></head>
+<body><div class="card">
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+<nav class="xback" style="font-size:13px;margin:6px 0 0;padding:0"><a href="index.html" style="color:inherit;opacity:.8">&larr; All explainers</a></nav>
+  <div>
+    <div class="kicker">GT2 port &middot; physics notes</div>
+    <h1>Same 618 cars.<br>Rewritten physics.</h1>
+    <p class="lede">Every stock car in GT2, tested twice: once on the <b>original physics</b> and once on my <b>modern physics</b>. Modern uses real-world units and runs 120 times a second. It was not tuned to match. This is where it landed.</p>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="n">618</div><div class="l">cars tested</div></div>
+    <div class="tile"><div class="n">~1%</div><div class="l">typical difference</div></div>
+    <div class="tile"><div class="n">0.9995</div><div class="l">cars stay in the same 0-100 order (1.0 = exactly the same)</div></div>
+  </div>
+
+  <div class="chart">
+    <div class="sec">Modern vs original</div>
+    <h2>Difference per test</h2>
+    <p>Dot = the typical car (the median). Bar = where the middle 80% of cars land.</p>
+    <svg id="c" width="1056" height="450" role="img" aria-label="Median and middle-80-percent difference of modern physics against GT2's physics for six tests"></svg>
+    <div class="legend">
+      <span><svg class="sw" width="14" height="14"><circle cx="7" cy="7" r="6" fill="#c98226"/></svg>Typical car</span>
+      <span><svg class="sw" width="34" height="12"><rect x="0" y="2" width="34" height="8" rx="4" fill="rgba(201,130,38,.4)"/></svg>Most cars</span>
+      <span><svg class="sw" width="14" height="14"><line x1="7" y1="0" x2="7" y2="14" stroke="#5e8bd6" stroke-width="2"/></svg>Original physics (0%)</span>
+    </div>
+  </div>
+
+  <div class="limits">
+    <h3>Good to know</h3>
+    <div><b>Cornering grip isn't shown.</b> That test was too noisy to compare.</div>
+    <div><b>Lap time</b> is one AI lap on one track.</div>
+    <div><b>Tested by script,</b> not by hand: the same inputs every run.</div>
+    <div><b>A few cars land outside the bars.</b></div>
+  </div>
+
+  <div class="foot">
+    <div>Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+    <div class="who">breakit_makeit</div>
+  </div>
+</div>
+<script>
+const rows=[
+  ["0-100 km/h","time",-0.7,-2.5,0.0,"0.7% quicker"],
+  ["0-200 km/h","time",-1.1,-2.0,-0.6,"1.1% quicker"],
+  ["400 m","time",-0.4,-0.9,0.0,"0.4% quicker"],
+  ["Top speed","km/h",0.4,0.0,0.8,"0.4% higher"],
+  ["Braking 100-0","distance",-1.1,-2.2,1.6,"1.1% shorter"],
+  ["Lap time (AI)","time",-1.0,-2.0,0.3,"1.0% quicker"],
+];
+const svg=document.getElementById('c'),NS='http://www.w3.org/2000/svg';
+const L=190,R=830,T=30,rh=60,min=-3,max=3,x=v=>L+(v-min)/(max-min)*(R-L);
+const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e};
+for(let v=-3;v<=3;v++){
+  el('line',{x1:x(v),x2:x(v),y1:T-8,y2:T+rh*rows.length-14,stroke:v===0?'#5e8bd6':'#20242d','stroke-width':v===0?2:1});
+  el('text',{x:x(v),y:T+rh*rows.length+8,'text-anchor':'middle','font-size':14,fill:'#727b8d'},(v>0?'+':'')+v+'%');
+}
+el('text',{x:x(-3),y:T+rh*rows.length+32,'font-size':13,fill:'#727b8d'},'less');
+el('text',{x:x(3),y:T+rh*rows.length+32,'text-anchor':'end','font-size':13,fill:'#727b8d'},'more');
+rows.forEach((r,i)=>{
+  const y=T+i*rh+16;
+  el('text',{x:0,y:y+5,'font-size':19,'font-weight':600,fill:'#eef0f4'},r[0]);
+  el('rect',{x:x(r[3]),y:y-6,width:Math.max(8,x(r[4])-x(r[3])),height:12,rx:6,fill:'rgba(201,130,38,.4)'});
+  el('circle',{cx:x(r[2]),cy:y,r:8,fill:'#c98226',stroke:'#14171d','stroke-width':2});
+  el('text',{x:R+28,y:y+6,'font-size':18,fill:'#eef0f4','font-variant-numeric':'tabular-nums'},(r[2]>0?'+':'')+r[2].toFixed(1)+'%');
+  el('text',{x:R+88,y:y+6,'font-size':15,fill:'#a9b0bf'},r[5]);
+});
+</script>
+</body></html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Showroom Car</title>
+<style>
+
+:root{
+  --bg:#f4f5f8; --panel:#ffffff; --ink:#1a1f2b; --ink-2:#4b5366; --ink-3:#7c8496; --rule:#d9dde6; --grid:#e8ebf1;
+  --accent:#d35400; --accent-soft:#fbe9dc; --code-bg:#eef0f5;
+  --c1:#2b6cb0; --c2:#d35400; --c3:#1f8a5b; --c4:#8a4bd1; --c5:#b7791f;
+  --ok:#1f7a45; --ok-bg:#e2f3e8; --warn:#8a5a00; --warn-bg:#fbf1d8;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13161c; --panel:#1c2029; --ink:#edf0f5; --ink-2:#b6bdcb; --ink-3:#86909f; --rule:#2d3340; --grid:#262c37;
+  --accent:#ff7a2f; --accent-soft:#3a2416; --code-bg:#242a35;
+  --c1:#5b9be0; --c2:#ff7a2f; --c3:#3fb37e; --c4:#ad7ff0; --c5:#dca341;
+  --ok:#5fd394; --ok-bg:#17352a; --warn:#f1c46b; --warn-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13161c; --panel:#1c2029; --ink:#edf0f5; --ink-2:#b6bdcb; --ink-3:#86909f; --rule:#2d3340; --grid:#262c37;
+  --accent:#ff7a2f; --accent-soft:#3a2416; --code-bg:#242a35;
+  --c1:#5b9be0; --c2:#ff7a2f; --c3:#3fb37e; --c4:#ad7ff0; --c5:#dca341;
+  --ok:#5fd394; --ok-bg:#17352a; --warn:#f1c46b; --warn-bg:#3a2f16; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:8px;border-bottom:3px solid var(--accent);padding-bottom:16px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:20px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:70ch}
+.lede{color:var(--ink-2);font-size:16px}
+section{display:flex;flex-direction:column;gap:14px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.fig{width:100%;overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto;max-width:100%;font-family:var(--mono);font-size:11px}
+.fig .lbl{fill:var(--ink-2)}
+.fig .ttl{fill:var(--ink);font-family:var(--body);font-size:12px;font-weight:600}
+.fig .grid{stroke:var(--grid);stroke-width:1}
+.fig .axis{stroke:var(--ink-3);stroke-width:1}
+.cap{font-size:13px;color:var(--ink-3)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+code,.mono{font-family:var(--mono);font-size:.92em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.kv dt{color:var(--ink-3);font-family:var(--mono);font-size:12px;padding-top:2px}
+.kv dd{margin:0}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-warn{background:var(--warn-bg);color:var(--warn)}
+.b-acc{background:var(--accent-soft);color:var(--accent)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px}
+.step{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.step .k{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+.step b{font-family:var(--display);font-size:17px;font-weight:600}
+.step small{color:var(--ink-2);font-size:13px}
+ul{margin:0;padding-left:1.2em;max-width:70ch}
+li{margin:0 0 4px 0}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.fig svg .pulse{animation:none}}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation (SCUS-94488) · the menu car view</div>
+  <h1>GT2's Showroom Car</h1>
+  <p class="lede">How Gran Turismo 2 draws the turning 3D car on its dealer, car info, garage and shop pages and on Arcade's car selection. It is the race car renderer run through a small camera of its own. Every number here was read from the game and checked against the running game's memory.</p>
+</header>
+
+<section>
+  <h2>One car, one camera, every frame</h2>
+  <p class="lede">The menu page item with code 10 is a rectangle on the screen. Each frame GT2 builds a camera for that rectangle, draws the car the same way it does in races, draws a gray disc under it, and clips both to the rectangle.</p>
+  <div class="steps">
+    <div class="step"><span class="k">1 · TURN</span><b>Step the yaw</b><small>Every frame the menu adds 12 to the camera's yaw (the left-right angle; one full turn every 341 frames) and holds the pitch at 110 (9.7 degrees down). Arcade adds 16.</small></div>
+    <div class="step"><span class="k">2 · CAMERA</span><b>Orbit at 9.30 m</b><small>Camera matrix = RotY(-yaw) then RotX(-pitch); position = that matrix times (0, 0, 9.30 m). The car stays still; the camera circles it.</small></div>
+    <div class="step"><span class="k">3 · LENS</span><b>Fit the rectangle</b><small>Window from the rectangle: width about 256 W / h, top 179, bottom -50, H 800 (H is the lens's focal distance). The rectangle's height sets the zoom; its width only crops.</small></div>
+    <div class="step"><span class="k">4 · CAR</span><b>Race renderer, LOD 0</b><small>The race car drawing with the most detailed model (LOD 0, level of detail) forced, the plain paint palette, shine 64, unsteered wheels, a shadow. No light: the paint is drawn as stored.</small></div>
+    <div class="step"><span class="k">5 · FLOOR</span><b>A disc that does not turn</b><small>24 triangles, 4 m radius, gray at the center fading to black, drawn from a second camera without yaw, sorted 5 m behind its own depth.</small></div>
+  </div>
+</section>
+
+<section>
+  <h2>The camera, seen from the side</h2>
+  <div class="two">
+    <div class="panel">
+      <div class="fig">
+        <svg viewBox="0 0 600 230" role="img" aria-label="Side view: camera 9.30 m from the car's floor point, 9.67 degrees above the floor, floor disc 4 m in radius">
+          <text class="ttl" x="10" y="18">Side view, to scale (1 m = 40 px)</text>
+          <line class="axis" x1="10" y1="180" x2="590" y2="180"/>
+          <rect x="20" y="176" width="320" height="8" rx="2" fill="var(--ink-3)" opacity=".35"/>
+          <text class="lbl" x="180" y="204" text-anchor="middle">floor disc, radius 4 m (262,144 units)</text>
+          <path d="M90 180 L90 160 Q100 146 130 143 L170 132 Q200 128 225 134 L262 144 Q272 150 272 162 L272 180 Z" fill="var(--c1)" opacity=".8"/>
+          <circle cx="122" cy="172" r="11" fill="var(--ink)"/><circle cx="242" cy="172" r="11" fill="var(--ink)"/>
+          <circle cx="180" cy="180" r="4" fill="var(--accent)"/>
+          <text class="lbl" x="180" y="222" text-anchor="middle">look-at point: the car's floor point (0, 0, 0); body lifted by the front tire radius</text>
+          <line x1="180" y1="180" x2="547" y2="118" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <rect x="540" y="108" width="22" height="16" rx="3" fill="var(--accent)"/>
+          <text x="551" y="100" text-anchor="middle" class="lbl">camera</text>
+          <text x="380" y="138" class="lbl" transform="rotate(-9.6 380 138)">9.30 m (0x94CCC)</text>
+          <path d="M290 180 A110 110 0 0 0 288 162" fill="none" stroke="var(--ink-3)"/>
+          <text class="lbl" x="296" y="172">9.67 deg (pitch 110)</text>
+        </svg>
+      </div>
+      <p class="cap">The camera's height is 9.30 sin(9.67 deg) = 1.56 m. In Arcade the pitch is 94 (8.26 deg); the post-race RESULTS screen picks a random pitch from 80 to 207 and a random starting yaw.</p>
+    </div>
+    <div class="panel">
+      <div class="fig">
+        <svg viewBox="0 0 460 210" role="img" aria-label="A dealer page's car rectangle, 436 by 151 pixels, with the look-at point at 78 percent of its height">
+          <text class="ttl" x="10" y="18">Dealer page rectangle, 436 x 151 (to scale)</text>
+          <rect x="12" y="32" width="436" height="151" fill="var(--panel)" stroke="var(--ink-3)"/>
+          <line class="grid" x1="230" y1="32" x2="230" y2="183"/>
+          <line class="grid" x1="12" y1="107.5" x2="448" y2="107.5"/>
+          <ellipse cx="230" cy="150" rx="200" ry="20" fill="var(--ink-3)" opacity=".25"/>
+          <rect x="117" y="104" width="226" height="40" rx="10" fill="var(--c1)" opacity=".75"/>
+          <circle cx="230" cy="150" r="4" fill="var(--accent)"/>
+          <text class="lbl" x="236" y="146">floor point at 0.78 h</text>
+          <text class="lbl" x="236" y="104">center (OFX 218, OFY 75)</text>
+          <text class="lbl" x="230" y="200" text-anchor="middle">a 4.5 m car side-on spans about 1.5 h = 226 px</text>
+        </svg>
+      </div>
+      <p class="cap">fx = 800 q0 / 4096, about 3.125 h; fy = 800 q1 / 4096, about 3.49 h. The car's floor point lands 0.28 h below the rectangle's center because the window's top is 179 and its bottom -50.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Where the car appears</h2>
+  <p class="lede">937 of GT Mode's 3,382 menu pages carry a code 10 item, in seven rectangle shapes. Arcade mode and the race screens have their own copy of the same drawing.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Screen</th><th class="n">W x h</th><th class="n">Pages</th><th>Window (l, r, t, b), H</th><th>Distance</th><th>Turn a frame</th><th>Floor</th></tr>
+    <tr><td>Car info (spec and history pages)</td><td class="n">216 x 117</td><td class="n">760</td><td rowspan="7">-((W 256 / h) / 2), +, 179, -50; H 800</td><td rowspan="7">9.30 m</td><td rowspan="7">12 (car wash: 125)</td><td rowspan="7">0x525252, opaque</td></tr>
+    <tr><td>Dealer new car</td><td class="n">436 x 151</td><td class="n">61</td></tr>
+    <tr><td>Dealer new car (other layout)</td><td class="n">436 x 145</td><td class="n">53</td></tr>
+    <tr><td>Parts shops</td><td class="n">308 x 192</td><td class="n">36</td></tr>
+    <tr><td>Wheel shops</td><td class="n">305 x 153</td><td class="n">25</td></tr>
+    <tr><td>Car Wash</td><td class="n">431 x 167</td><td class="n">1</td></tr>
+    <tr><td>Garage</td><td class="n">436 x 169</td><td class="n">1</td></tr>
+    <tr><td>Arcade CAR SELECTION</td><td class="n">256 x 240</td><td class="n">Arcade</td><td>-128, 128, 90, -50; H 400</td><td>9.30 m</td><td>16</td><td>0xA2A2A2, 50% blend</td></tr>
+    <tr><td>Arcade 2P car selection</td><td class="n">210 x 144</td><td class="n">Arcade</td><td>-105, 105, 67, -17; H 400</td><td>11 m</td><td>16</td><td>0x404040, opaque</td></tr>
+    <tr><td>GT Mode pre-race and post-race menus</td><td class="n">200 x 200</td><td class="n">race</td><td>-100, 100, 99, -24; H 400</td><td>11 m</td><td>16</td><td>0xA2A2A2, 50% blend</td></tr>
+    <tr><td>RESULTS</td><td class="n">352 x 300</td><td class="n">race</td><td>-176, 176, 133, -52; H 400</td><td>8 m</td><td>12</td><td>0x3E3E3E, opaque</td></tr>
+    <tr><td>Prize car</td><td class="n">352 x 480</td><td class="n">race</td><td>-176, 176, 237, -59; H 400</td><td>4 m to 12 m in 90 frames</td><td>8, or a spin that slows</td><td>0xA2A2A2, 50% blend</td></tr>
+  </table></div>
+  <p class="cap">Distances are course units / 65,536. Angles: 4,096 units to a turn, so 12 units = 1.055 degrees. Page counts are from the US disc's menu archive.</p>
+</section>
+
+<section>
+  <h2>What the car is, and what it is not</h2>
+  <div class="two">
+    <div class="panel">
+      <h3>Drawn as in a race</h3>
+      <dl class="kv">
+        <dt>renderer</dt><dd>the same car drawing and clipping the race uses</dd>
+        <dt>LOD</dt><dd>0, always (CarDrawInfo +0 = 1, a byte offset in the car's draw record); wheels as 16-sided shapes</dd>
+        <dt>sort</dt><dd>GT2's depth bins (12.5 cm each) in the menu's middle layer, 1,088 entries</dd>
+        <dt>shine</dt><dd>sphere-map pass (a fake reflection) at strength 64; with dirt: (4096 - dirt) / 64</dd>
+        <dt>shadow</dt><dd>on (CarDrawInfo +3 = 1)</dd>
+        <dt>wheels</dt><dd>the model's wheel centers with the menu x column; no steer, no spin</dd>
+      </dl>
+    </div>
+    <div class="panel">
+      <h3>Different from a race</h3>
+      <dl class="kv">
+        <dt>light</dt><dd>none: the paint as stored (races darken it by the course's light rows)</dd>
+        <dt>model</dt><dd>always the day model; video memory slot 8 (texture at 512, 0)</dd>
+        <dt>shine</dt><dd>64 at most, two thirds of the race's 96</dd>
+        <dt>camera</dt><dd>turns around a still car; the floor uses a second camera with no yaw</dd>
+        <dt>clip</dt><dd>the middle layer's draw area set to the item's rectangle each frame</dd>
+        <dt>aspect</dt><dd>fy / fx = 1.117 on a screen that needs 1.25: about 11% flatter than true</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Changing car, changing paint</h2>
+  <div class="two">
+    <div class="panel">
+      <p><b>New car.</b> A page asks for a car with a delay counter (1 frame, or 3 after the car wash). When it runs out the menu loads the model, texture, logo and wheel image from the disc in one go (the menu waits), resets the yaw to 0x1500 and the pitch to 160 for one frame, and the car appears at the next drawn frame. No fade.</p>
+      <p><b>New paint.</b> Left or Right on the paint chips changes the paint index; the next frame uploads the car's colors again. The model is not reloaded and the camera keeps turning.</p>
+    </div>
+    <div class="panel">
+      <p><b>Arcade.</b> The two files stream from the disc and are unpacked while they load, alongside the menu. The port unpacks each one at once when it is in. Arcade also builds a mirrored camera for a floor reflection every frame and then draws nothing with it.</p>
+      <p><b>Idle.</b> In Arcade and the race screens, once a counter passes 64,400 (about 18 minutes), the camera backs away by 0.5 m every frame.</p>
+    </div>
+  </div>
+</section>
+
+<section id="live">
+  <h2>Measured in the running game</h2>
+  <p class="lede">The formulas above predict every number GT2 writes into its car view each frame. On the wheel shop and on Arcade's car selection they matched on every frame measured. A dealer page or the Car Wash opened directly (without coming from a page that picks a car) shows no car at all.</p>
+  <div class="two">
+    <div class="panel">
+      <dl class="kv">
+        <dt>turn time</dt><dd>GT Mode 341.3 frames = 5.69 s; Arcade 256 frames = 4.27 s</dd>
+        <dt>wheel shop lens</dt><dd>fx 478.3, fy 534.4, center (152.5, 119.1) in a 305 x 153 rectangle</dd>
+        <dt>mirror camera</dt><dd>Arcade builds it every frame and draws nothing with it</dd>
+      </dl>
+    </div>
+    <div class="panel">
+      <dl class="kv">
+        <dt>GT40 lift</dt><dd>7,472 units = 0.114 m (front tire radius 0.331 m minus wheel center 0.217 m)</dd>
+        <dt>menu track</dt><dd>front wheel centers 0.874 m from the middle in races, 0.729 m in menus (the model's menu x column: 17% narrower)</dd>
+        <dt>shine</dt><dd>dirt 40 gives strength 63 of 64</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>In the port</h2>
+  <p class="lede">In races the port's remaster look already draws the cars with its own renderer. In the menus the car is still GT2's original polygons. How the port's renderer can take over this showroom car, with the same framing and motion, is on the <a href="menu-car-native.html">native menu car</a> page.</p>
+</section>
+
+<footer>
+  <div>Addresses and offsets are the US Simulation disc's. No game pictures on this page; the figures are drawn to the numbers in their captions.</div>
+</footer>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+</body>
+</html>

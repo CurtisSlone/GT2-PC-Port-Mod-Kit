@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Random Numbers</title>
+<style>
+:root{
+  --bg:#eef1f0; --panel:#ffffff; --ink:#141a19; --ink-2:#465251; --ink-3:#768382; --rule:#d6dddc; --soft:#e6ebea;
+  --accent:#d6a400; --go:#118a4f; --stop:#c62f2f; --cool:#2a6fb8; --code-bg:#edf1f0;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --go:#3fcf86; --stop:#ff6464; --cool:#5fa2ec; --code-bg:#1f2726; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --go:#3fcf86; --stop:#ff6464; --cool:#5fa2ec; --code-bg:#1f2726; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1060px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;border-bottom:2px solid var(--rule)}
+.lights{display:flex;gap:8px}
+.lights i{width:16px;height:16px;border-radius:50%;background:var(--stop);display:block}
+.lights i.go{background:var(--go)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:640px;height:auto}
+.diagram svg text{font-family:var(--body);fill:var(--ink)}
+.diagram svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.diagram svg .lbl{font-size:12px;fill:var(--ink-2)}
+.box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+.box.hot{fill:var(--panel);stroke:var(--accent);stroke-width:2}
+.box.go{stroke:var(--go);stroke-width:2;fill:var(--panel)}
+.box.stop{stroke:var(--stop);stroke-width:2;fill:var(--panel)}
+.edge{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+.edge.go{stroke:var(--go)} .edge.stop{stroke:var(--stop)} .edge.cool{stroke:var(--cool)}
+.arrowhead{fill:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.badge{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:3px;align-self:flex-start;border:1px solid currentColor}
+.ok{color:var(--go)} .rd{color:var(--ink-3)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n{text-align:right;font-family:var(--mono)}
+.note{font-size:13px;color:var(--ink-3)}
+.kpis{display:flex;flex-wrap:wrap;gap:10px 28px}
+.kpis div{display:flex;flex-direction:column}
+.kpis b{font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kpis span{font-size:12px;color:var(--ink-3)}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--cool)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="lights" aria-hidden="true"><i></i><i></i><i></i><i class="go"></i></div>
+  <div class="eyebrow">GT2 Simulation · random numbers</div>
+  <h1>GT2 Random Numbers</h1>
+  <p class="lede">Every random thing Gran Turismo 2 does, from the opponents on the grid to the music at the start, comes from one tiny number generator. Sixteen places in the game ask it for a number, and the clock at that moment decides what comes out. Nothing random happens while you are actually racing.</p>
+  <div class="kpis">
+    <div><b>1</b><span>generator, no shared state</span></div>
+    <div><b>16</b><span>places that draw a number</span></div>
+    <div><b>65,536</b><span>different values it can give</span></div>
+    <div><b>0</b><span>random draws inside a race</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>The generator</h2>
+  <p>A "seed" is the number a random generator starts from. In GT2, each place that wants a random number keeps its own 32-bit seed. A draw multiplies the seed by 17, adds 17, stores it back, and returns the seed folded onto itself: the high half XOR the low half (XOR is a bit-by-bit "one or the other, not both"), written into both halves. So there are only 65,536 different draws.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 900 200" role="img" aria-label="The generator: seed times 17 plus 17, stored back, then the result is the seed XOR its halves exchanged">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect class="box" x="20" y="60" width="150" height="60" rx="6"/><text x="95" y="86" text-anchor="middle" font-weight="600">seed s</text><text x="95" y="106" text-anchor="middle" class="m">kept by each caller</text>
+      <rect class="box hot" x="240" y="60" width="190" height="60" rx="6"/><text x="335" y="86" text-anchor="middle" font-weight="600">s' = 17 s + 17</text><text x="335" y="106" text-anchor="middle" class="m">mod 2^32</text>
+      <rect class="box go" x="500" y="60" width="200" height="60" rx="6"/><text x="600" y="86" text-anchor="middle" font-weight="600">d = s' XOR rotl16(s')</text><text x="600" y="106" text-anchor="middle" class="m">both halves = hi ^ lo</text>
+      <rect class="box" x="770" y="60" width="110" height="60" rx="6"/><text x="825" y="94" text-anchor="middle" font-weight="600">d % n</text>
+      <path class="edge" d="M170,90 H238" marker-end="url(#ah)"/>
+      <path class="edge" d="M430,90 H498" marker-end="url(#ah)"/>
+      <path class="edge" d="M700,90 H768" marker-end="url(#ah)"/>
+      <path class="edge cool" d="M335,120 V160 H95 V122" marker-end="url(#ah)"/><text x="215" y="178" text-anchor="middle" class="lbl">stored back: the next draw continues the stream</text>
+      <text x="600" y="40" text-anchor="middle" class="lbl">"d % n": the remainder after dividing by n, a pick from n choices</text>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <h2>Where the seeds come from</h2>
+  <p>There is no single shared random state. Almost every draw starts a fresh stream from the <b>VBlank count</b> (the number of 60 Hz screen refreshes since power-on) at the moment it runs. That is why loading speed changes the opponents: a faster load reaches the draw on a different frame.</p>
+  <p class="note">Numbers like 0x801F0070 below are addresses in the PlayStation's RAM, where the game keeps that value. "+0x54" is a byte offset inside a record (the race set-up, the race state).</p>
+  <div class="grid">
+    <div class="card"><h3>VBlank total</h3><div class="where">VBlank counter at 0x801F0070</div><p>Opponents, random course, prize car colors, free-race field, the result page object, the prize car. Read without waiting.</p></div>
+    <div class="card"><h3>Board seed</h3><div class="where">race set-up +0x54</div><p>Re-drawn at each course load after waiting one VBlank, but kept in replays, so a replay rebuilds the same trackside boards.</p></div>
+    <div class="card"><h3>Music seed</h3><div class="where">race state +0x70 = VBlank + boot seed</div><p>One stream per race session; each race start (race, Test Run, replay) takes the next draw. The boot seed mixes the hardware timers once at power-on and nothing else reads it.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>The draw sites</h2>
+  <p>What each random draw decides, and when it happens. Some of these are rare (a random-course event, a prize car) and a few only exist on the Arcade disc.</p>
+  <div class="grid">
+    <div class="card"><h3>Opponents</h3><div class="where">GT Mode, when the event is built</div><p>Six picks per event (the first slot is then given to the player's car). Draw an entry of the event's list until the car is sold in this region; a car already on the grid is redrawn with chance 29/32, at most 64 times; then a color, drawn again once if it is dull.</p><pre>k = d % n          until usable
+repeat: d & 31 &lt; 29 -&gt; again
+color  = d % colors</pre></div>
+    <div class="card"><h3>Trackside boards</h3><div class="where">course load</div><p>For each of five board sets: shuffle its images, then walk the board positions while images remain, placing one when a 12-bit draw is at most the position's chance.</p><pre>slot = d % n       until free
+place if (d &amp; 0xFFF) &lt;= chance</pre></div>
+    <div class="card"><h3>Race music</h3><div class="where">race start</div><p>One draw from the session stream picks one of six tunes, played at GO.</p><pre>tune = d % 6</pre></div>
+    <div class="card"><h3>Result page object</h3><div class="where">result pages</div><p>Four draws: an angle, two unused, and a value 80 to 207 (stored at +0xAC of the object).</p><pre>angle = d1 &amp; 0xFFF
++0xAC = (d4 &amp; 0x7F) + 80</pre></div>
+    <div class="card"><h3>Prize car</h3><div class="where">win payout</div><p>Which of the event's prize cars you win, after a single-race win or a championship. Its color was drawn before the event.</p><pre>car = d % prize count</pre></div>
+    <div class="card"><h3>Random course</h3><div class="where">event build</div><p>For an event whose course is the random name (103 events, such as the one-make races and FREERACE events): one of the list's courses.</p><pre>course = list[d % len]</pre></div>
+    <div class="card"><h3>Prize car colors</h3><div class="where">event and license build</div><p>One color draw for each of up to four prize cars.</p><pre>color = d % colors</pre></div>
+    <div class="card"><h3>Free-race field</h3><div class="where">free races</div><p>After the opponent menu: six cars from the chosen list, each redrawn until usable, then a color.</p></div>
+    <div class="card"><h3>Arcade side</h3><div class="where">Arcade disc and attract demos</div><p>Five more copies of the opponent and color picking, for the Arcade side and the attract demo set-up (never used on the Simulation disc), and two words for link (two-console) races.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Nothing random inside a race</h2>
+  <p>No random draw happens during a race frame. Physics, AI, collisions, the camera and the sound are fully decided by the race set-up and the controller inputs. That is how replays work: a replay stores no random state at all. It rebuilds the boards from the stored board seed and runs the race again from your recorded inputs.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 900 120" role="img" aria-label="Timeline: event build draws, course load draws, race start draw, race frames with no draws, result page draws">
+      <rect style="fill:var(--soft);stroke:var(--accent)" x="20" y="40" width="170" height="44" rx="4" stroke-width="2"/><text x="105" y="67" text-anchor="middle" font-weight="600">Event build</text>
+      <rect style="fill:var(--soft);stroke:var(--accent)" x="195" y="40" width="130" height="44" rx="4" stroke-width="2"/><text x="260" y="67" text-anchor="middle" font-weight="600">Course load</text>
+      <rect style="fill:var(--soft);stroke:var(--accent)" x="330" y="40" width="100" height="44" rx="4" stroke-width="2"/><text x="380" y="67" text-anchor="middle" font-weight="600">Start</text>
+      <rect style="fill:var(--soft);stroke:var(--go)" x="435" y="40" width="300" height="44" rx="4" stroke-width="2"/><text x="585" y="67" text-anchor="middle" font-weight="600">Race frames: 0 draws</text>
+      <rect style="fill:var(--soft);stroke:var(--accent)" x="740" y="40" width="140" height="44" rx="4" stroke-width="2"/><text x="810" y="67" text-anchor="middle" font-weight="600">Results</text>
+      <text x="105" y="104" text-anchor="middle" class="lbl">opponents, colors</text><text x="260" y="104" text-anchor="middle" class="lbl">boards</text><text x="380" y="104" text-anchor="middle" class="lbl">music</text><text x="810" y="104" text-anchor="middle" class="lbl">object, prize car</text>
+    </svg>
+  </div>
+</section>
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

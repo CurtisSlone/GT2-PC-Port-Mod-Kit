@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inside GT2's Cameras and Replays</title>
+<style>
+:root{
+  --bg:#f2f4f6; --panel:#ffffff; --ink:#15181d; --ink-2:#4a5160; --ink-3:#6f7685; --rule:#dce0e6; --grid:#eceef2;
+  --code-bg:#eef1f5; --empty:#e6e9ee;
+  --accent:#0d7f80; --accent-soft:#e0f3f2;
+  --s1:#2a6fd0; --s2:#d65f28; --s3:#14916a; --s4:#b07d00; --s5:#8a6fb8; --s6:#5f6b7d; --on:#ffffff;
+  --ok:#0b7a3e; --ok-bg:#e1f3e8; --mid:#8a5a00; --mid-bg:#fbefd6; --bad:#b3261e; --bad-bg:#fbe4e2;
+  --display:"Avenir Next Condensed","Roboto Condensed","Helvetica Neue","Arial Narrow",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111317; --panel:#1a1d22; --ink:#eef0f3; --ink-2:#b6bcc7; --ink-3:#8b92a0; --rule:#2c3038; --grid:#23272e;
+  --code-bg:#22262d; --empty:#22262c;
+  --accent:#45c9c6; --accent-soft:#14302f;
+  --s1:#3f86e3; --s2:#e0733d; --s3:#21a57a; --s4:#c99a1c; --s5:#9a82cc; --s6:#6c788b; --on:#ffffff;
+  --ok:#5fd394; --ok-bg:#16352a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff8a80; --bad-bg:#3d1c1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111317; --panel:#1a1d22; --ink:#eef0f3; --ink-2:#b6bcc7; --ink-3:#8b92a0; --rule:#2c3038; --grid:#23272e;
+  --code-bg:#22262d; --empty:#22262c;
+  --accent:#45c9c6; --accent-soft:#14302f;
+  --s1:#3f86e3; --s2:#e0733d; --s3:#21a57a; --s4:#c99a1c; --s5:#9a82cc; --s6:#6c788b; --on:#ffffff;
+  --ok:#5fd394; --ok-bg:#16352a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff8a80; --bad-bg:#3d1c1a; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--accent);padding-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1.02;margin:0;letter-spacing:.005em;text-wrap:balance}
+h2{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-stretch:condensed;font-weight:600;font-size:21px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:70ch}
+ul,ol{margin:0;padding-left:1.25em;max-width:70ch;display:flex;flex-direction:column;gap:4px}
+.lede{color:var(--ink-2)}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+code,.m{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;white-space:nowrap}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+nav.toc a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+nav.toc a:hover{color:var(--accent);border-color:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.facts div{background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts b{font-family:var(--display);font-stretch:condensed;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums;color:var(--ink)}
+.facts span{font-size:12.5px;color:var(--ink-2);line-height:1.35}
+.scope{font-size:13.5px;color:var(--ink-2);border-left:3px solid var(--rule);padding-left:12px;max-width:80ch}
+section{display:flex;flex-direction:column;gap:14px;scroll-margin-top:12px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.two>*{min-width:0}
+.diagram{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.diagram svg{display:block;width:100%;height:auto;min-width:560px}
+.diagram.narrow svg{min-width:0}
+.cap{font-size:13px;color:var(--ink-3);max-width:80ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+td.k{font-family:var(--mono);white-space:nowrap;color:var(--ink-2)}
+tr:last-child td{border-bottom:0}
+.bar{display:block;height:8px;border-radius:2px;background:var(--accent);min-width:2px}
+.note{font-size:13px;color:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px}
+.card .k{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-mid{background:var(--mid-bg);color:var(--mid)}
+.b-bad{background:var(--bad-bg);color:var(--bad)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.steps{counter-reset:st;list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:st;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.steps li::before{content:counter(st);font-family:var(--mono);font-size:12px;width:24px;height:24px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+svg text{fill:var(--ink);font-family:var(--body);font-size:12px}
+svg .t1{fill:var(--ink)} svg .t2{fill:var(--ink-2)} svg .t3{fill:var(--ink-3)} svg .ta{fill:var(--accent)}
+svg .on{fill:var(--on);font-weight:600}
+svg .b{font-weight:600} svg .sm{font-size:11px} svg .lg{font-size:14px} svg .mono{font-family:var(--mono)}
+svg .box{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .boxa{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+svg .emptyr{fill:var(--empty)}
+svg .free{fill:none;stroke:var(--ink-3);stroke-dasharray:4 3}
+svg .gridl{stroke:var(--grid);stroke-width:1}
+svg .axis{stroke:var(--ink-3);stroke-width:1}
+svg .ln{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+svg .lna{stroke:var(--accent);stroke-width:1.6;fill:none}
+svg .dash{stroke-dasharray:5 4}
+svg .arrowhead{fill:var(--ink-3)} svg .arrowheada{fill:var(--accent)}
+svg .s1{fill:var(--s1)} svg .s2{fill:var(--s2)} svg .s3{fill:var(--s3)} svg .s4{fill:var(--s4)} svg .s5{fill:var(--s5)} svg .s6{fill:var(--s6)}
+svg .s1p{fill:var(--s1);opacity:.55} svg .clut{fill:var(--s6);opacity:.6} svg .acc{fill:var(--accent)}
+svg .c1{stroke:var(--s1);stroke-width:2.2;fill:none} svg .c2{stroke:var(--s2);stroke-width:2.2;fill:none} svg .c3{stroke:var(--s3);stroke-width:2.2;fill:none}
+@media (max-width:560px){h2{font-size:24px}.facts b{font-size:22px}.panel{padding:14px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker>
+<marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowheada" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs></svg>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation · cameras and replays</div>
+  <h1>Inside GT2's Cameras and Replays</h1>
+  <p class="lede">How GT2 places the camera behind your car, how the TV cameras of a replay pick their shots, and how a replay is stored. The short version: a GT2 replay holds no positions at all. It keeps your controller inputs and plays the whole race again, so it only works if the simulation runs exactly as it did the first time.</p>
+  <div class="facts">
+    <div><b>3</b><span>player cameras: in-car, chase near, chase far</span></div>
+    <div><b>4</b><span>kinds of TV camera, chosen by lap and track distance</span></div>
+    <div><b>5 B</b><span>of input recorded per physics tick (30 per second)</span></div>
+    <div><b>17,408 B</b><span>per replay stream: 5 to 7 minutes with analog steering</span></div>
+    <div><b>60° to 80°</b><span>field of view, one setting for all player cameras</span></div>
+    <div><b>87</b><span>TV camera records on Seattle, the attract demo course</span></div>
+  </div>
+  <p class="scope">Checked on the US Simulation disc. A few things (the replay pad buttons, split screen, a stream filling up in a real race) were read from the game's code but not seen in play; they are marked as such.</p>
+  <nav class="toc" aria-label="Contents"><a href="#player">Player cameras</a><a href="#lag">The lag spring</a><a href="#flyby">Start fly-by</a><a href="#tv">TV cameras</a><a href="#replay">What a replay stores</a><a href="#exact">Why it is exact</a><a href="#limits">Limits</a><a href="#bugs">Bugs found</a></nav>
+</header>
+
+<section id="player">
+  <h2>The player cameras</h2>
+  <p class="lede">The view button (R1 on the default set-up) steps through three cameras. Holding L1 turns either one 180° to look back. All three share one field of view, set in the options.</p>
+  <div class="panel">
+    <div class="diagram"><svg viewBox="0 0 760 240" role="img" aria-label="Side view of the three player camera positions, drawn to scale">
+<line class="axis" x1="20" y1="185" x2="750" y2="185"/>
+<line class="gridl" x1="726" y1="185" x2="726" y2="191"/><text class="t3 mono sm" x="726" y="205" text-anchor="middle">-2 m</text>
+<line class="gridl" x1="658" y1="185" x2="658" y2="191"/><text class="t3 mono sm" x="658" y="205" text-anchor="middle">-1 m</text>
+<line class="gridl" x1="590" y1="185" x2="590" y2="191"/><text class="t3 mono sm" x="590" y="205" text-anchor="middle">0 m</text>
+<line class="gridl" x1="522" y1="185" x2="522" y2="191"/><text class="t3 mono sm" x="522" y="205" text-anchor="middle">1 m</text>
+<line class="gridl" x1="454" y1="185" x2="454" y2="191"/><text class="t3 mono sm" x="454" y="205" text-anchor="middle">2 m</text>
+<line class="gridl" x1="386" y1="185" x2="386" y2="191"/><text class="t3 mono sm" x="386" y="205" text-anchor="middle">3 m</text>
+<line class="gridl" x1="318" y1="185" x2="318" y2="191"/><text class="t3 mono sm" x="318" y="205" text-anchor="middle">4 m</text>
+<line class="gridl" x1="250" y1="185" x2="250" y2="191"/><text class="t3 mono sm" x="250" y="205" text-anchor="middle">5 m</text>
+<line class="gridl" x1="182" y1="185" x2="182" y2="191"/><text class="t3 mono sm" x="182" y="205" text-anchor="middle">6 m</text>
+<line class="gridl" x1="114" y1="185" x2="114" y2="191"/><text class="t3 mono sm" x="114" y="205" text-anchor="middle">7 m</text>
+<line class="gridl" x1="46" y1="185" x2="46" y2="191"/><text class="t3 mono sm" x="46" y="205" text-anchor="middle">8 m</text>
+<rect class="s6" x="447" y="141" width="285" height="34" rx="6"/>
+<path class="s6" d="M501,141 L542,109 L644,109 L685,141 Z"/>
+<circle cx="498" cy="174" r="11" style="fill:var(--ink)"/>
+<circle cx="681" cy="174" r="11" style="fill:var(--ink)"/>
+<text class="t3 sm" x="590" y="221" text-anchor="middle">car position (front to the right)</text>
+<line class="ln dash" x1="590" y1="185" x2="590" y2="51"/>
+<circle class="s2" cx="590.0" cy="138.6" r="7"/>
+<circle class="s1" cx="222.8" cy="80.6" r="7"/>
+<line class="ln" x1="231.8" y1="80.6" x2="278.8" y2="80.6" marker-end="url(#ah)"/>
+<circle class="s3" cx="127.6" cy="80.6" r="7"/>
+<line class="ln" x1="136.6" y1="80.6" x2="183.6" y2="80.6" marker-end="url(#ah)"/>
+<text class="sm b" x="590" y="31" text-anchor="middle">in-car</text><text class="t2 sm" x="590" y="45" text-anchor="middle">0.8 m up, no smoothing</text>
+<text class="sm b" x="222" y="50" text-anchor="middle">chase near</text><text class="t2 sm" x="222" y="64" text-anchor="middle">5.4 m back</text>
+<text class="sm b" x="127" y="50" text-anchor="middle">chase far</text><text class="t2 sm" x="127" y="64" text-anchor="middle">6.8 m back</text>
+<line class="ln dash" x1="18" y1="80" x2="107" y2="80"/><text class="t3 sm" x="18" y="74">1.8 m up</text>
+</svg></div>
+    <p class="cap">Side view, drawn to scale (meters). The chase cameras start at the car's position, turn to its heading and pitch minus the lag, then move 1.8 m up and back along their own axes. They follow the car's pitch, so they dip with it over a crest.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Camera</th><th>Position</th><th>Smoothing</th></tr></thead>
+      <tbody>
+        <tr><td>in-car</td><td>the car's own render matrix, 0.8 m up</td><td>none</td></tr>
+        <tr><td>chase near</td><td>1.8 m up, 5.4 m back (split screen: 1.26 m, 6.48 m)</td><td>lag spring on yaw and pitch</td></tr>
+        <tr><td>chase far</td><td>1.8 m up, 6.8 m back (split screen: 1.62 m, 8.5 m)</td><td>lag spring on yaw and pitch</td></tr>
+        <tr><td>mirror</td><td>a copy of the in-car camera turned backward</td><td>none</td></tr>
+      </tbody>
+    </table></div>
+    <p>Field of view: one setting for all three, 60°, 73° or 80° wide. <b>No camera tests walls or the ground</b>, so the chase camera can sit inside a wall or under a crest. The cameras run once per tick, right after that tick's physics, and read the car's pose from it, so no camera lags its car by a tick.</p>
+  </div>
+</section>
+
+<section id="lag">
+  <h2>The lag spring is part of the physics</h2>
+  <p class="lede">The chase camera's swing is a spring-damper on yaw and pitch. Its state lives in each car's physics record and is updated in the physics tick for every car, not by the camera code. The camera only reads the result.</p>
+  <div class="two">
+    <div class="panel">
+      <div class="legend"><span><i style="background:var(--s1)"></i>yaw, option 0</span><span><i style="background:var(--s2)"></i>yaw, option 1</span><span><i style="background:var(--s3)"></i>pitch</span></div>
+      <div class="diagram narrow"><svg viewBox="0 0 560 250" role="img" aria-label="Chase camera lag after a sudden heading change, computed from the documented spring constants">
+<line class="gridl" x1="52" y1="190" x2="544" y2="190"/><text class="t3 mono sm" x="46" y="194" text-anchor="end">0%</text>
+<line class="gridl" x1="52" y1="146.5" x2="544" y2="146.5"/><text class="t3 mono sm" x="46" y="150.5" text-anchor="end">25%</text>
+<line class="gridl" x1="52" y1="103" x2="544" y2="103"/><text class="t3 mono sm" x="46" y="107" text-anchor="end">50%</text>
+<line class="gridl" x1="52" y1="59.5" x2="544" y2="59.5"/><text class="t3 mono sm" x="46" y="63.5" text-anchor="end">75%</text>
+<line class="gridl" x1="52" y1="16" x2="544" y2="16"/><text class="t3 mono sm" x="46" y="20" text-anchor="end">100%</text>
+<text class="t3 mono sm" x="52" y="208" text-anchor="middle">0 s</text>
+<text class="t3 mono sm" x="134" y="208" text-anchor="middle">0.25 s</text>
+<text class="t3 mono sm" x="216" y="208" text-anchor="middle">0.5 s</text>
+<text class="t3 mono sm" x="298" y="208" text-anchor="middle">0.75 s</text>
+<text class="t3 mono sm" x="380" y="208" text-anchor="middle">1 s</text>
+<text class="t3 mono sm" x="462" y="208" text-anchor="middle">1.25 s</text>
+<text class="t3 mono sm" x="544" y="208" text-anchor="middle">1.5 s</text>
+<line class="axis" x1="52" y1="190" x2="544" y2="190"/>
+<path class="c3 dash" d="M52.0,16.0 L58.6,16.7 L65.1,18.5 L71.7,21.2 L78.2,24.6 L84.8,28.6 L91.4,33.1 L97.9,37.9 L104.5,42.9 L111.0,48.1 L117.6,53.4 L124.2,58.7 L130.7,64.0 L137.3,69.2 L143.8,74.4 L150.4,79.4 L157.0,84.4 L163.5,89.2 L170.1,93.9 L176.6,98.4 L183.2,102.8 L189.8,107.0 L196.3,111.0 L202.9,114.9 L209.4,118.7 L216.0,122.2 L222.6,125.6 L229.1,128.9 L235.7,132.0 L242.2,135.0 L248.8,137.8 L255.4,140.5 L261.9,143.1 L268.5,145.5 L275.0,147.8 L281.6,150.0 L288.2,152.1 L294.7,154.1 L301.3,156.0 L307.8,157.8 L314.4,159.5 L321.0,161.1 L327.5,162.6 L334.1,164.1 L340.6,165.5 L347.2,166.8 L353.8,168.0 L360.3,169.2 L366.9,170.3 L373.4,171.3 L380.0,172.3 L386.6,173.3 L393.1,174.2 L399.7,175.0 L406.2,175.8 L412.8,176.6 L419.4,177.3 L425.9,178.0 L432.5,178.6 L439.0,179.2 L445.6,179.8 L452.2,180.3 L458.7,180.9 L465.3,181.4 L471.8,181.8 L478.4,182.3 L485.0,182.7 L491.5,183.1 L498.1,183.4 L504.6,183.8 L511.2,184.1 L517.8,184.4 L524.3,184.7 L530.9,185.0 L537.4,185.3 L544.0,185.5"/>
+<path class="c1" d="M52.0,16.0 L58.6,17.0 L65.1,19.7 L71.7,23.7 L78.2,28.9 L84.8,34.8 L91.4,41.4 L97.9,48.3 L104.5,55.6 L111.0,63.0 L117.6,70.4 L124.2,77.8 L130.7,85.1 L137.3,92.2 L143.8,99.1 L150.4,105.7 L157.0,112.0 L163.5,118.0 L170.1,123.8 L176.6,129.2 L183.2,134.2 L189.8,139.0 L196.3,143.5 L202.9,147.6 L209.4,151.5 L216.0,155.1 L222.6,158.4 L229.1,161.4 L235.7,164.2 L242.2,166.8 L248.8,169.2 L255.4,171.3 L261.9,173.3 L268.5,175.1 L275.0,176.7 L281.6,178.2 L288.2,179.6 L294.7,180.8 L301.3,181.9 L307.8,182.8 L314.4,183.7 L321.0,184.5 L327.5,185.2 L334.1,185.8 L340.6,186.4 L347.2,186.9 L353.8,187.4 L360.3,187.7 L366.9,188.1 L373.4,188.4 L380.0,188.7 L386.6,188.9 L393.1,189.1 L399.7,189.3 L406.2,189.4 L412.8,189.5 L419.4,189.7 L425.9,189.7 L432.5,189.8 L439.0,189.9 L445.6,190.0 L452.2,190.0 L458.7,190.0 L465.3,190.1 L471.8,190.1 L478.4,190.1 L485.0,190.1 L491.5,190.1 L498.1,190.1 L504.6,190.1 L511.2,190.2 L517.8,190.2 L524.3,190.1 L530.9,190.1 L537.4,190.1 L544.0,190.1"/>
+<path class="c2" d="M52.0,16.0 L58.6,19.1 L65.1,26.8 L71.7,37.3 L78.2,49.4 L84.8,62.1 L91.4,74.8 L97.9,87.1 L104.5,98.8 L111.0,109.6 L117.6,119.4 L124.2,128.4 L130.7,136.4 L137.3,143.5 L143.8,149.8 L150.4,155.4 L157.0,160.2 L163.5,164.5 L170.1,168.1 L176.6,171.3 L183.2,174.1 L189.8,176.4 L196.3,178.5 L202.9,180.2 L209.4,181.7 L216.0,183.0 L222.6,184.0 L229.1,185.0 L235.7,185.7 L242.2,186.4 L248.8,187.0 L255.4,187.4 L261.9,187.8 L268.5,188.2 L275.0,188.5 L281.6,188.7 L288.2,188.9 L294.7,189.1 L301.3,189.2 L307.8,189.4 L314.4,189.5 L321.0,189.6 L327.5,189.6 L334.1,189.7 L340.6,189.7 L347.2,189.8 L353.8,189.8 L360.3,189.8 L366.9,189.9 L373.4,189.9 L380.0,189.9 L386.6,189.9 L393.1,189.9 L399.7,189.9 L406.2,190.0 L412.8,190.0 L419.4,190.0 L425.9,190.0 L432.5,190.0 L439.0,190.0 L445.6,190.0 L452.2,190.0 L458.7,190.0 L465.3,190.0 L471.8,190.0 L478.4,190.0 L485.0,190.0 L491.5,190.0 L498.1,190.0 L504.6,190.0 L511.2,190.0 L517.8,190.0 L524.3,190.0 L530.9,190.0 L537.4,190.0 L544.0,190.0"/>
+<text class="t2 sm" x="52" y="236">time after the car's heading jumps</text>
+</svg></div>
+      <p class="cap">How much of a sudden heading change the camera still trails, over time. Computed from the constants in real units, not measured in a race: the game itself runs integer steps at 30 Hz. Option 0 still trails 20% at 0.5 s; option 1 trails 4%.</p>
+    </div>
+    <div class="panel">
+      <pre>yaw:   y'' = k (heading - y) - c y'
+       option 0: k = 30 /s², c = 10 /s
+                 (ζ = 0.91, ω = 5.5 rad/s)
+       option 1: k = 100 /s², c = 20 /s
+                 (critically damped, ω = 10 rad/s)
+pitch: k = 20 /s², c = 10 /s  (ζ = 1.12)</pre>
+      <ul>
+        <li><b>Option 0</b> is slightly under-damped and follows the car's heading.</li>
+        <li><b>Option 1</b> is stiffer and, above a speed threshold, aims along the direction of travel instead: a sliding car is seen from behind its path.</li>
+        <li><b>Bug C1:</b> every car's spring uses the time step the last car left behind (car 5 in a race), including that AI car's rubber-band time scale. Your chase camera follows with an AI car's clock. With one car on track it is right. The port's classic physics keeps it.</li>
+      </ul>
+      <p class="where">physics stage F · car+0x766..+0x77E (byte offsets in the car's record)</p>
+    </div>
+  </div>
+</section>
+
+<section id="flyby">
+  <h2>The start fly-by</h2>
+  <p>While the countdown runs, the camera does three moves: it flies in from ahead of the car, orbits it, then zooms out into your chosen camera. Its length is the start jingle's, 9 s in every race measured, so the phases stretch with the countdown rather than being a fixed 180 fields. The renderer has to follow it: during the fly-by the picture center is shifted by 80 lines.</p>
+</section>
+
+<section id="tv">
+  <h2>TV cameras: a table in every course</h2>
+  <p class="lede">Each course file carries a list of camera records keyed by lap and track distance, up to about 90 on a circuit. Each tick the replay takes the first record whose lap range and distance range contain the watched car. Later records that also match are never used.</p>
+  <div class="two">
+    <div class="panel tablewrap"><table>
+      <thead><tr><th>Kind</th><th>What it does</th><th class="n">Seattle</th></tr></thead>
+      <tbody>
+        <tr><td>0 follow</td><td>runs along a line or curve as the car crosses the record's range, aimed 0.8 m above the car; zoom changes with progress</td><td class="n">51</td></tr>
+        <tr><td>1 fixed</td><td>a set position and direction; does not track the car</td><td class="n">9</td></tr>
+        <tr><td>2 on-board</td><td>one of 13 views around the car (wheel arches, high rear, sides, overhead)</td><td class="n">4</td></tr>
+        <tr><td>3 tracking</td><td>runs on a path and zooms so the car keeps the same size on screen</td><td class="n">23</td></tr>
+      </tbody>
+    </table>
+    <p class="note" style="margin-top:8px">Seattle (the attract demo course): 87 records. TV switches are cuts.</p></div>
+    <div class="panel">
+      <h3>The replay pad</h3>
+      <ul>
+        <li><b>Circle</b>: TV, your cameras, or the other car</li>
+        <li><b>Square</b>: 9 player views (in-car, chase near and far, overhead, 5 on-board)</li>
+        <li><b>Up / Down</b>: the car watched, by race position</li>
+        <li><b>Start</b> pauses; <b>Select</b> hides the HUD</li>
+      </ul>
+      <p>There is no fast forward, slow motion or rewind in the replay code.</p>
+      <p class="note">Read from the game's code; not tried with button presses in play.</p>
+    </div>
+  </div>
+</section>
+
+<section id="replay">
+  <h2>What a replay stores</h2>
+  <p class="lede">GT2 records only the player car's controller input, once per physics tick, after the controller set-up has mapped it. With it go the race set-up (course, cars, entries, laps), the player's car spec and a 252-byte timing block. Not stored: positions, any car state, the random state.</p>
+  <div class="panel">
+    <div class="diagram">
+<svg viewBox="0 0 760 300" role="img" aria-label="Race and replay run the same simulation; only the input source changes">
+  <text class="b lg" x="10" y="22">Race</text>
+  <rect class="box" x="10" y="34" width="120" height="50" rx="4"/><text class="b sm" x="70" y="55" text-anchor="middle">your pad</text><text class="t2 sm" x="70" y="72" text-anchor="middle">after the mapping</text>
+  <line class="ln" x1="130" y1="59" x2="176" y2="59" marker-end="url(#ah)"/>
+  <rect class="boxa" x="180" y="34" width="120" height="50" rx="4"/><text class="b sm" x="240" y="55" text-anchor="middle">5-byte record</text><text class="t2 sm" x="240" y="72" text-anchor="middle">per tick</text>
+  <line class="ln" x1="300" y1="59" x2="346" y2="59" marker-end="url(#ah)"/>
+  <path class="lna dash" d="M240,84 V128 H112 V150" marker-end="url(#aha)"/><text class="ta sm b" x="250" y="112">recorded</text>
+
+  <rect class="box" x="350" y="34" width="400" height="230" rx="6"/>
+  <text class="b" x="366" y="56">The same simulation, both times</text>
+  <rect class="s1" x="366" y="70" width="116" height="40" rx="3"/><text class="on sm" x="424" y="94" text-anchor="middle">physics</text>
+  <rect class="s3" x="492" y="70" width="116" height="40" rx="3"/><text class="on sm" x="550" y="94" text-anchor="middle">AI + rubber band</text>
+  <rect class="s5" x="618" y="70" width="116" height="40" rx="3"/><text class="on sm" x="676" y="94" text-anchor="middle">cameras</text>
+  <text class="t2 sm" x="366" y="134">AI cars, every other car and the cameras are</text>
+  <text class="t2 sm" x="366" y="150">always simulated, never stored.</text>
+  <text class="t2 sm" x="366" y="178">On load, rules come back from the event database</text>
+  <text class="t2 sm" x="366" y="194">by the set-up's ID, and every car spec is rebuilt</text>
+  <text class="t2 sm" x="366" y="210">from the car database.</text>
+  <text class="sm b" x="366" y="244">Same inputs + same start = the same race.</text>
+
+  <rect class="box" x="10" y="154" width="220" height="64" rx="4"/>
+  <text class="b sm" x="22" y="174">replay stream (17,408 B)</text>
+  <text class="t2 sm" x="22" y="192">run-length coded: an entry only</text>
+  <text class="t2 sm" x="22" y="208">when a value changes</text>
+  <text class="b lg" x="10" y="250">Replay</text>
+  <line class="ln" x1="230" y1="186" x2="346" y2="186" marker-end="url(#ah)"/>
+  <text class="t2 sm" x="244" y="178">played back</text>
+</svg>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Byte</th><th>The per-tick input record</th></tr></thead>
+      <tbody>
+        <tr><td class="n">0</td><td>flags: analog steering, analog throttle, analog brake, analog curve</td></tr>
+        <tr><td class="n">1</td><td>logical buttons: left, right, throttle, brake, two more, shift up, shift down</td></tr>
+        <tr><td class="n">2</td><td>steering, 0 to 255 (128 = center)</td></tr>
+        <tr><td class="n">3</td><td>throttle step, 0 to 15</td></tr>
+        <tr><td class="n">4</td><td>brake step, 0 to 15 (stored with byte 3 in one byte)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Because the stream holds what the game read after the controller mapping, a replay plays the same on any controller set-up. The attract demos, the license demos and the rally ghosts are the same kind of stream. A rally ghost is a developer's lap installed as a second car with no contacts.</p>
+  </div>
+</section>
+
+<section id="exact">
+  <h2>Why it is exact, and why old replays need classic physics</h2>
+  <p class="lede">GT2's simulation is deterministic: the same inputs from the same start give the same race, tick for tick. Three checks show the replayed race is the driven one.</p>
+  <div class="panel tablewrap"><table>
+    <thead><tr><th>Check</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>License B-1 driven, then its Replay</td><td>the car's position, speed, heading and every physics field identical tick for tick over 1,503 ticks</td></tr>
+      <tr><td>Attract demo MSC0002 (Seattle, 6 cars, 7,147 ticks)</td><td>the player's 8 lap and split times stored in the replay (1:57.422 / 1:46.879 and 6 splits) are hit exactly</td></tr>
+      <tr><td>License demo IB-4 with IB-4's own rules</td><td>finishes in 24.258 s, the developer's stored time, PASS</td></tr>
+      <tr><td>The same IB-4 demo under B-1's rules</td><td><b>leaves the road after 13.4 s</b>: a standing start instead of IB-4's 150 km/h rolling start, so the inputs no longer fit the car's path</td></tr>
+    </tbody>
+  </table></div>
+  <div class="panel">
+    <p>A normal race has no re-sync point (only the Arcade time trial restores a snapshot at each lap). So if anything in the start conditions or the simulation changes, the stored inputs drive a different car through a different race, and it drifts within seconds. "The replay shows a different race" is not something GT2's engine does on its own on this disc; it needs a changed database (a mod, another disc version) or wrong rules.</p>
+    <p><b>In the port:</b> the disc's own recordings (attract demos, license demos, rally ghosts) play on classic physics, as GT2 runs them. Replays made in the port store which physics they were driven with (see <a href="battle-and-replays.html">battle and replays</a>).</p>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limits</h2>
+  <div class="two">
+    <div class="panel">
+      <h3>How long a stream lasts</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Input style</th><th class="n">Bytes per tick</th><th class="n">Minutes</th><th style="width:38%"></th></tr></thead>
+        <tbody>
+          <tr><td>digital pad (disc streams)</td><td class="n">0.2 to 0.4</td><td class="n">12 to 40</td><td><i class="bar" style="width:70%;margin-left:30%"></i></td></tr>
+          <tr><td>analog stick weave</td><td class="n">1.33</td><td class="n">7.3</td><td><i class="bar" style="width:18.3%"></i></td></tr>
+          <tr><td>stick never at rest</td><td class="n">2</td><td class="n">4.8</td><td><i class="bar" style="width:12%"></i></td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Analog steering changes the steering byte nearly every tick, so nearly every tick writes an entry. When the stream is full, recording stops silently and the race goes on; the replay ends at that point.</p>
+    </div>
+    <div class="panel">
+      <h3>Other limits</h3>
+      <ul>
+        <li>Recording stops 5 s (300 fields) after the finish, 1 s in a license test. A cool-down lap is not replayed.</li>
+        <li>The last recorded tick is never played back; its input is zero.</li>
+        <li>One stream per player car; only player 1 and player 2 are recorded.</li>
+        <li>The Arcade time trial keeps only the last 4 laps, 4,096 bytes each.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="bugs">
+  <h2>Bugs found</h2>
+  <div class="grid">
+    <article class="panel card"><div class="k"><h3>C1 · The camera runs on car 5's clock</h3><span class="badge b-ok">CONFIRMED</span></div><p>Every car's lag spring uses the last car's time step. Measured camera motion only fits this way. Cosmetic; the port's classic physics keeps it.</p></article>
+    <article class="panel card"><div class="k"><h3>C3 · Analog fills the replay</h3><span class="badge b-ok">CONFIRMED</span></div><p>Measured 1.33 bytes per tick with a scripted stick weave: a DualShock or neGcon race over about 5 to 7 minutes has a replay that ends early.</p></article>
+    <article class="panel card"><div class="k"><h3>C4 · Reversed zoom limits</h3><span class="badge b-ok">CONFIRMED</span></div><p>32 tracking cameras in 18 course files have their zoom limits the wrong way round, so the zoom jumps between two values instead of moving smoothly.</p></article>
+    <article class="panel card"><div class="k"><h3>C5 · Dead TV cameras</h3><span class="badge b-ok">CONFIRMED</span></div><p>6 records have a last lap before their first lap and can never be picked (Seattle, its reverse and 2P versions, the highway pair, the license course).</p></article>
+    <article class="panel card"><div class="k"><h3>C6 · No camera collision</h3><span class="badge b-mid">CAUSE FOUND</span></div><p>No camera queries the course except for visibility.</p></article>
+    <article class="panel card"><div class="k"><h3>P8 · IB-4 demo off course</h3><span class="badge b-ok">CONFIRMED</span></div><p>Not reproduced on this disc with IB-4's own rules. Under other start conditions the demo leaves the road; the test records a fail, but a demo prints no FAIL text. Fits a demo recorded under different conditions than the shipped test.</p></article>
+  </div>
+</section>
+
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

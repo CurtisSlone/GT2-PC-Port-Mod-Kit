@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real Load Transfer</title>
+<style>
+/* modern-physics: shared PAGES-3 sheet (system fonts only, no external loads) */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#131820; --ink-2:#465063; --ink-3:#717c8f; --rule:#d5dae2; --soft:#e7eaf0;
+  --code-bg:#edf0f4; --accent:#5246c8; --accent-soft:#e6e3fa;
+  --gt2:#2a6fb8; --ours:#c8641a; --ok:#0f7a43; --ok-bg:#e1f3e8; --bad:#b3261e; --bad-bg:#fbe5e3; --mid:#8a5a00; --mid-bg:#fbefd6;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:18px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:18px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:72ch}
+ul{margin:0;padding-left:20px;max-width:72ch;display:flex;flex-direction:column;gap:6px}
+.lede{color:var(--ink-2)}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-top:6px}
+.kpis div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule);border-radius:6px}
+.kpis b{font-family:var(--display);font-stretch:condensed;font-size:30px;line-height:1.05;font-variant-numeric:tabular-nums;color:var(--accent)}
+.kpis span{font-size:13px;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.cols>*{min-width:0}
+figure{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+figcaption{font-size:13px;color:var(--ink-3);max-width:80ch}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:680px;height:auto}
+.diagram.narrow svg{min-width:0}
+svg text{font-family:var(--body);fill:var(--ink);font-size:12px}
+svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+svg .t{font-family:var(--display);font-weight:700;font-size:16px}
+svg .n{font-size:11.5px;fill:var(--ink-2)}
+svg .acc-t{fill:var(--accent);font-weight:600}
+svg .gt2-t{fill:var(--gt2);font-weight:600}
+svg .ours-t{fill:var(--ours);font-weight:600}
+svg .bad-t{fill:var(--bad);font-weight:600}
+svg .ok-t{fill:var(--ok);font-weight:600}
+svg .box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+svg .card{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .accbox{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg .gt2box{fill:var(--panel);stroke:var(--gt2);stroke-width:1.6}
+svg .oursbox{fill:var(--panel);stroke:var(--ours);stroke-width:1.6}
+svg .badbox{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.4}
+svg .okbox{fill:var(--ok-bg);stroke:var(--ok);stroke-width:1.4}
+svg .wire{fill:none;stroke:var(--ink-3);stroke-width:1.4}
+svg .wire-acc{fill:none;stroke:var(--accent);stroke-width:1.8}
+svg .wire-gt2{fill:none;stroke:var(--gt2);stroke-width:1.6}
+svg .wire-ours{fill:none;stroke:var(--ours);stroke-width:1.6}
+svg .dash{stroke-dasharray:5 4}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .ah{fill:var(--ink-3)} svg .ah-acc{fill:var(--accent)} svg .ah-gt2{fill:var(--gt2)} svg .ah-ours{fill:var(--ours)}
+svg .f-acc{fill:var(--accent)} svg .f-gt2{fill:var(--gt2)} svg .f-ours{fill:var(--ours)} svg .f-ok{fill:var(--ok)} svg .f-bad{fill:var(--bad)} svg .f-soft{fill:var(--soft)} svg .f-ink3{fill:var(--ink-3)}
+.tablewrap{overflow-x:auto;min-width:0}
+.tablewrap table{min-width:600px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+tr.strike td{color:var(--ink-3);text-decoration:line-through}
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.03em;padding:1px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)} .b-bad{background:var(--bad-bg);color:var(--bad)} .b-mid{background:var(--mid-bg);color:var(--mid)} .b-acc{background:var(--accent-soft);color:var(--accent)}
+.bar{display:inline-block;height:9px;border-radius:2px;background:var(--accent);vertical-align:middle}
+.note{font-size:13px;color:var(--ink-3)}
+.callout{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:0 6px 6px 0;max-width:80ch;display:flex;flex-direction:column;gap:6px}
+dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0;font-size:14px}
+dl.kv dt{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);padding-top:2px}
+dl.kv dd{margin:0;min-width:0}
+@media (max-width:520px){dl.kv{grid-template-columns:1fr} dl.kv dd{margin-bottom:6px}}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* car-census charts */
+svg .zero{stroke:var(--ink-2);stroke-width:1.4}
+svg .whisk{stroke:var(--ink-3);stroke-width:2}
+svg .iqr{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.2}
+svg .med{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+svg .dot{fill:var(--accent);fill-opacity:.45;stroke:var(--panel);stroke-width:.6}
+svg .dot:hover{fill-opacity:1}
+svg .dot.hl{fill:var(--ours);fill-opacity:.95;stroke:var(--panel);stroke-width:1.5}
+.verdict{font-size:16px}
+svg .dot.pin{fill:none;stroke:var(--ours);stroke-width:1.6;fill-opacity:0}
+
+.pair{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:4px 12px;align-items:center;font-size:13px}
+.pair .k{color:var(--ink-2);text-align:right}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+.chart{display:flex;flex-direction:column;gap:6px}
+.chart svg{display:block;width:100%;height:auto}
+.chart rect.c{fill:var(--gt2)} .chart rect.m{fill:var(--ours)}
+.chart rect.hit{fill:transparent}
+.chart g.row:hover rect.hit{fill:var(--soft)}
+.chart text.v{font-family:var(--mono);font-size:10.5px;fill:var(--ink-2)}
+.chart text.k{font-size:12px;fill:var(--ink-2)}
+.chart line.z{stroke:var(--ink-3);stroke-width:1}
+
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+</style></head>
+<body>
+<div class="wrap">
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+<nav class="xback" style="font-size:13px;margin:6px 0 0;padding:0"><a href="index.html" style="color:inherit;opacity:.8">&larr; All explainers</a></nav>
+  <div class="eyebrow">GT2 port · modern physics · load transfer</div>
+  <h1>Load transfer at its real size</h1>
+  <p class="lede">GT2 moves load between the wheels only through the body's roll and pitch, at a moment arm that is the ride height (0.10-0.21 m) rather than a center-of-gravity (CG) height (about 0.5 m). So GT2 moves only about a third of the load a real car moves in a corner. This page shows the physical transfer the port's modern physics adds, measures it together with a more physical tire load curve (in GT2's own curve, a tire's grip per newton can rise with load; in the physical one it falls a little), and checks each LSD type against the real one. These changes are part of modern physics by default; classic keeps GT2's way.</p>
+  <div class="kpis">
+    <div><b>2.8x</b><span>lateral transfer on stock road cars (4.4x fully tuned), with the body's roll unchanged</span></div>
+    <div><b>6-10x</b><span>the effect of stabilizers and springs on the balance with the physical tire and transfer (before: ±0.10-0.23 deg/g)</span></div>
+    <div><b>-9 %</b><span>skidpad grip, +3-6 % braking distance, +2-3.5 % lap on road cars (tire and transfer together)</span></div>
+    <div><b>79 %</b><span>of static grip on the skidpad: the tires sit at the lateral curve's 4 deg knee, not at their peak</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Three paths, one total</h2>
+  <p>A real suspension moves lateral load through the links (at the roll centers, without roll), through the springs and bars (by the roll), and through the unsprung mass. Their sum is <code>(m_s h_s + m_u r) a_y / t</code> whatever the roll centers are; the roll centers decide how much of it the bars and springs can move between the axles, and how much the body rolls. GT2 has only the elastic path, at the arm H.</p>
+  <figure class="diagram">
+    <svg viewBox="0 0 720 250" role="img" aria-label="The three load transfer paths in GT2 and in the physical form">
+      <text x="20" y="24" class="t">GT2 (and modern's first version)</text>
+      <rect x="20" y="40" width="320" height="34" rx="4" fill="var(--gt2)" opacity=".85"/>
+      <text x="30" y="62" style="fill:#fff">elastic, arm H = ride height: 100 %</text>
+      <text x="20" y="96" class="m">total m_s a_y H / t: about a third of a real car's</text>
+      <text x="380" y="24" class="t">Physical (modern now)</text>
+      <rect x="380" y="40" width="230" height="34" rx="4" fill="var(--gt2)" opacity=".85"/>
+      <text x="390" y="62" style="fill:#fff">elastic, arm h_s - h_ra: ~80 %</text>
+      <rect x="610" y="40" width="44" height="34" rx="0" fill="var(--ours)"/>
+      <text x="616" y="62" style="fill:#fff">geo</text>
+      <rect x="654" y="40" width="20" height="34" rx="0" fill="var(--mid)"/>
+      <text x="380" y="96" class="m">geometric (roll centers) and unsprung: the rest, no roll</text>
+      <line x1="20" y1="130" x2="700" y2="130" stroke="var(--rule)"/>
+      <text x="20" y="160" class="t">How modern keeps GT2's roll</text>
+      <text x="20" y="184" class="n">The body's corner forces keep GT2's H, so it rolls GT2's angle (2.24 deg/g stock, 0.84 on the kit).</text>
+      <text x="20" y="204" class="n">The loads take lambda = (h_s - h_ra) / H times the roll's spring and bar load: a car with lambda times the roll</text>
+      <text x="20" y="224" class="n">stiffness under the physical moment. The axle split stays the roll stiffness split; the dampers keep its timing.</text>
+    </svg>
+  </figure>
+</section>
+
+<section>
+  <h2>Per-car heights from what GT2 has</h2>
+  <p>GT2's frontal height is the car's overall height (Mustang 1.35 m, Civic 1.36 m, the Honda Z 1.67 m). The sprung CG is put at 30 % of the body above the ride height, the roll centers at 0.55 / 0.85 of the front / rear ride height, so lowering a car drops both.</p>
+  <div class="panel tablewrap"><table>
+    <tr><th>group</th><th>GT2 H (m)</th><th>h_s (m)</th><th>roll centers F / R (m)</th><th>lambda</th><th>total transfer / GT2's</th><th>GT2 roll (deg/g)</th></tr>
+    <tr><td>road, stock</td><td>0.19</td><td>0.50</td><td>0.08 / 0.12</td><td>2.2</td><td>2.8</td><td>2.1</td></tr>
+    <tr><td>road, full tune</td><td>0.11</td><td>0.48</td><td>0.06 / 0.09</td><td>3.6</td><td>4.4</td><td>0.8</td></tr>
+    <tr><td>race cars</td><td>0.09</td><td>0.46</td><td>0.05 / 0.08</td><td>3.9</td><td>4.8</td><td>0.33</td></tr>
+  </table></div>
+  <p class="note">Medians over 618 cars. Real cars: CG 0.5-0.6 m (measured passenger cars), 0.3-0.4 m race cars (GT2's race cars come out high: the race spec carries no race flag, only their road-shell body height); roll gradients about 5-7 deg/g for passenger cars, 3 for high-performance road cars, 1.5 for race cars. GT2's bodies roll less than real ones; modern keeps GT2's roll angle and only adds the missing transfer.</p>
+</section>
+
+<section>
+  <h2>What the set-up parts now do</h2>
+  <div class="panel tablewrap"><table>
+    <tr><th>change of the understeer gradient (deg/g)</th><th>before</th><th>tire only</th><th>transfer only</th><th>both (modern now)</th></tr>
+    <tr><td>stabilizer front 1 / 7</td><td>-0.012 / +0.018</td><td>-0.012 / +0.014</td><td>-0.062 / +0.052</td><td><b>-0.103 / +0.126</b></td></tr>
+    <tr><td>stabilizer rear 1 / 7</td><td>+0.007 / -0.027</td><td>+0.014 / -0.021</td><td>+0.049 / -0.079</td><td><b>+0.093 / -0.130</b></td></tr>
+    <tr><td>spring front min / max</td><td>-0.013 / +0.023</td><td>-0.012 / +0.022</td><td>-0.040 / +0.092</td><td><b>-0.081 / +0.192</b></td></tr>
+    <tr><td>spring rear min / max</td><td>+0.009 / -0.045</td><td>+0.005 / -0.032</td><td>+0.028 / -0.139</td><td><b>+0.058 / -0.232</b></td></tr>
+    <tr><td>ride height front max / rear max</td><td>+0.058 / +0.015</td><td>+0.030 / +0.010</td><td>+0.072 / -0.031</td><td>+0.053 / -0.049</td></tr>
+  </table></div>
+  <p class="note">Measured on a 50 m circle, 0.2-0.6 g, the Full Custom Suspension, medians of 11 cars. Signs as on real cars; raising the rear now turns the car in (its roll center rises).</p>
+  <div class="callout"><p><span class="badge b-bad">transfer alone</span> On GT2's own tire curve the larger transfer makes cars quicker (lap -0.6 % stock, -2.4 % tuned): GT2's stock curve gains grip per newton with load. The physical tire and the physical transfer belong together.</p></div>
+</section>
+
+<section>
+  <h2>Where the skidpad's 21 % goes</h2>
+  <div class="panel tablewrap"><table>
+    <tr><th>factor (stock, before the change)</th><th>value</th><th>reading</th></tr>
+    <tr><td>load curve at the loads (downforce, curve)</td><td>1.020</td><td>+2 points</td></tr>
+    <tr><td>camber factor</td><td>0.962</td><td>-4 points</td></tr>
+    <tr><td><b>tire use: lateral coefficient used</b></td><td><b>0.832</b> (front 0.87, rear 0.80)</td><td><b>-17 points</b>: the tires hold the circle at the curve's 4.2 deg knee (0.82), where the force grows 3-6x slower toward the 1.0 peak at 7.5 deg</td></tr>
+    <tr><td>geometry (steer angle, drive force)</td><td>0.977</td><td>-2 points</td></tr>
+    <tr><td>skidpad / static grip</td><td>0.797</td><td>a stop uses 97 %: the ABS holds the longitudinal peak</td></tr>
+  </table></div>
+  <p class="note">The gap is the lateral curve's slow last 20 % and the car's stability on it, not the longitudinal peak and not the braked wheels' mass. The physical transfer leaves it at 0.80.</p>
+</section>
+
+<section>
+  <h2>LSD types against real ones</h2>
+  <div class="panel tablewrap"><table>
+    <tr><th>type</th><th>real car</th><th>GT2</th><th>modern now</th></tr>
+    <tr><td>1-way</td><td>locks on drive only</td><td><code>max(98 N.m, 0.40 T)</code>, coast 98 N.m</td><td>lift-off +0.04: tucks in as an open diff</td></tr>
+    <tr><td>1.5-way</td><td>less lock on coast</td><td>decel 0.20</td><td>lift-off -0.08</td></tr>
+    <tr><td>2-way</td><td>the same lock both ways</td><td>decel 0.40</td><td><b>lift-off -0.19</b> (GT2's transfer: -0.05): the real calming</td></tr>
+    <tr><td>open</td><td>the unloaded wheel limits drive</td><td>type 2</td><td>the inside wheel now spins on tight exits (Honda Z: slip 0.32); an LSD gives 3.4x the drive</td></tr>
+    <tr><td>viscous</td><td>torque from the speed difference, from zero</td><td><code>c dv^2</code></td><td>a linear form tested: the same at 1-3 m/s, so GT2&#x27;s form is kept</td></tr>
+    <tr><td>Yaw Control</td><td>torque to the outer rear wheel</td><td>open + a push to the outer wheel</td><td><span class="badge b-bad">before</span> a locked clutch; now GT2's own law, matching classic (lift yaw +3.57 against classic +3.65 deg/s)</td></tr>
+    <tr><td>Torsen</td><td>torque bias ratio, open with a lifted wheel</td><td>none</td><td>none</td></tr>
+  </table></div>
+  <p class="note">Path curvature change against the held circle at 0.5-1 s, 90 % of the 50 m limit, the LSD row minus stock, medians. Modern's ramp LSD adds its preload to the ramp's lock, as a real one does; GT2 takes the larger of the two.</p>
+</section>
+
+<section>
+  <h2>The launch bog</h2>
+  <p>GT2's launch clutch passes at least the engine's torque, so the engine only loses revs while it slips and rides 500 rpm above the wheel side. On the physical wheel the Vector W8's engine is pulled from 2,500 to 1,276 rpm for 3.1 s (0-100 8.50 s against 6.50 classic). Modern now holds the clutch rpm at launch as a driver would: 7.03 s.</p>
+</section>
+
+<section>
+  <h2>What modern uses now</h2>
+  <ul>
+    <li><b>Yaw Control by GT2&#x27;s own law</b> on type 6 / 7 axles (the Lancer Evolutions, the Yaw Control part).</li>
+    <li><b>The physical tire load curve and the physical transfer, together</b>, never the transfer alone. You feel the car lean on its outer tires: bars, springs and ride height become real balance tools, the limit drops about 9 %, a 2-way LSD calms the lift-off, open diffs spin the inside wheel out of tight corners.</li>
+    <li><b>The real ramp LSD&#x27;s lock</b> (preload plus ramp).</li>
+    <li><b>A driver&#x27;s launch</b>: fixes most of the launch bog.</li>
+  </ul>
+  <p class="note">Recordings remember which version of modern&#x27;s settings they were made with and keep replaying with those.</p>
+</section>
+<p class="xfoot" style="font-size:12px;line-height:1.5;opacity:.7;margin:28px 0 0;padding:0;max-width:none">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+<footer></footer>
+</div>
+</body>
+</html>

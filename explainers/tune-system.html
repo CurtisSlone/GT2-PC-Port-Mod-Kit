@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Tune System</title>
+<style>
+
+:root{
+  --bg:#eef0f2; --sheet:#fbfbfa; --ink:#14181e; --ink-2:#434b57; --ink-3:#6b7380; --rule:#d6dae0; --rule-2:#b9bfc8; --grid:#e6e9ed;
+  --accent:#1d5fbf; --accent-ink:#174f9f; --accent-bg:#e4ecf8;
+  --s1:#1d5fbf; --s2:#c9750e;
+  --open:#8a4d00; --open-bg:#fbefd9; --ok:#0d6b3a; --ok-bg:#e1f2e8;
+  --code-bg:#eef1f5; --focus:#c9750e;
+  --display:"Bahnschrift","DIN Alternate","Roboto Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1116; --sheet:#161a21; --ink:#e9edf2; --ink-2:#b4bcc8; --ink-3:#8790a0; --rule:#2a303a; --rule-2:#3a424e; --grid:#222831;
+  --accent:#6aa5ff; --accent-ink:#8db9ff; --accent-bg:#1b2a42;
+  --s1:#4f8fec; --s2:#c27a14;
+  --open:#f0c070; --open-bg:#3a2d14; --ok:#6fd49a; --ok-bg:#15301f;
+  --code-bg:#1e232c; --focus:#e8a23c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1116; --sheet:#161a21; --ink:#e9edf2; --ink-2:#b4bcc8; --ink-3:#8790a0; --rule:#2a303a; --rule-2:#3a424e; --grid:#222831;
+  --accent:#6aa5ff; --accent-ink:#8db9ff; --accent-bg:#1b2a42;
+  --s1:#4f8fec; --s2:#c27a14;
+  --open:#f0c070; --open-bg:#3a2d14; --ok:#6fd49a; --ok-bg:#15301f;
+  --code-bg:#1e232c; --focus:#e8a23c; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 64px;padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:34px}
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-stretch:condensed;text-wrap:balance;margin:0;line-height:1.08}
+h1{font-size:clamp(36px,7vw,58px);font-weight:700;letter-spacing:.005em}
+h2{font-size:clamp(25px,4vw,31px);font-weight:700}
+h3{font-size:20px;font-weight:600}
+p{margin:0;max-width:66ch}
+ul,ol{margin:0;padding-left:1.25em;max-width:66ch}
+li+li{margin-top:4px}
+code,.mono{font-family:var(--mono);font-size:.86em}
+code{background:var(--code-bg);padding:1px 5px;border-radius:3px}
+
+header{display:flex;flex-direction:column;gap:12px;padding-bottom:18px;border-bottom:4px solid var(--accent)}
+.slipline{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.lede{color:var(--ink-2);font-size:16.5px}
+
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));border:1px solid var(--rule-2);background:var(--sheet)}
+.facts div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.facts b{display:block;font-family:var(--display);font-stretch:condensed;font-size:28px;line-height:1.05;font-variant-numeric:tabular-nums}
+.facts span{font-size:12.5px;color:var(--ink-2)}
+
+section{display:flex;flex-direction:column;gap:14px;scroll-margin-top:12px}
+.secno{font-family:var(--mono);font-size:12px;color:var(--accent-ink);letter-spacing:.08em}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-left:4px solid var(--accent);padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.sheet.open{border-left-color:var(--s2)}
+.note{font-size:13.5px;color:var(--ink-3);max-width:72ch}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 6px;font-size:13.5px}
+nav.toc a{padding:3px 9px;border:1px solid var(--rule-2);text-decoration:none;color:var(--ink-2);background:var(--sheet)}
+nav.toc a:hover{color:var(--accent-ink);border-color:var(--accent)}
+
+.tablewrap{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;vertical-align:top;padding:7px 10px;border-bottom:1px solid var(--rule)}
+th{font-weight:600;color:var(--ink-3);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--rule-2);white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+td.part{font-weight:600;min-width:130px}
+td.part small{display:block;font-family:var(--mono);font-weight:400;color:var(--ink-3);font-size:11.5px}
+.op{font-family:var(--mono);font-size:11.5px;padding:1px 6px;border:1px solid var(--rule-2);white-space:nowrap;color:var(--ink-2)}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:1px 6px;white-space:nowrap}
+.t-ok{background:var(--ok-bg);color:var(--ok)}
+.t-open{background:var(--open-bg);color:var(--open)}
+
+.chart svg{display:block;width:100%;height:auto}
+#c-ramp,#c-floor{max-width:640px}
+#c-tires,#c-gain{overflow-x:auto}#c-tires svg{min-width:520px}#c-gain svg{min-width:560px}
+@media (max-width:560px){th,td{padding:6px 7px}td.part{min-width:96px}.sheet{padding:14px 12px}}
+.chart .gridl{stroke:var(--grid);stroke-width:1}
+.chart .axis{stroke:var(--rule-2);stroke-width:1}
+.chart .zero{stroke:var(--ink-3);stroke-width:1}
+.chart .lbl{fill:var(--ink-3);font-family:var(--mono);font-size:12px}
+.chart .lbl2{fill:var(--ink-2);font-family:var(--body);font-size:13px}
+.chart .ttl{fill:var(--ink-2);font-family:var(--body);font-size:13px;font-weight:600}
+.chart .m1{fill:var(--s1)} .chart .m2{fill:var(--s2)}
+.chart .l1{stroke:var(--s1);stroke-width:2.5;fill:none} .chart .l2{stroke:var(--s2);stroke-width:2;fill:none;stroke-dasharray:6 5}
+.chart .ring{stroke:var(--sheet);stroke-width:2}
+.chart .box{fill:var(--sheet);stroke:var(--rule-2);stroke-width:1.2}
+.chart .boxhot{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1.6}
+.chart .arrow{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+.chart .ah{fill:var(--ink-3)}
+.chart .band{fill:var(--grid)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.legend i.c1{background:var(--s1)} .legend i.c2{background:var(--s2)}
+.legend i.dash{height:0;border-top:2px dashed var(--s2);border-radius:0;vertical-align:3px;width:16px}
+
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:10px 16px}
+.calc label{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--ink-2);min-width:0}
+.calc label small{font-family:var(--mono);color:var(--ink-3);font-size:11px}
+.calc input{font:inherit;font-family:var(--mono);font-size:15px;padding:6px 8px;border:1px solid var(--rule-2);background:var(--bg);color:var(--ink);width:100%;border-radius:0}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:0;border:1px solid var(--rule-2)}
+.readout div{padding:10px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.readout b{display:block;font-family:var(--mono);font-size:22px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.readout span{font-size:12.5px;color:var(--ink-3)}
+button{font:inherit;font-size:13.5px;padding:6px 12px;border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink);cursor:pointer;border-radius:0}
+button:hover{border-color:var(--accent);color:var(--accent-ink)}
+pre{margin:0;background:var(--code-bg);padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink);max-width:100%}
+
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.two>*{min-width:0}
+.callout{border-left:3px solid var(--s2);padding:4px 0 4px 12px;color:var(--ink-2);max-width:70ch}
+.open-list li{margin-bottom:6px}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule-2);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="slipline"><span>GT2 Simulation (US)</span><span>Tuning</span><span>Parts and settings</span></div>
+  <h1>GT2 Tune System</h1>
+  <p class="lede">What every tuning part and setting actually does to the car, read from the game's own data and checked against runs of the real game. Part names are as you know them from the tuning shop; the small gray numbers are the shop item IDs.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#what">What a tune is</a><a href="#ops">Copy, scale, add</a><a href="#power">Power parts</a><a href="#calc">Power calculator</a>
+    <a href="#weight">Weight</a><a href="#driveline">Flywheel, clutch, shaft</a><a href="#gears">Gearbox</a><a href="#lsd">LSD</a>
+    <a href="#susp">Suspension</a><a href="#brakes">Brakes</a><a href="#tires">Tires</a><a href="#aero">Racing modify, aero</a>
+    <a href="#assists">ASC / TCS</a><a href="#physics">Into the physics</a><a href="#tests">The test runs</a><a href="#quirks">Quirks and bugs</a>
+  </nav>
+</header>
+
+<div class="facts" role="list">
+  <div role="listitem"><b>50</b><span>shop parts (item IDs 0 to 49)</span></div>
+  <div role="listitem"><b>27</b><span>part slots in every car</span></div>
+  <div role="listitem"><b>0x84</b><span>bytes: your tune (the set-up)</span></div>
+  <div role="listitem"><b>0x1C0</b><span>bytes: the race spec built from it</span></div>
+  <div role="listitem"><b>200</b><span>tune tests run on the real game</span></div>
+</div>
+
+<!-- ============ 1 ============ -->
+<section id="what">
+  <div class="secno">01</div>
+  <h2>What a tune is</h2>
+  <p>In GT mode every car is one record in the car database that points at 27 part records: brakes, brake controller, steering, chassis, weight reduction, racing modify, engine, port polish, engine balance, displacement, computer, NA tune, turbo, drivetrain, flywheel, clutch, propeller shaft, LSD, gearbox, suspension, intercooler, muffler, front tires, rear tires, ASC, TCS and wheels. A stock part has price 0.</p>
+  <p>Your tune is a 0x84-byte (132-byte) <b>set-up</b> record stored with the garage car (and copied into the race entry). It holds those part indices plus every setting you can adjust: gear ratios, final drive, auto level, downforce, camber, ride height, toe, springs, damper steps, stabilizer steps, LSD values, brake controller steps, ASC and TCS steps. <b>Fitting a part just replaces its index in the set-up</b> with the index of that part's record for your car (or the generic car <code>00000</code> record if your car has none), then loads that part's default settings.</p>
+  <p>At race start the game turns the set-up into a 0x1C0-byte (448-byte) <b>race spec</b>, and the race code turns the spec into the car's physics record. The physics never looks at the parts again. Offsets like spec +0x1B0 below are byte positions inside these records.</p>
+  <div class="sheet">
+    <div class="chart tablewrap"><svg viewBox="0 0 1000 250" style="min-width:760px" role="img" aria-label="Pipeline from car database to set-up, context, race spec and physics car record">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+      <rect x="10" y="12" width="380" height="22" class="band"/><text x="20" y="28" class="lbl">GARAGE AND MENUS</text>
+      <rect x="400" y="12" width="590" height="22" class="band"/><text x="410" y="28" class="lbl">RACE START (resident code, then race overlay)</text>
+      <rect x="10" y="60" width="170" height="120" class="box"/>
+      <text x="22" y="86" class="ttl">Car database</text>
+      <text x="22" y="108" class="lbl">31 blocks</text>
+      <text x="22" y="126" class="lbl">car = 27 part</text>
+      <text x="22" y="142" class="lbl">indices + name,</text>
+      <text x="22" y="158" class="lbl">maker, price</text>
+      <rect x="215" y="60" width="175" height="120" class="boxhot"/>
+      <text x="227" y="86" class="ttl">Set-up 0x84</text>
+      <text x="227" y="108" class="lbl">YOUR TUNE</text>
+      <text x="227" y="126" class="lbl">part indices</text>
+      <text x="227" y="142" class="lbl">+ every setting</text>
+      <text x="227" y="158" class="lbl">(saved in garage)</text>
+      <rect x="425" y="60" width="160" height="120" class="box"/>
+      <text x="437" y="86" class="ttl">Context 0xC4</text>
+      <text x="437" y="108" class="lbl">set-up copy</text>
+      <text x="437" y="126" class="lbl">+ a pointer to</text>
+      <text x="437" y="142" class="lbl">each part record</text>
+      <rect x="620" y="60" width="170" height="120" class="boxhot"/>
+      <text x="632" y="86" class="ttl">Race spec 0x1C0</text>
+      <text x="632" y="108" class="lbl">copy / scale / add</text>
+      <text x="632" y="126" class="lbl">lists + power</text>
+      <text x="632" y="142" class="lbl">product + set-up</text>
+      <text x="632" y="158" class="lbl">interpolation</text>
+      <rect x="825" y="60" width="165" height="120" class="box"/>
+      <text x="837" y="86" class="ttl">Car record 0xB40</text>
+      <text x="837" y="108" class="lbl">physics units</text>
+      <text x="837" y="126" class="lbl">(m, kg, N, rad/s</text>
+      <text x="837" y="142" class="lbl">in fixed point)</text>
+      <text x="837" y="158" class="lbl">read every tick</text>
+      <path d="M180 120H213" class="arrow" marker-end="url(#ah)"/>
+      <path d="M390 120H423" class="arrow" marker-end="url(#ah)"/>
+      <path d="M585 120H618" class="arrow" marker-end="url(#ah)"/>
+      <path d="M790 120H823" class="arrow" marker-end="url(#ah)"/>
+      <text x="22" y="205" class="lbl">buy a part:</text><text x="22" y="221" class="lbl">new index in set-up</text>
+      <text x="227" y="205" class="lbl">the database builds</text><text x="227" y="221" class="lbl">stock set-up</text>
+      <text x="437" y="205" class="lbl">at race start</text>
+      <text x="632" y="205" class="lbl">at race start</text><text x="632" y="221" class="lbl">at 0x801C9340+0x14FDA</text>
+      <text x="837" y="205" class="lbl">race code</text><text x="837" y="221" class="lbl">then the physics tick</text>
+    </svg></div>
+    <p class="note">The highlighted boxes are the two records worth knowing: the set-up is what you change in the shop and what the memory card stores; the race spec is what the physics is built from.</p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="ops">
+  <div class="secno">02</div>
+  <h2>Copy, scale, add: how a part changes a number</h2>
+  <p>The race spec is built by small lists of instructions stored in the game's program, one list per part kind. Each instruction names a source byte in the part record, a destination in the spec and one of five operations. Nothing about a part's effect is hard-coded beyond these lists, the power product and a few lines for weight.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Op</th><th>What it does</th><th>Used by, for example</th></tr></thead>
+    <tbody>
+      <tr><td><span class="op">copy</span></td><td>replaces the spec value with the part's value</td><td>engine curve, gear ratios, brake torque, tire compound, suspension defaults, LSD kind</td></tr>
+      <tr><td><span class="op">x %/100</span></td><td>spec = spec x part / 100 (signed bytes, truncating)</td><td>flywheel, clutch, propeller shaft on inertias; racing modify on weight, yaw and roll</td></tr>
+      <tr><td><span class="op">x &permil;/1000</span></td><td>spec = spec x part / 1000</td><td>weight reduction on curb weight</td></tr>
+      <tr><td><span class="op">add each</span></td><td>adds one part value to every element of an array</td><td>engine balance and NA tune shift every rpm point of the engine curve</td></tr>
+      <tr><td><span class="op">add</span></td><td>adds one value to one field</td><td>engine balance, NA tune and turbo raise the rev limit (NA and turbo the redline too)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Settings with steps (dampers, stabilizers, brake controller, ASC, TCS) go through one interpolation: value = lo + (hi - lo) x (step - 1) / (steps - 1), rounded toward lo.</p>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="power">
+  <div class="secno">03</div>
+  <h2>Engine and power parts</h2>
+  <p>Eight parts carry a <b>power percentage</b>. The game multiplies them all together into one number, the upgrade power in permille (thousandths; spec +0x1B0). A few also reshape the rev range. Nothing else about the engine curve's shape changes when you buy them.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Part (shop item)</th><th>Power %</th><th>Other fields it changes</th><th>Measured (stock &rarr; part)</th></tr></thead>
+    <tbody>
+      <tr><td class="part">Port polish<small>#32</small></td><td>byte +9</td><td>none</td><td>RX-7 0-100 km/h 6.66 &rarr; 6.61 s</td></tr>
+      <tr><td class="part">Engine balance<small>#9</small></td><td>byte +0x0B</td><td><span class="op">add each</span> to every rpm point; <span class="op">add</span> to the rev limit</td><td>RX-7 6.66 &rarr; 6.71 s, top speed 240 &rarr; 241 km/h</td></tr>
+      <tr><td class="part">Displacement 1-2<small>#7-8</small></td><td>byte +9</td><td>none</td><td>not in the test set</td></tr>
+      <tr><td class="part">Computer<small>#6</small></td><td>byte +9</td><td>none</td><td>RX-7 6.66 &rarr; 6.61 s</td></tr>
+      <tr><td class="part">NA tune 1-3<small>#29-31</small></td><td>byte +0x0B</td><td><span class="op">add each</span> to every rpm point; <span class="op">add</span> to rev limit and redline</td><td>MR2 G-Limited 7.58 &rarr; 7.25 / 7.00 / 6.80 s; top speed 210 &rarr; 215 / 221 / 227</td></tr>
+      <tr><td class="part">Turbo 1-4<small>#46-49</small></td><td>byte +0x12</td><td>boost maximum, six boost-shape bytes (copied into the set-up), signed adds to rev limit and redline, low-rpm power % (the ramp start, below)</td><td>RX-7 6.66 &rarr; 6.29 / 6.16 / 6.11 / 6.04 s; top speed 240 &rarr; 255 / 270 / 270 / 269</td></tr>
+      <tr><td class="part">Intercooler 1-2<small>#16-17</small></td><td>byte +9</td><td>none</td><td>RX-7 6.66 &rarr; 6.58 / 6.48 s</td></tr>
+      <tr><td class="part">Muffler 1-3<small>#26-28</small></td><td>byte +9</td><td>none</td><td>RX-7 6.66 &rarr; 6.58 / 6.52 / 6.48 s</td></tr>
+    </tbody>
+  </table></div>
+  <div class="sheet">
+    <h3>The power formula</h3>
+<pre>upgrade power (permille) = 1000 x (1 + p1/100) x (1 + p2/100) x ... x (1 + p8/100)
+
+game's exact form:  mult = 1000
+                    for each of the 8 power kinds, in table order:
+                        pm   = (byte == 255) ? 519 : byte + 100
+                        mult = mult * pm / 100        (integer, truncates each step)</pre>
+    <p>Table order is port polish, engine balance, displacement, computer, NA tune, turbo, muffler, intercooler. A stock part has 0 % (factor 1). The byte 255 is a special case that means x5.19.</p>
+    <p>The product is not applied flat. The engine curve is scaled by a <b>ramp</b>: at the first rpm point the factor is the turbo's low-rpm power % (100 % if there is none), and it rises in a straight line, by rpm, to the full product at the last rpm point. On top of that every point gets the engine's own hidden multiplier (spec +0x1AE; see below). Then the turbo boost shape is applied.</p>
+    <p><b>Worked example (R34 Skyline GT-R).</b> The garage shows 280 ps. The engine record's hidden multiplier is 116 %, and the torque curve times 1.16 makes about 330 ps (280 x 1.16, plus rounding). With every upgrade fitted the product is x2.572, and the curve reaches 785 ps at 7600 rpm, before the turbo shaping. That is less than 330 x 2.572 because of the ramp: only the last rpm point gets the whole product.</p>
+    <p class="note">The units check out: the curve's peak (torque x 9.8 x rpm) equals the shown power on non-turbo cars (Mustang SVT Cobra '99: 324.0 ps computed, 324 shown).</p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="calc">
+  <div class="secno">04</div>
+  <h2>Power multiplier calculator</h2>
+  <p>Type the power percentage byte of each fitted part (0 = not fitted). This computes the product exactly as the game does, then the ramp the engine curve is scaled by. <b>It is the multiplier before turbo shaping</b>, not a power figure. The part percentages themselves live in each car's part records on your disc; none are included here.</p>
+  <div class="sheet">
+    <div class="calc">
+      <label for="p-pp">Port polish <small>% byte (0-255)</small><input id="p-pp" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+      <label for="p-eb">Engine balance <small>% byte</small><input id="p-eb" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+      <label for="p-disp">Displacement <small>% byte</small><input id="p-disp" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+      <label for="p-comp">Computer <small>% byte</small><input id="p-comp" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+      <label for="p-na">NA tune <small>% byte</small><input id="p-na" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+      <label for="p-turbo">Turbo <small>% byte</small><input id="p-turbo" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+      <label for="p-muff">Muffler <small>% byte</small><input id="p-muff" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+      <label for="p-ic">Intercooler <small>% byte</small><input id="p-ic" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+      <label for="p-eng">Engine hidden multiplier <small>% (engine +0x36; R34 = 116)</small><input id="p-eng" type="number" min="1" max="255" step="1" value="100" inputmode="numeric"></label>
+      <label for="p-low">Turbo low-rpm power <small>% (turbo +0x13; 0 = none, read as 100)</small><input id="p-low" type="number" min="0" max="255" step="1" value="0" inputmode="numeric"></label>
+    </div>
+    <div><button type="button" id="p-reset">Reset to stock</button></div>
+    <div class="readout" aria-live="polite">
+      <div><b id="o-pm">1000</b><span>spec +0x1B0, permille (exact integer)</span></div>
+      <div><b id="o-x">x1.000</b><span>upgrade product</span></div>
+      <div><b id="o-first">x1.000</b><span>curve factor at the first rpm point</span></div>
+      <div><b id="o-last">x1.000</b><span>curve factor at the last rpm point</span></div>
+    </div>
+    <div class="chart" id="c-ramp"></div>
+    <p class="note">Factor at each rpm point = engine multiplier x (low-rpm % + (product - low-rpm %) x (rpm - first rpm) / (last rpm - first rpm)). Per-part truncation follows the table order above. The real torque curve then also passes through the turbo boost shape, which is not part of this calculator.</p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="weight">
+  <div class="secno">05</div>
+  <h2>Weight reduction and the mass floor</h2>
+  <div class="two">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <p><b>Weight reduction 1-3</b> (#18-20) scales the curb weight and the yaw inertia by a permille byte, and the roll inertia by a percent byte. <b>Racing modify</b> (#34) multiplies weight, yaw and roll again by its own percent bytes. So weight = chassis kg x &permil;/1000 x %/100.</p>
+      <p>The physics then applies a <b>mass floor</b>: 900 kg and up is kept as is; 750 to 900 kg is squeezed into 810 to 900 kg; anything under 750 kg counts as 810 kg. A very light car gains less from losing weight than the menu suggests. Yaw and roll inertia also have a floor (inertia byte 30, i.e. 3000 kg&middot;m&sup2; of yaw).</p>
+      <p class="note">Measured on the RX-7 GT-C, 0-100 km/h: 6.66 s stock; weight reduction 1 / 2 / 3: 6.59 / 6.52 / 6.57 s, top speed 242 / 243 / 245 km/h. Lancer Evo VI: 5.66 / 5.58 / 5.50 s. Stage 3 on the RX-7 is slower off the line than stage 2 in that one scripted run; the test does not say why.</p>
+    </div>
+    <div class="sheet">
+      <div class="legend"><span><i class="c1"></i>mass the physics uses</span><span><i class="dash"></i>catalog weight (no floor)</span></div>
+      <div class="chart" id="c-floor"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="driveline">
+  <div class="secno">06</div>
+  <h2>Flywheel, clutch and propeller shaft</h2>
+  <p>These three parts change no power at all. They multiply rotating inertias (and the engine drag term) by percent bytes. A lighter engine spins up faster between shifts, which is where most of their gain comes from.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Part</th><th>Scales (x %/100)</th><th>Measured, 0-100 km/h</th></tr></thead>
+    <tbody>
+      <tr><td class="part">Flywheel 1-3<small>#10-12</small></td><td>engine inertia (spec +0x2B, I = v/100 kg&middot;m&sup2;), engine drag (spec +0x2C), front and rear wheel inertia</td><td>RX-7 6.66 &rarr; 6.56 / 6.39 / 6.06 s; Lancer 5.80 &rarr; 5.62 / 5.47 / 5.22 s</td></tr>
+      <tr><td class="part">Clutch 1-3<small>#3-5</small></td><td>engine inertia, engine drag, front and rear wheel inertia; also copies one more byte (spec +0x33, meaning unknown)</td><td>RX-7 6.66 &rarr; 6.60 / 6.45 / 6.19 s; Lancer 5.80 &rarr; 5.71 / 5.54 / 5.31 s</td></tr>
+      <tr><td class="part">Propeller shaft<small>#33</small></td><td>engine drag, front and rear wheel inertia, front and rear drive inertia</td><td>RX-7 6.66 &rarr; 6.51 s; Lancer 5.80 &rarr; 5.51 s</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Engine inertia is 0.30 kg&middot;m&sup2; on road cars and 0.17-0.19 on race cars; flywheel 3 took one test car from 0.29 to 0.20. The flywheel rows gain more than the inertia alone predicts (flywheel 3: -0.50 s measured vs -0.19 s from mass alone) because the lighter engine also shortens every shift.</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="gears">
+  <div class="secno">07</div>
+  <h2>Gearbox, final drive and auto level</h2>
+  <p>The gearbox part (#13-15) copies the gear count, the ratios (x1000, reverse and 1st to 7th), the final drive and its range, an "adjustable" flag and the auto level. The set-up holds your eight ratios, the final drive and the auto level. In the physics each overall ratio is gear x final.</p>
+  <p>Stock example (R34): 3.827 / 2.360 / 1.685 / 1.312 / 1.000 / 0.793, final 3.545, reverse 3.280, matching the real car.</p>
+  <div class="sheet open">
+    <h3>The sports gearboxes store no ratios</h3>
+    <p>All three gearbox stages store 0xFFFF in place of ratios (stages 1 and 2 have a fixed final drive and auto level, stage 3 has ranges). The game computes them: the top gear reaches the rev limit at the <b>auto level x 10 km/h</b> on the driven wheel, each lower gear is one step shorter, the steps growing down the box (a table per gear count), and reverse is 3/4 first + 1/4 second. This happens when the box is <b>fitted</b>, when the car <b>enters the garage</b> (which also sets set-up flag 0x80: "ratios held in the set-up"), and at <b>race start</b> for set-ups without that flag (opponents, license and arcade cars).</p>
+    <p>A limit of the test runs below: the gearbox rows ran with the stock box's ratios, so gearbox 1-3 and both auto-level rows show <b>no change</b>; only the final-drive rows are real. The game's own fit gives, for example, the RX-7 stage-1 box 2.909 / 1.954 / 1.412 / 1.078 / 0.869 (stock 3.483 / 2.015 / 1.391 / 1.000 / 0.762).</p>
+  </div>
+  <p><b>Final drive, measured.</b> At the top of its range: RX-7 top speed 240 &rarr; 212 km/h, Lancer 233 &rarr; 199 km/h. At the bottom: Lancer 0-100 km/h 5.80 &rarr; 7.36 s, while the RX-7 gets faster (6.66 &rarr; 6.01 s): with the stock ratios and a 2.5 final its new 1st is about its old 2nd, so it reaches 100 km/h with one shift instead of two; the Lancer's new 1st is taller than its old 3rd. Top speed itself (car +0x370) is the flat-road speed where drag and rolling resistance meet the power, not the rev-limit speed.</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="lsd">
+  <div class="secno">08</div>
+  <h2>Limited-slip differentials</h2>
+  <p>The LSD part (#21-25) copies a <b>kind</b> for the front and the rear axle, then each axle's initial, acceleration and deceleration values (default, min, max). Your settings in the set-up are the six values (initial F/R, accel F/R, decel F/R).</p>
+  <p>The kind bytes are letters. 102, 104, 109, 110 and 118 are the ASCII codes for <code>f h m n v</code>, and the race code looks each one up in the string <code>f r n m h v y t</code> (stored at <code>0x80046CEC</code> while racing) to get a differential type 0-7.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="n">Type</th><th>Letter</th><th>What it does</th><th>Settings used</th></tr></thead>
+    <tbody>
+      <tr><td class="n">0</td><td>f</td><td>no differential (an undriven axle: each wheel free)</td><td>none</td></tr>
+      <tr><td class="n">1</td><td>r</td><td>locked (spool); no car has one</td><td>none</td></tr>
+      <tr><td class="n">2</td><td>n</td><td>open</td><td>none</td></tr>
+      <tr><td class="n">3, 4</td><td>m, h</td><td>clutch LSD: moves torque from the faster wheel to the slower one; locks when the wheel speeds cross, unlocks when the torque difference passes twice the clutch torque</td><td>initial, accel, decel</td></tr>
+      <tr><td class="n">5</td><td>v</td><td>viscous: grows with the square of the speed difference, up to a cap</td><td>initial (the cap), accel</td></tr>
+      <tr><td class="n">6</td><td>y</td><td>open + active yaw bias (the Lancer's rear)</td><td>LSD values stored, bias gain from the assist logic</td></tr>
+      <tr><td class="n">7</td><td>t</td><td>open + active bias (front)</td><td>as 6</td></tr>
+    </tbody>
+  </table></div>
+<pre>clutch torque (types 3, 4) = max(initial, accel x drive torque)     on power
+                           = max(initial, decel x |drive torque|)   off power
+initial: kgf·m x 9.8 x 4 (the physics' 1/4 N·m unit);  accel, decel: value / 100
+viscous (type 5)           = accel x min(speed difference squared, initial squared)</pre>
+  <p>The layout also fixes up the types: on a rear-drive car the front becomes 0 and an unset rear becomes open; on FF the reverse; on 4WD both unset axles become open. Types 3 and 4 (m and h) behave the same in the differential; what the two letters were meant to tell apart is a guess.</p>
+  <p class="note">Measured, World Test Lot full-lock corner, mean lateral g: RX-7 LSD 1-4 0.942 &rarr; 0.944 / 0.933 / 0.953 / 0.953. Lancer Evo VI LSD 4: 0.664 &rarr; 1.01 (it replaces the stock active rear). Lancer LSD 5: no change.</p>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="susp">
+  <div class="secno">09</div>
+  <h2>Suspension and its settings</h2>
+  <p>Suspension 1-3 (#35-37) copies the defaults and ranges for camber, ride height, toe, springs, dampers and stabilizers, plus bump and droop travel, the damper scale and the bump rubber. Your settings in the set-up then override the defaults.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Setting</th><th>Set-up byte</th><th>How it reaches the physics</th><th>Unit</th></tr></thead>
+    <tbody>
+      <tr><td class="part">Camber F/R</td><td class="mono">+0x5A/5B</td><td>0.1&deg; steps; stored negative in the car; feeds the tire's camber curve together with body roll against the ground</td><td><span class="tag t-ok">known, checked</span></td></tr>
+      <tr><td class="part">Ride height F/R</td><td class="mono">+0x5C/5D</td><td>mm; sets the static stroke and the center-of-gravity height terms (load transfer)</td><td><span class="tag t-ok">known</span></td></tr>
+      <tr><td class="part">Toe F/R</td><td class="mono">+0x5E/5F</td><td>raw value, 128 = zero; turns the front wheel angle from the first tick</td><td><span class="tag t-open">raw, about 0.088&deg; per unit</span></td></tr>
+      <tr><td class="part">Springs F/R</td><td class="mono">+0x60/61</td><td>the setting is a position mapped linearly onto 1.6 to 8.5 kgf/mm (stock cars 2.0-5.4 kgf/mm)</td><td><span class="tag t-ok">known, measured</span></td></tr>
+      <tr><td class="part">Dampers (8 steps)</td><td class="mono">+0x64..6B</td><td>bound and rebound, front and rear, two values each, interpolated by step; force = base + gain x &radic;(stroke speed - offset); the two values are the forces at 0.3 and 0.7 m/s, 49 N per unit</td><td><span class="tag t-ok">known</span></td></tr>
+      <tr><td class="part">Stabilizers F/R</td><td class="mono">+0x6C/6D</td><td>interpolated by step; anti-roll force k x d x |d| (quadratic), 98 N per m&sup2;</td><td><span class="tag t-ok">known</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="sheet">
+    <h3>What the tests measured (one corner test, full lock, suspension 3 fitted)</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Car</th><th>Change</th><th class="n">Lateral g</th></tr></thead>
+      <tbody>
+        <tr><td>RX-7</td><td>base: suspension 3 defaults</td><td class="n">0.984</td></tr>
+        <tr><td>RX-7</td><td>ride height front at minimum</td><td class="n">1.18</td></tr>
+        <tr><td>RX-7</td><td>ride height rear at maximum</td><td class="n">1.13</td></tr>
+        <tr><td>RX-7</td><td>ride height front at maximum</td><td class="n">0.836</td></tr>
+        <tr><td>RX-7</td><td>camber rear at maximum</td><td class="n">0.797</td></tr>
+        <tr><td>RX-7</td><td>spring front at maximum</td><td class="n">1.04</td></tr>
+        <tr><td>Lancer</td><td>base: suspension 3 defaults</td><td class="n">0.719</td></tr>
+        <tr><td>Lancer</td><td>ride height rear at maximum</td><td class="n">1.38</td></tr>
+        <tr><td>Lancer</td><td>ride height front at minimum</td><td class="n">1.25</td></tr>
+        <tr><td>Lancer</td><td>camber front at maximum</td><td class="n">1.04</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">One scripted test (World Test Lot, full right lock, throttle pulsed). Ride height and camber gave the largest swings in both directions. These are effects in that one test, not tuning advice. Toe, dampers and stabilizers moved lateral g by a few percent at most.</p>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="brakes">
+  <div class="secno">10</div>
+  <h2>Brakes and the brake controller</h2>
+  <p><b>Brakes</b> (#1) copy three bytes: front torque, rear torque and the handbrake torque (rear wheels). Each step is 98 N&middot;m (10 kgf&middot;m). The front/rear split of braking comes only from those two torques.</p>
+  <p><b>Brake controller</b> (#2) is not a balance in the physics. Its front and rear steps become the per-axle <b>ABS slip gain</b>. ABS runs on every car, all the time; the brake demand never asks for more torque than the tire can pass, and is released in proportion to how far the wheel slips past the tire's peak.</p>
+<pre>demand = brake pedal x clamp( (grip x radius / brake torque)
+                              x (1 - gain x (slip - peak slip)), 0, 1 )</pre>
+  <p class="note">Measured, 100-0 km/h: brakes on the RX-7 30.7 &rarr; 30.7 m and on the Lancer 29.6 &rarr; 29.6 m: more torque changes nothing when the tire is the limit. Brake controller at its ends: RX-7 30.7 &rarr; 31.7 / 31.3 / 31.2 / 30.6 m. Grip parts together (the "grip" full tune): RX-7 30.7 &rarr; 25.1 m, Lancer 29.6 &rarr; 24.6 m. The ABS formula matched the game on 47,132 measured wheel steps.</p>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="tires">
+  <div class="secno">11</div>
+  <h2>Tires: compounds, grip bytes and the dirt tire</h2>
+  <p>Tires 1-7 (#39-45) pick a front and a rear tire record. Each points at a size and a <b>compound</b>. The compound holds one grip byte and the tire's curves: an 8-point slip-angle curve (cornering), two 6+6-point slip-ratio curves (drive and braking, with a cap on cornering grip), a load curve and a camber curve.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Stage</th><th>Shop</th><th>Compounds (F/R)</th><th class="n">Grip byte</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>stock</td><td class="mono">0/1</td><td class="n">145</td></tr>
+      <tr><td>1</td><td>sports</td><td class="mono">2/3</td><td class="n">150</td></tr>
+      <tr><td>2</td><td>hard</td><td class="mono">4/5</td><td class="n">160</td></tr>
+      <tr><td>3</td><td>medium</td><td class="mono">6/7</td><td class="n">165</td></tr>
+      <tr><td>4</td><td>soft</td><td class="mono">8/9</td><td class="n">170</td></tr>
+      <tr><td>5</td><td>super soft</td><td class="mono">10/11</td><td class="n">175</td></tr>
+      <tr><td>6</td><td>simulation</td><td class="mono">16/17</td><td class="n">115</td></tr>
+      <tr><td>7</td><td>dirt (370 cars; what rally events fit)</td><td class="mono">12/13</td><td class="n">200</td></tr>
+    </tbody>
+  </table></div>
+  <p>For the tire curves the axle grip is <b>grip byte / 100 x the chassis grip %</b> (AI cars also get the event's AI grip %). The same byte also scales tire wear through a second formula centered on 175. There is a single per-surface grip table for every tire in the game: tarmac 100 %, kerb 90, grass, sand/gravel and off-road 60, dirt 80, out of bounds 80.</p>
+  <div class="sheet">
+    <div class="legend"><span><i class="c1"></i>grip byte / 145 (stock = 1)</span><span><i class="c2"></i>measured lateral g / stock, RX-7 GT-C</span></div>
+    <div class="chart" id="c-tires"></div>
+    <p class="note">Corner test, tires 1-6 (the part sets the front and rear tire together). The measured gain tracks the grip byte closely: super soft +18 % against +21 % in the byte. The <b>simulation</b> tire (stage 6, #44; easy to mistake for the dirt tire, but the game's own shop names say #44 "Simulation Tires", #45 "Dirt Tires") is worse on tarmac (-24 %) and also on dirt: on Smokey Mountain South its grip per unit load averaged 1.02 against 1.33 for the stock tire (-23 %). The real dirt tire is stage 7 (grip byte 200), the one the rally events fit.</p>
+  </div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="aero">
+  <div class="secno">12</div>
+  <h2>Racing modify and downforce</h2>
+  <p><b>Racing modify</b> (#34) swaps the body (a race-car look by car ID), scales weight, yaw and roll inertia, copies the drag coefficient (Cd x100; R34 0.35), the front and rear downforce range (Cl x100), the front and rear track and the width (frontal area). The downforce settings in the set-up are the two Cl values.</p>
+<pre>frontal area A   = 0.95 x width x height
+drag coefficient = 0.5 x 0.8 x A x Cd   +  10 % of (front + rear downforce coefficients)
+downforce/axle   = 0.5 x 0.8 x A x Cl x speed²   (cut by slipstream, down to 25 % in a full draft)</pre>
+  <p>The air density in effect is 0.8 kg/m&sup3;, not the real 1.2. Downforce adds drag: 10 % of its sum is added to the drag term.</p>
+  <p class="callout">Racing modify's track widths never reach the physics. At race start the game overwrites the track and the collision box with values measured from the car's 3D model (R34: 1480/1490 mm in the database, 1424/1498 mm in the race).</p>
+  <p class="note">Measured on the Lancer Evo VI (racing modify fitted): racing modify itself 0-100 km/h 5.80 &rarr; 5.70 s, top speed 233 &rarr; 231 km/h. Rear downforce at minimum / maximum: top speed 231 &rarr; 236 / 226 km/h; front downforce barely moved it.</p>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="assists">
+  <div class="secno">13</div>
+  <h2>ASC and TCS</h2>
+  <p>Both kits are generic parts (car <code>00000</code>), so any car can fit them. Their steps are interpolated into the spec and from there into four assist values.</p>
+  <div class="two">
+    <div class="sheet">
+      <h3>TCS (#38)</h3>
+      <p>Cuts the throttle when the worst driven wheel spins past the tire's drive-side peak slip, scaled down as lateral g rises (less wheelspin allowed in a corner) and relieved by steering. The kit's default step is level 0, which is <b>off</b>.</p>
+<pre>throttle x= clamp(1 + K x (worst slip - r x peak slip), 0, 1)</pre>
+    </div>
+    <div class="sheet">
+      <h3>ASC (#0)</h3>
+      <p>Adds brake to the <b>outer front wheel</b> when an oversteer measure (body slip angle x speed) passes a threshold. A higher level byte means a later intervention. The kit's default is its top step, where the threshold sits at the measure's ceiling (4096), so in every test run it never acted.</p>
+<pre>outer front brake += 8 x gain x (oversteer - threshold)</pre>
+      <p class="note">Some race cars carry an ASC level stock.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="physics">
+  <div class="secno">14</div>
+  <h2>How the drivetrain settings reach the physics</h2>
+  <p>At race start the drive layout and the AWD mode from the drivetrain record become one drive code. On a dirt course (course flag 4) every 4WD car is switched to code 6.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="n">Code</th><th>Layout / AWD mode</th><th>How torque is split</th></tr></thead>
+    <tbody>
+      <tr><td class="n">0</td><td>FR, MR, RR</td><td>rear axle only</td></tr>
+      <tr><td class="n">1</td><td>FF</td><td>front axle only</td></tr>
+      <tr><td class="n">2</td><td>4WD, mode 0</td><td>front-driven; a viscous coupling sends k x (front - rear speed) to the rear</td></tr>
+      <tr><td class="n">3</td><td>4WD, mode 1</td><td>stiff center: shared mean speed, the front-rear difference relaxes</td></tr>
+      <tr><td class="n">4</td><td>4WD, mode 2</td><td>fixed front share; slips at 784 N&middot;m (80 kgf&middot;m), locks again when speeds meet</td></tr>
+      <tr><td class="n">5</td><td>4WD, mode 3 (R34)</td><td>front share grows with rear slip and falls with yaw (1 to 0.25); locked on launch, hard braking or overrun; limit 1470 N&middot;m</td></tr>
+      <tr><td class="n">6</td><td>4WD, mode 4 / any 4WD on dirt</td><td>fixed open front share (planetary style)</td></tr>
+    </tbody>
+  </table></div>
+  <p>Each axle then gets its differential type from the LSD part (section 08), and the transmission choice (automatic or manual) comes from the race entry; AI cars are always automatic. The assists read the spec's ASC and TCS values.</p>
+  <p class="note">The port's own drivetrain code (clutch, gearbox, center coupling, differentials, the 1- and 2-speed boxes, engine output and rev limiter) gives the same results as the original game, compared over more than six million physics steps.</p>
+</section>
+
+<!-- ============ 15 ============ -->
+<section id="tests">
+  <div class="secno">15</div>
+  <h2>The test runs</h2>
+  <div class="sheet">
+    <p>Each part and setting was changed one at a time on a copy of a save, raced with the same scripted inputs as the stock car, and followed from the set-up to the race spec to the car's first different physics step.</p>
+    <ul>
+      <li>200 tests: 94 on the Mazda RX-7 GT-C '99 (turbo FR), 103 on the Lancer Evolution VI GSR '99 (4WD), 3 on the MR2 G-Limited '98 (NA tune).</li>
+      <li>Four scripted tests: launch on a straight, braking from speed, a full-lock corner and a dirt run (75 launch, 16 braking, 108 corner, 1 dirt).</li>
+      <li>178 tests change the car's behavior; 22 are identical, each explained: ASC and TCS kits at their defaults, brake controller at its default, gearbox 1-3 and auto level (stock ratios, see 07), Lancer LSD 5, and the Lancer dirt test (the event swapped back to stock tires).</li>
+    </ul>
+  </div>
+  <div class="sheet">
+    <h3>One part at a time: 0-100 km/h, RX-7 GT-C</h3>
+    <div class="legend"><span><i class="c1"></i>seconds gained against stock 6.66 s (left of zero = slower)</span></div>
+    <div class="chart" id="c-gain"></div>
+    <p class="note">Same scripted launch (Max Speed Attack, full throttle, automatic). "Full power" = all power parts; "full tune" = every part. Full tune on the Lancer: 5.80 &rarr; 3.26 s, cornering 0.664 &rarr; 1.81 g, 100-0 km/h 29.6 &rarr; 23.0 m.</p>
+  </div>
+</section>
+
+<!-- ============ 16 ============ -->
+<section id="quirks">
+  <div class="secno">16</div>
+  <h2>Quirks and original bugs that touch tuning</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>What</th><th>Effect</th><th>Kind</th></tr></thead>
+    <tbody>
+      <tr><td class="part">"Brake balance" is ABS gain</td><td>the controller never splits torque front/rear</td><td>by design</td></tr>
+      <tr><td class="part">Racing modify track widths</td><td>overwritten at race start from the 3D model</td><td>by design</td></tr>
+      <tr><td class="part">Mass floor</td><td>cars under 900 kg are counted heavier (750 &rarr; 810 kg)</td><td>by design</td></tr>
+      <tr><td class="part">Simulation tire</td><td>lower grip byte and curves; worse than stock on dirt too (it is not the dirt tire)</td><td>data as shipped</td></tr>
+      <tr><td class="part">Gear ratios frozen at fit time</td><td>a sports box's ratios use the tires and rev limit of the moment it was fitted</td><td>by design</td></tr>
+      <tr><td class="part">Junk past the last gear</td><td>the ratio fill copies 8 values from scratch memory; values past the gear count are leftovers</td><td>harmless</td></tr>
+      <tr><td class="part">Handbrake overflow</td><td>the handbrake term wraps when the third brake byte is 84 or more; no stock car is near it</td><td>hidden; matters for new car data</td></tr>
+      <tr><td class="part">AI over the power limit</td><td>some event opponents exceed the event's ps limit</td><td>bug</td></tr>
+      <tr><td class="part">Demio A-Spec turbo sound</td><td>its sound set has no turbo recordings; with a turbo kit the exhaust plays far too high</td><td>bug</td></tr>
+      <tr><td class="part">Car data errors</td><td>several catalog figures wrong (BMW 528i 142 PS, A4/S4 prices swapped, and more)</td><td>data as shipped</td></tr>
+      <tr><td class="part">Rally opponent tires</td><td>the rally opponent races on dirt tires while its race entry names another tire</td><td>unexplained</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">The port's classic physics keeps these as the original has them.</p>
+</section>
+
+<footer>
+  <div>Offsets and addresses are for the US Simulation disc (SCUS-94488). Measured numbers are from scripted test runs of the real game, one change at a time, and describe those tests, not general handling.</div>
+</footer>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!==undefined)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+  function svg(host,w,h,label){host.innerHTML='';return el('svg',{viewBox:`0 0 ${w} ${h}`,role:'img','aria-label':label},host);}
+
+  /* ---------- power calculator ---------- */
+  const IDS=['p-pp','p-eb','p-disp','p-comp','p-na','p-turbo','p-muff','p-ic'];
+  function rd(id,def,lo,hi){let v=parseInt(document.getElementById(id).value,10);if(isNaN(v))v=def;return Math.max(lo,Math.min(hi,v));}
+  function calc(){
+    let mult=1000, flt=1;
+    for(const id of IDS){const b=rd(id,0,0,255);const pm=b===255?519:b+100;mult=Math.trunc(mult*pm/100);flt*=pm/100;}
+    const eng=rd('p-eng',100,1,255), lowRaw=rd('p-low',0,0,255);
+    const low=(lowRaw?lowRaw:100)*10; // s1, permille
+    const first=eng/100*low/1000, last=eng/100*mult/1000;
+    document.getElementById('o-pm').textContent=mult;
+    document.getElementById('o-x').textContent='x'+(mult/1000).toFixed(3);
+    document.getElementById('o-first').textContent='x'+first.toFixed(3);
+    document.getElementById('o-last').textContent='x'+last.toFixed(3);
+    drawRamp(first,last);
+  }
+  function drawRamp(first,last){
+    const host=document.getElementById('c-ramp');const W=640,H=230,m={l:56,r:20,t:16,b:44};
+    const s=svg(host,W,H,'Curve factor against position in the rpm range, from the first to the last rpm point');
+    const top=Math.max(1.2,Math.ceil(Math.max(first,last)*4+0.5)/4);
+    const X=f=>m.l+f*(W-m.l-m.r), Y=v=>H-m.b-v/top*(H-m.t-m.b);
+    const step=top<=2?0.25:top<=5?1:2;
+    for(let v=0;v<=top+1e-9;v+=step){el('line',{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),class:'gridl'},s);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end',class:'lbl'},s,'x'+(+v.toFixed(2)));}
+    el('line',{x1:m.l,x2:W-m.r,y1:Y(0),y2:Y(0),class:'axis'},s);
+    el('line',{x1:m.l,x2:W-m.r,y1:Y(1),y2:Y(1),class:'zero'},s);
+    el('text',{x:m.l,y:H-m.b+18,class:'lbl'},s,'first rpm point');
+    el('text',{x:W-m.r,y:H-m.b+18,'text-anchor':'end',class:'lbl'},s,'last rpm point');
+    el('text',{x:(m.l+W-m.r)/2,y:H-6,'text-anchor':'middle',class:'lbl2'},s,'position in the engine curve (linear in rpm)');
+    el('path',{d:`M${X(0)} ${Y(first)}L${X(1)} ${Y(last)}`,class:'l1'},s);
+    const a=el('circle',{cx:X(0),cy:Y(first),r:5,class:'m1 ring'},s);el('title',{},a,'first point x'+first.toFixed(3));
+    const b=el('circle',{cx:X(1),cy:Y(last),r:5,class:'m1 ring'},s);el('title',{},b,'last point x'+last.toFixed(3));
+    el('text',{x:X(0)+10,y:Y(first)-9,class:'lbl'},s,'x'+first.toFixed(3));
+    el('text',{x:X(1)-10,y:Y(last)-9,'text-anchor':'end',class:'lbl'},s,'x'+last.toFixed(3));
+  }
+  IDS.concat(['p-eng','p-low']).forEach(id=>document.getElementById(id).addEventListener('input',calc));
+  document.getElementById('p-reset').addEventListener('click',()=>{IDS.forEach(id=>document.getElementById(id).value=0);document.getElementById('p-eng').value=100;document.getElementById('p-low').value=0;calc();});
+  calc();
+
+  /* ---------- mass floor ---------- */
+  (function(){
+    const host=document.getElementById('c-floor');const W=460,H=330,m={l:58,r:18,t:16,b:48};
+    const s=svg(host,W,H,'Mass the physics uses against catalog weight, 600 to 1200 kg');
+    const x0=600,x1=1200,y0=600,y1=1200;
+    const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r), Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
+    for(let v=600;v<=1200;v+=100){el('line',{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),class:'gridl'},s);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end',class:'lbl'},s,v);el('text',{x:X(v),y:H-m.b+18,'text-anchor':'middle',class:'lbl'},s,v);}
+    el('line',{x1:m.l,x2:W-m.r,y1:Y(600),y2:Y(600),class:'axis'},s);
+    el('text',{x:(m.l+W-m.r)/2,y:H-8,'text-anchor':'middle',class:'lbl2'},s,'catalog weight after parts (kg)');
+    el('text',{x:14,y:(m.t+H-m.b)/2,'text-anchor':'middle',class:'lbl2',transform:`rotate(-90 14 ${(m.t+H-m.b)/2})`},s,'physics mass (kg)');
+    el('path',{d:`M${X(600)} ${Y(600)}L${X(1200)} ${Y(1200)}`,class:'l2'},s);
+    const f=k=>k>=900?k:Math.trunc((Math.max(k,750)-400)*300/500)+600;
+    let d='';for(let k=600;k<=1200;k+=5){d+=(d?'L':'M')+X(k).toFixed(1)+' '+Y(f(k)).toFixed(1);}
+    el('path',{d,class:'l1'},s);
+    [[700,810],[750,810],[800,840],[900,900]].forEach(([k,v])=>{const c=el('circle',{cx:X(k),cy:Y(v),r:4.5,class:'m1 ring'},s);el('title',{},c,k+' kg counts as '+v+' kg');});
+    el('text',{x:X(800)+8,y:Y(840)+18,class:'lbl'},s,'800 kg -> 840');
+    el('text',{x:X(620),y:Y(810)-10,class:'lbl'},s,'floor 810');
+  })();
+
+  /* ---------- tires ---------- */
+  (function(){
+    const host=document.getElementById('c-tires');const W=640,H=300,m={l:56,r:16,t:16,b:52};
+    const s=svg(host,W,H,'Grip byte ratio and measured lateral g ratio for tire stages 1 to 6 on the RX-7 GT-C');
+    const rows=[['sports',150,0.977],['hard',160,1.02],['medium',165,1.04],['soft',170,1.08],['super soft',175,1.11],['simulation',115,0.715]];
+    const base=0.942,y0=0.7,y1=1.25;
+    const bw=(W-m.l-m.r)/rows.length;
+    const Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
+    for(let v=0.7;v<=1.2501;v+=0.1){el('line',{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),class:'gridl'},s);el('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end',class:'lbl'},s,v.toFixed(1));}
+    el('line',{x1:m.l,x2:W-m.r,y1:Y(1),y2:Y(1),class:'zero'},s);
+    el('text',{x:W-m.r,y:Y(1)-6,'text-anchor':'end',class:'lbl'},s,'stock = 1.0');
+    rows.forEach((r,i)=>{
+      const cx=m.l+bw*(i+0.5);const e=r[1]/145, g=r[2]/base;
+      el('line',{x1:cx,x2:cx,y1:Y(Math.min(e,g)),y2:Y(Math.max(e,g)),class:'axis'},s);
+      const a=el('circle',{cx:cx-7,cy:Y(e),r:6,class:'m1 ring'},s);el('title',{},a,r[0]+': grip byte '+r[1]+' = '+e.toFixed(3)+' x stock');
+      const b=el('rect',{x:cx+1,y:Y(g)-6,width:12,height:12,class:'m2 ring'},s);el('title',{},b,r[0]+': lateral g '+r[2]+' = '+g.toFixed(3)+' x stock');
+      el('text',{x:cx,y:H-m.b+18,'text-anchor':'middle',class:'lbl2'},s,r[0]);
+      el('text',{x:cx,y:H-m.b+34,'text-anchor':'middle',class:'lbl'},s,r[1]);
+    });
+    el('text',{x:m.l-8,y:H-m.b+34,'text-anchor':'end',class:'lbl'},s,'byte');
+  })();
+
+  /* ---------- 0-100 gains ---------- */
+  (function(){
+    const host=document.getElementById('c-gain');
+    const base=6.66;
+    const rows=[['Engine balance',6.71],['Computer',6.61],['Port polish',6.61],['Weight red. 3',6.57],['Weight red. 2',6.52],['Propeller shaft',6.51],['Muffler 3',6.48],['Intercooler 2',6.48],['Clutch 3',6.19],['Turbo 1',6.29],['Turbo 4',6.04],['Flywheel 3',6.06],['Full power',5.20],['Full tune',4.29]];
+    rows.sort((a,b)=>b[1]-a[1]);
+    const W=720,rowH=26,m={l:140,r:70,t:10,b:40},H=m.t+m.b+rows.length*rowH;
+    const s=svg(host,W,H,'Seconds gained in 0 to 100 km/h against stock for single parts on the RX-7 GT-C');
+    const x0=-0.25,x1=2.5;const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r);
+    for(let v=0;v<=2.5;v+=0.5){el('line',{x1:X(v),x2:X(v),y1:m.t,y2:H-m.b,class:'gridl'},s);el('text',{x:X(v),y:H-m.b+18,'text-anchor':'middle',class:'lbl'},s,v.toFixed(1));}
+    el('line',{x1:X(0),x2:X(0),y1:m.t,y2:H-m.b,class:'zero'},s);
+    el('text',{x:(m.l+W-m.r)/2,y:H-6,'text-anchor':'middle',class:'lbl2'},s,'seconds faster to 100 km/h');
+    rows.forEach((r,i)=>{
+      const g=+(base-r[1]).toFixed(2), y=m.t+i*rowH+5, h=rowH-8;
+      const xa=X(Math.min(0,g)), xb=X(Math.max(0,g));
+      const rc=el('rect',{x:xa,y,width:Math.max(1.5,xb-xa),height:h,rx:2,class:'m1'},s);
+      el('title',{},rc,r[0]+': '+base.toFixed(2)+' -> '+r[1].toFixed(2)+' s');
+      el('text',{x:m.l-10,y:y+h-4,'text-anchor':'end',class:'lbl2'},s,r[0]);
+      el('text',{x:xb+6,y:y+h-4,class:'lbl'},s,(g>0?'+':'')+g.toFixed(2));
+    });
+  })();
+})();
+</script>
+</body>
+</html>

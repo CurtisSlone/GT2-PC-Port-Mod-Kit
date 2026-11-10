@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brake Feel</title>
+<style>
+/* modern-physics: shared PAGES-3 sheet (system fonts only, no external loads) */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#131820; --ink-2:#465063; --ink-3:#717c8f; --rule:#d5dae2; --soft:#e7eaf0;
+  --code-bg:#edf0f4; --accent:#5246c8; --accent-soft:#e6e3fa;
+  --gt2:#2a6fb8; --ours:#c8641a; --ok:#0f7a43; --ok-bg:#e1f3e8; --bad:#b3261e; --bad-bg:#fbe5e3; --mid:#8a5a00; --mid-bg:#fbefd6;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1217; --panel:#171b22; --ink:#e8ecf2; --ink-2:#b0b9c6; --ink-3:#848e9e; --rule:#2a313c; --soft:#1f252e;
+  --code-bg:#1f252e; --accent:#a197f7; --accent-soft:#25213f;
+  --gt2:#62a4ee; --ours:#f0954f; --ok:#5fd394; --ok-bg:#15342a; --bad:#ff7b72; --bad-bg:#3d1c1a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:18px;border-bottom:3px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:18px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:72ch}
+ul{margin:0;padding-left:20px;max-width:72ch;display:flex;flex-direction:column;gap:6px}
+.lede{color:var(--ink-2)}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-top:6px}
+.kpis div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule);border-radius:6px}
+.kpis b{font-family:var(--display);font-stretch:condensed;font-size:30px;line-height:1.05;font-variant-numeric:tabular-nums;color:var(--accent)}
+.kpis span{font-size:13px;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.cols>*{min-width:0}
+figure{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+figcaption{font-size:13px;color:var(--ink-3);max-width:80ch}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:680px;height:auto}
+.diagram.narrow svg{min-width:0}
+svg text{font-family:var(--body);fill:var(--ink);font-size:12px}
+svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+svg .t{font-family:var(--display);font-weight:700;font-size:16px}
+svg .n{font-size:11.5px;fill:var(--ink-2)}
+svg .acc-t{fill:var(--accent);font-weight:600}
+svg .gt2-t{fill:var(--gt2);font-weight:600}
+svg .ours-t{fill:var(--ours);font-weight:600}
+svg .bad-t{fill:var(--bad);font-weight:600}
+svg .ok-t{fill:var(--ok);font-weight:600}
+svg .box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+svg .card{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .accbox{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg .gt2box{fill:var(--panel);stroke:var(--gt2);stroke-width:1.6}
+svg .oursbox{fill:var(--panel);stroke:var(--ours);stroke-width:1.6}
+svg .badbox{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.4}
+svg .okbox{fill:var(--ok-bg);stroke:var(--ok);stroke-width:1.4}
+svg .wire{fill:none;stroke:var(--ink-3);stroke-width:1.4}
+svg .wire-acc{fill:none;stroke:var(--accent);stroke-width:1.8}
+svg .wire-gt2{fill:none;stroke:var(--gt2);stroke-width:1.6}
+svg .wire-ours{fill:none;stroke:var(--ours);stroke-width:1.6}
+svg .dash{stroke-dasharray:5 4}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .ah{fill:var(--ink-3)} svg .ah-acc{fill:var(--accent)} svg .ah-gt2{fill:var(--gt2)} svg .ah-ours{fill:var(--ours)}
+svg .f-acc{fill:var(--accent)} svg .f-gt2{fill:var(--gt2)} svg .f-ours{fill:var(--ours)} svg .f-ok{fill:var(--ok)} svg .f-bad{fill:var(--bad)} svg .f-soft{fill:var(--soft)} svg .f-ink3{fill:var(--ink-3)}
+.tablewrap{overflow-x:auto;min-width:0}
+.tablewrap table{min-width:600px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+tr.strike td{color:var(--ink-3);text-decoration:line-through}
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.03em;padding:1px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)} .b-bad{background:var(--bad-bg);color:var(--bad)} .b-mid{background:var(--mid-bg);color:var(--mid)} .b-acc{background:var(--accent-soft);color:var(--accent)}
+.bar{display:inline-block;height:9px;border-radius:2px;background:var(--accent);vertical-align:middle}
+.note{font-size:13px;color:var(--ink-3)}
+.callout{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:0 6px 6px 0;max-width:80ch;display:flex;flex-direction:column;gap:6px}
+dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0;font-size:14px}
+dl.kv dt{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);padding-top:2px}
+dl.kv dd{margin:0;min-width:0}
+@media (max-width:520px){dl.kv{grid-template-columns:1fr} dl.kv dd{margin-bottom:6px}}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* car-census charts */
+svg .zero{stroke:var(--ink-2);stroke-width:1.4}
+svg .whisk{stroke:var(--ink-3);stroke-width:2}
+svg .iqr{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.2}
+svg .med{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+svg .dot{fill:var(--accent);fill-opacity:.45;stroke:var(--panel);stroke-width:.6}
+svg .dot:hover{fill-opacity:1}
+svg .dot.hl{fill:var(--ours);fill-opacity:.95;stroke:var(--panel);stroke-width:1.5}
+.verdict{font-size:16px}
+svg .dot.pin{fill:none;stroke:var(--ours);stroke-width:1.6;fill-opacity:0}
+
+.pair{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:4px 12px;align-items:center;font-size:13px}
+.pair .k{color:var(--ink-2);text-align:right}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+.chart{display:flex;flex-direction:column;gap:6px}
+.chart svg{display:block;width:100%;height:auto}
+.chart rect.c{fill:var(--gt2)} .chart rect.m{fill:var(--ours)}
+.chart rect.hit{fill:transparent}
+.chart g.row:hover rect.hit{fill:var(--soft)}
+.chart text.v{font-family:var(--mono);font-size:10.5px;fill:var(--ink-2)}
+.chart text.k{font-size:12px;fill:var(--ink-2)}
+.chart line.z{stroke:var(--ink-3);stroke-width:1}
+
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+</style></head>
+<body>
+<div class="wrap">
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+<nav class="xback" style="font-size:13px;margin:6px 0 0;padding:0"><a href="index.html" style="color:inherit;opacity:.8">&larr; All explainers</a></nav>
+  <div class="eyebrow">GT2 port · modern physics · brake feel</div>
+  <h1>Why the brakes keep modern straight</h1>
+  <p class="lede">The same 300ZX-GTS GT, driven through the same corner on classic and on modern physics. Classic rotates under trail braking (braking while turning in) and then fishtails on the throttle. Modern first stayed straight. The cause is how each physics splits the brake force between the four wheels, not the tires or the springs. The numbers below come from <b>rollouts</b>: copies of the classic run, switched to modern at one moment and left to drive on with the same recorded inputs. The last sections show the change that came out of it: brakes at real size.</p>
+  <div class="kpis">
+    <div><b>-11.0 kN.m</b><span>modern's brake yaw moment, out of the turn (classic +1.2, slightly into it)</span></div>
+    <div><b>-13.5 kN</b><span>brake force on modern's loaded outer front (classic -4.7: its ABS cycles at 30 Hz)</span></div>
+    <div><b>39.0 / 40.1&deg;</b><span>heading after 1 s: modern with the outer front braked like the inner, against classic (modern as is: 28.9)</span></div>
+    <div><b>5.6x</b><span>GT2's load transfer on this car with the physical CG: the inner rear lifts at 1.8 g, as a real car of this height would</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>The same law, two outcomes</h2>
+  <p>Both physics use GT2's brake law: each wheel's torque is the pedal times the axle's torque, cut by the ABS so that it never asks more than the tire's grip times its radius. GT2's torques are large (10.4 kN.m per front wheel, 2-3 times a loaded wheel's grip), so a full pedal always runs in ABS. The brake force then follows each wheel's grip. When the outer front carries most of the load, it carries most of the braking, and braking the outer front is exactly what a stability control does to stop a car rotating.</p>
+  <figure class="diagram">
+    <svg viewBox="0 0 720 330" role="img" aria-label="Brake forces per wheel in a left turn, classic and modern, drawn as arrows on a top view of the car">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+        <marker id="ahg" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah-gt2"/></marker>
+        <marker id="aho" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah-ours"/></marker>
+      </defs>
+      <text x="40" y="24" class="t gt2-t">Classic (30 Hz ABS)</text>
+      <text x="400" y="24" class="t ours-t">Modern (120 Hz, stable ABS)</text>
+      <text x="40" y="42" class="m">left turn, braking: arrows = brake force, length = force (scale 1:120 N)</text>
+      <text x="400" y="42" class="m">ticks 597-620, 213 to 146 km/h</text>
+      <!-- classic car -->
+      <rect x="110" y="70" width="110" height="200" rx="18" class="card"/>
+      <text x="165" y="175" text-anchor="middle" class="n">front</text><text x="165" y="190" text-anchor="middle" class="n">up</text>
+      <rect x="96" y="90" width="18" height="36" rx="3" class="box"/><rect x="216" y="90" width="18" height="36" rx="3" class="box"/>
+      <rect x="96" y="214" width="18" height="36" rx="3" class="box"/><rect x="216" y="214" width="18" height="36" rx="3" class="box"/>
+      <line x1="105" y1="126" x2="105" y2="179" class="wire-gt2" marker-end="url(#ahg)"/>
+      <line x1="225" y1="126" x2="225" y2="166" class="wire-gt2" marker-end="url(#ahg)"/>
+      <line x1="105" y1="250" x2="105" y2="300" class="wire-gt2" marker-end="url(#ahg)"/>
+      <line x1="225" y1="250" x2="225" y2="303" class="wire-gt2" marker-end="url(#ahg)"/>
+      <text x="40" y="112" class="n">FL inner</text><text x="40" y="128" class="m">-6.3 kN</text>
+      <text x="244" y="112" class="n">FR outer</text><text x="244" y="128" class="m">-4.7 kN</text><text x="244" y="144" class="m bad-t">0 on 17 % of ticks</text>
+      <text x="40" y="236" class="n">RL inner</text><text x="40" y="252" class="m">-6.1 kN</text>
+      <text x="244" y="236" class="n">RR outer</text><text x="244" y="252" class="m">-6.3 kN</text>
+      <text x="40" y="322" class="m">rear share 0.52 · yaw moment +1.2 kN.m (in)</text>
+      <!-- modern car -->
+      <rect x="470" y="70" width="110" height="200" rx="18" class="card"/>
+      <text x="525" y="175" text-anchor="middle" class="n">front</text><text x="525" y="190" text-anchor="middle" class="n">up</text>
+      <rect x="456" y="90" width="18" height="36" rx="3" class="box"/><rect x="576" y="90" width="18" height="36" rx="3" class="box"/>
+      <rect x="456" y="214" width="18" height="36" rx="3" class="box" stroke-dasharray="4 3"/><rect x="576" y="214" width="18" height="36" rx="3" class="box"/>
+      <line x1="465" y1="126" x2="465" y2="183" class="wire-ours" marker-end="url(#aho)"/>
+      <line x1="585" y1="126" x2="585" y2="238" class="wire-ours" marker-end="url(#aho)"/>
+      <line x1="585" y1="250" x2="585" y2="309" class="wire-ours" marker-end="url(#aho)"/>
+      <text x="400" y="112" class="n">FL</text><text x="400" y="128" class="m">-6.9 kN</text>
+      <text x="604" y="112" class="n">FR outer</text><text x="604" y="128" class="m">-13.5 kN</text><text x="604" y="144" class="m">load 8.7 kN</text>
+      <text x="400" y="236" class="n">RL</text><text x="400" y="252" class="m">lifted</text>
+      <text x="604" y="236" class="n">RR</text><text x="604" y="252" class="m">-7.1 kN</text>
+      <text x="400" y="322" class="m">rear share 0.27 · yaw moment -11.0 kN.m (out)</text>
+    </svg>
+    <figcaption>Classic's outer front has the most grip, so its once-a-tick ABS loop overshoots: the demand drops to 0, the free wheel spins up past the ground speed and pushes forward, then it brakes again. On average it uses 51 % of its grip, against 95-98 % on the other wheels. Modern's loop is stable and uses 97-99 % of every loaded wheel's grip.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Which change closes the gap</h2>
+  <p>Rollouts: at one tick (1/30 s update) of the classic replay, copies of the race get modern physics (one per variant) and then drive on by themselves with the recorded inputs. The chart shows the heading change in the first second of the first braking phase (from 213 km/h). The gap between modern (28.9&deg;) and classic (40.1&deg;) is 11.2&deg;.</p>
+  <div class="panel chart">
+    <div class="legend"><span><i style="background:var(--gt2)"></i>classic</span><span><i style="background:var(--ours)"></i>modern variant</span></div>
+    <svg viewBox="0 0 720 400" role="img" aria-label="Heading change after one second for each variant">
+      <line class="z" x1="250" y1="10" x2="250" y2="390"/>
+      <g id="bars"></g>
+    </svg>
+    <p class="note">Bars start at 25&deg;. Phase 2 (from 134 km/h) gives the same order: classic 42.6, front select-low 42.5, 30 Hz 34.0, 1/3 torque 33.8, rear select-low 33.5, modern 31.6, GT2's transfer 29.7.</p>
+  </div>
+</section>
+
+<section>
+  <h2>The four questions</h2>
+  <div class="cols">
+    <div class="panel"><h3>1. How modern splits the brakes</h3><p>GT2's ABS law per wheel, every 1/120 s step: with GT2's oversized torques every wheel brakes at its own grip. There is no pedal balance, no proportioning and no select-low. Modern brakes 19 % harder than classic in this corner (end speed 139 against 146 km/h).</p></div>
+    <div class="panel"><h3>2. Is the load transfer physical</h3><p>Yes, for a 0.43 m sprung CG (the per-car rule from GT2's body height). GT2 uses the ride height, 0.08 m here, as the arm: 535 N per g against 2,974. At 1.8 g lateral and 2.6 g braking the inner rear lifts. GT2's transfer in modern rotates less (-1.8&deg;), not more.</p></div>
+    <div class="panel"><h3>3. Where the extra side grip comes from</h3><p>It does not exist. An early measurement suggested it, but its first step after switching physics at 200 km/h carried 7 kN too much load. On a rollout, modern's side force in braking is 13 % below classic's (22.4 against 25.8 kN): more on the front, a third of classic's on the rear.</p></div>
+    <div class="panel"><h3>4. The share of each part</h3><p>The outer front's brake force: 90-99 %. GT2's 30 Hz step: 22-33 % (an artifact). Real-size brake torque: 20-41 %. Rear select-low: 17-33 %. The tire's load sensitivity: 17-53 % (with more braking). GT2's transfer: -17 %. The shares overlap and do not add up.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>What is not missing</h2>
+  <p>From classic's own state on the throttle (85 km/h, -10&deg; body slip) modern fishtails as classic does: +49.4&deg; against +51.3&deg; of heading in 1 s. On the 50 m circle both physics spin the stock 300ZX under a full brake, and modern rotates more on a lift-off (FR 300ZX yaw gain 1.62 against 1.24; MR MR2 1.59 against 1.43). The gap is specific to braking <i>into</i> a corner on a high-grip car, where the load moves onto the outer front while it is already braking at its grip.</p>
+</section>
+
+<section>
+  <h2>The change: brakes at real size</h2>
+  <p>Modern physics now sizes each car's brakes to the car and makes the ABS a ceiling that can only lower the pedal's torque. Classic is untouched; modern recordings made before the change still replay with GT2's brakes.</p>
+  <div class="kpis">
+    <div><b>0.72 / 0.89</b><span>median share of GT2's brake torque that remains (stock / racing tires); GT2's front / rear ratio kept</span></div>
+    <div><b>&plusmn;0.26 %</b><span>largest change of any car's 100-0 km/h stop, stock and racing tires (1,233 car-tunes)</span></div>
+    <div><b>30.2 / 31.8&deg;</b><span>heading after 1 s in the test corner at full pedal (before 28.9 / 31.6, classic 40.1 / 42.6)</span></div>
+    <div><b>36.3 / 37.4&deg;</b><span>the same corner with the pedal held at 40 %: a partial pedal is now a line pressure</span></div>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>The rule</h3>
+      <dl class="kv">
+        <dt>sizing state</dt><dd>a straight-line stop at the car's own limit at 200 km/h: wheel loads with the downforce and the longitudinal transfer, the tire's peak brake force</dd>
+        <dt>need per wheel</dt><dd><code>F r + J a / r</code>: the tire's torque plus the rotating mass it slows (wheel, drive line, engine in first; 4WD axles share theirs)</dd>
+        <dt>capacity</dt><dd><code>T_cap = s T_GT2</code>, one <code>s = min(1, 1.2 max(need / T_GT2))</code> for both axles</dd>
+        <dt>ABS</dt><dd><code>T = min(p T_cap, T_abs)</code>: it only releases; GT2's law was <code>p min(T, T_abs)</code></dd>
+        <dt>switch</dt><dd><code>GT2_MODERN_BRAKE_SIZE=real|gt2</code></dd>
+      </dl>
+    </div>
+    <div class="panel"><h3>Why the digital brake gains little</h3><p>A brake sized to reach a loaded wheel's grip in a straight line also reaches it on this corner's outer front: 4.5 kN.m of capacity against 4.5 kN.m of grip torque, so the outer front still brakes at 90 % of its grip. The blunt 1/3 scale tested earlier (3.4 kN.m) gave +4.6&deg; because it was below this car's straight-line need, the same trap as the MR2. The rest of the gap is classic's 30 Hz ABS cycling, which modern does not copy.</p><p>With the stick the rotation is there: a partial pedal brakes both wheels of an axle alike, so the stabilizing moment goes away. Under GT2's law a partial pedal turned <i>less</i> (25.6&deg; at 40 %).</p></div>
+  </div>
+  <div class="panel tablewrap"><table>
+    <tr><th>variant (test corner, rollouts)</th><th class="n">heading 1 s, phase 1 / 2</th><th class="n">body slip 1 s</th><th class="n">km/h after 1 s</th></tr>
+    <tr><td>classic (the real run)</td><td class="n">40.1 / 42.6</td><td class="n">-19.6 / -11.3</td><td class="n">146 / 84</td></tr>
+    <tr><td>modern before (GT2's brakes)</td><td class="n">28.9 / 31.6</td><td class="n">-10.5 / -0.9</td><td class="n">139 / 73</td></tr>
+    <tr><td><b>modern after, full pedal</b></td><td class="n"><b>30.2 / 31.8</b></td><td class="n">-12.2 / -1.0</td><td class="n">142 / 74</td></tr>
+    <tr><td>after, pedal at 70 %</td><td class="n">33.8 / 34.0</td><td class="n">-15.7 / -3.1</td><td class="n">151 / 80</td></tr>
+    <tr><td>after, pedal at 40 %</td><td class="n">36.3 / 37.4</td><td class="n">-18.6 / -7.7</td><td class="n">167 / 93</td></tr>
+    <tr><td>before, pedal at 40 % (GT2's law)</td><td class="n">25.6 / 31.3</td><td class="n">-7.1 / -2.1</td><td class="n">157 / 86</td></tr>
+  </table></div>
+  <div class="panel tablewrap"><table>
+    <tr><th>every car (full pedal from 120 km/h)</th><th class="n">cars</th><th class="n">scale (median)</th><th class="n">100-0 m before / after (median)</th><th class="n">largest change</th><th class="n">peak g before / after</th></tr>
+    <tr><td>stock</td><td class="n">616</td><td class="n">0.72</td><td class="n">32.0 / 32.0</td><td class="n">-0.16 .. +0.09 %</td><td class="n">1.23 / 1.23</td></tr>
+    <tr><td>racing tires</td><td class="n">617</td><td class="n">0.89</td><td class="n">27.0 / 27.0</td><td class="n">-0.26 .. +0.25 %</td><td class="n">1.46 / 1.46</td></tr>
+  </table>
+  <p class="note">Every car still reaches its tire limit. The MR2 G-Limited keeps 1.166 / 1.414 g (stock / racing). The first pass, without the rotating mass in the need, left nine 4WD and FF kei cars on racing tires 14-21 % longer: their rear lifts and the front brakes also slow the rear's wheels, the drive line and the engine. 144 stock and 259 racing-tire cars keep GT2's torque, because it is already below 1.2 times their need.</p></div>
+  <p class="note">The rule has two numbers: the margin 1.2 and the 200 km/h sizing speed. On modern the Brake Balance Controller is also a real front/rear balance, 5 % a step (<code>GT2_MODERN_BRAKE_BALANCE=real</code>; <code>gt2</code> gives GT2's per-axle ABS gain).</p>
+</section>
+
+<section>
+  <h2>The options that were tested</h2>
+  <div class="panel tablewrap"><table>
+    <tr><th>#</th><th>change</th><th>why it is physical</th><th class="n">heading 1 s, phase 1 / 2</th><th class="n">km/h after 1 s</th></tr>
+    <tr><td>1</td><td>brake capacity at real size per car; the ABS only lowers the pedal's torque <span class="badge b-ok">built</span></td><td>a real ABS can only release pressure; real brakes are a few kN.m, not 10.4</td><td class="n">+4.6 / +2.2 (1/3 scale); per-car rule +1.3 / +0.2</td><td class="n">150 / 79; rule 142 / 74</td></tr>
+    <tr class="strike"><td>2</td><td>rear axle select-low ABS (not used)</td><td>the usual road-car ABS layout, for stability</td><td class="n">+3.7 / +1.9</td><td class="n">155 / 88</td></tr>
+    <tr class="strike"><td>1+2</td><td>both</td><td></td><td class="n">+7.4 / +3.6</td><td class="n">163 / 93</td></tr>
+    <tr><td>3</td><td>an analog brake as a line pressure (comes with 1)</td><td>partial pedal: equal torque left and right, real trail braking</td><td class="n">with 1: 40 % pedal +7.4 / +5.8; 70 % +4.9 / +2.4</td><td class="n">167 / 93; 151 / 80</td></tr>
+    <tr class="strike"><td>4</td><td>front select-low (not used)</td><td>reproduces classic's artifact; not a four-channel ABS</td><td class="n">+10.1 / +10.9</td><td class="n">153 / 86</td></tr>
+  </table></div>
+  <p class="note">Reference: classic 40.1 / 42.6&deg;, 146 / 84 km/h; modern before 28.9 / 31.6&deg;, 139 / 73 km/h. Item 1 needs a per-car rule: a flat 1/3 scale is already below the MR2's own grip (-0.91 g against -1.12 g). Item 4 would only copy classic's 30 Hz artifact, and modern is never tuned toward classic, so it is listed only for completeness.</p>
+</section>
+
+<footer><p class="xfoot" style="font-size:12px;line-height:1.5;opacity:.7;margin:28px 0 0;padding:0;max-width:none">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</footer>
+</div>
+<script>
+(function(){
+  var d=[["classic",40.1,1],["front select-low",39.0,0],["both select-low",39.3,0],["1/3 torque + rear sel.",36.3,0],["fixed torque 65/35",35.5,0],["fixed torque, GT2 split",34.7,0],["1/4 torque",34.2,0],["1/3 torque",33.5,0],["rear select-low",32.6,0],["30 Hz step",32.6,0],["tire load sens. off",30.8,0],["ABS slip target 1.3",30.5,0],["race-car CG 0.30 m",29.9,0],["ABS sampled 30 Hz",29.3,0],["modern before",28.9,0],["GT2 transfer",27.1,0]];
+  var g=document.getElementById('bars'),ns='http://www.w3.org/2000/svg',x0=250,sc=440/20;
+  d.forEach(function(r,i){
+    var y=14+i*23,row=document.createElementNS(ns,'g');row.setAttribute('class','row');
+    var h=document.createElementNS(ns,'rect');h.setAttribute('class','hit');h.setAttribute('x',0);h.setAttribute('y',y-3);h.setAttribute('width',720);h.setAttribute('height',22);row.appendChild(h);
+    var t=document.createElementNS(ns,'text');t.setAttribute('class','k');t.setAttribute('x',240);t.setAttribute('y',y+12);t.setAttribute('text-anchor','end');t.textContent=r[0];row.appendChild(t);
+    var b=document.createElementNS(ns,'rect');b.setAttribute('class',r[2]?'c':'m');b.setAttribute('x',x0);b.setAttribute('y',y);b.setAttribute('height',16);b.setAttribute('width',Math.max(1,(r[1]-25)*sc));row.appendChild(b);
+    var v=document.createElementNS(ns,'text');v.setAttribute('class','v');v.setAttribute('x',x0+(r[1]-25)*sc+6);v.setAttribute('y',y+12);v.textContent=r[1].toFixed(1)+'°';row.appendChild(v);
+    g.appendChild(row);
+  });
+})();
+</script>
+</body>
+</html>

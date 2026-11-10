@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inside GT2</title>
+<style>
+:root{
+  --bg:#eef1f0; --panel:#ffffff; --ink:#141a19; --ink-2:#465251; --ink-3:#768382; --rule:#d6dddc; --soft:#e6ebea;
+  --accent:#d6a400; --cool:#2a6fb8;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --cool:#5fa2ec; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --cool:#5fa2ec; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1060px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:12px;padding-bottom:18px;border-bottom:2px solid var(--rule)}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(36px,6vw,58px);line-height:1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:26px;line-height:1.1;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+.lede{color:var(--ink-2);font-size:16px}
+.notes{display:flex;flex-direction:column;gap:6px;color:var(--ink-2);font-size:14px}
+section{display:flex;flex-direction:column;gap:14px}
+section > p{color:var(--ink-2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+a.card{display:flex;flex-direction:column;gap:6px;padding:14px 16px;background:var(--panel);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:6px;color:inherit;text-decoration:none;min-width:0}
+a.card:hover,a.card:focus-visible{border-color:var(--cool);border-left-color:var(--cool);outline:none}
+a.card b{font-family:var(--display);font-size:19px;font-weight:700;line-height:1.2}
+a.card span{color:var(--ink-2);font-size:14px}
+a.card i{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+code{font-family:var(--mono);font-size:13px;background:var(--soft);padding:1px 5px;border-radius:4px}
+footer{border-top:1px solid var(--rule);padding-top:14px;color:var(--ink-3);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 PC Port + Mod Kit · explainers</div>
+  <h1>Inside GT2</h1>
+  <p class="lede">How Gran Turismo 2 really works, measured and read from the game itself: the physics, the AI, events, cars, menus, graphics and sound. Plus what the port's modern physics and remaster look change. Pick any page; each one stands on its own.</p>
+  <div class="notes">
+    <p>An address like <code>0x801F0070</code> is a place in the PlayStation's 2 MB of RAM. An offset like <code>+0x0A</code> is a byte position inside a record (a car, a save, a course entry). They are there for modders; you can skip them.</p>
+    <p>Everything here is about GT2 Simulation, NTSC-U v1.0 (SCUS-94488), unless a page says otherwise.</p>
+  </div>
+</header>
+
+<section>
+  <h2>Start here</h2>
+  <div class="grid">
+    <a class="card" href="inside-gt2-physics.html"><b>Inside GT2's Physics</b><span>What GT2 actually computes in a race: launch and braking curves, the rubber band, tune effects, and a dozen physics findings with their formulas.</span></a>
+    <a class="card" href="bugs.html"><b>GT2's Classic Bugs</b><span>The well-known bugs (Machine Test garage wipe, 98.20 % completion, stray opponents and more), each traced to its cause.</span></a>
+    <a class="card" href="rng.html"><b>Random Numbers</b><span>GT2's one random-number generator, the 16 places that use it, and why nothing random happens during a race.</span></a>
+  </div>
+</section>
+
+<section>
+  <h2>Racing and the AI</h2>
+  <div class="grid">
+    <a class="card" href="ai.html"><b>Inside GT2's AI</b><span>How the opponents drive: racing lines, aiming ahead, corner speeds, braking, three racecraft rules, pit stops and difficulty as data.</span></a>
+    <a class="card" href="rubber-band.html"><b>The AI Rubber Band</b><span>How GT2 helps or holds back AI cars by speeding up or slowing down their clock, never their power.</span></a>
+    <a class="card" href="race-flow.html"><b>Race Flow</b><span>A race from pre-race page to prize money: countdown, lap timing, positions, points and the finish.</span></a>
+    <a class="card" href="race-presentation.html"><b>Race Presentation</b><span>Tire smoke and particles, sponsor boards, level of detail, the results and medal pages, and the menu music.</span></a>
+    <a class="card" href="camera-replay.html"><b>Cameras and Replays</b><span>How the chase and TV cameras work, and why a GT2 replay stores only your inputs.</span></a>
+    <a class="card" href="battle-and-replays.html"><b>Battle and Replays</b><span>The two-player split-screen battle, and how the port's replays and ghosts store and replay a race.</span></a>
+    <a class="card" href="input.html"><b>Input</b><span>How a controller press becomes steering, throttle and brake, and the 5-byte record a replay keeps.</span></a>
+  </div>
+</section>
+
+<section>
+  <h2>GT Mode and the career</h2>
+  <div class="grid">
+    <a class="card" href="events.html"><b>Inside GT2's Events</b><span>What events are made of: records, entry checks, opponent draws, prizes, licenses and the completion math.</span></a>
+    <a class="card" href="licenses.html"><b>License Tests</b><span>How tests pass or fail, how times and medals are computed, and why the "0.023 s off" myth is not real.</span></a>
+    <a class="card" href="career-saves.html"><b>Career and Saves</b><span>The whole career in one 31,900-byte block: the memory card layout and every rule that changes money, days, licenses and the garage.</span></a>
+    <a class="card" href="menus.html"><b>Inside GT2's Menus</b><span>How GT Mode's menu pages are stored as data, what an item does, and how shops, the title list and new pages work.</span></a>
+    <a class="card" href="state-machine.html"><b>The State Machine</b><span>GT2's screens as a state machine: modes, pages, cursors, and how each state reads the controller.</span></a>
+  </div>
+</section>
+
+<section>
+  <h2>Cars and tuning</h2>
+  <div class="grid">
+    <a class="card" href="car-database.html"><b>Car Database</b><span>How a car is stored: a 72-byte record pointing at 27 parts, turned into the race spec the physics reads.</span></a>
+    <a class="card" href="tune-system.html"><b>Tune System</b><span>What every tuning part and setting really does to the numbers, with a power calculator and measured gains.</span></a>
+    <a class="card" href="settings.html"><b>Car Settings</b><span>The settings screens: each setting's byte, range, default and quirks, plus a TCS slider that shows the wrap to 255.</span></a>
+  </div>
+</section>
+
+<section>
+  <h2>The port's modern physics</h2>
+  <p>The port can run GT2's own physics (classic, 30 steps a second) or its modern physics (real units, 120 steps a second). These pages measure the two side by side.</p>
+  <div class="grid">
+    <a class="card" href="modern-physics.html"><b>Modern Physics</b><span>How the modern physics is built and how it measures against GT2's own.</span></a>
+    <a class="card" href="tick-rates.html"><b>30 Hz and 120 Hz</b><span>What changes at 120 steps a second: the ABS loop, launch, heading step and input staircase.</span></a>
+    <a class="card" href="modern-physics-618-cars.html"><b>618 Cars, Two Physics</b><span>All 618 stock cars on classic vs modern physics: about 1% apart, same order.</span></a>
+    <a class="card" href="car-census.html"><b>Car Census</b><span>Every car on both physics: how much each one changes, by drivetrain, with every car's numbers. A big page.</span></a>
+    <a class="card" href="modern-physics-tune-parts.html"><b>Tune Parts on Modern</b><span>Do tune parts still do their job on modern physics? 944 changes on 11 cars.</span></a>
+    <a class="card" href="tune-modern.html"><b>Tunes on Both Physics</b><span>Every tune part and setting, measured on classic and modern: what each one does and where they differ.</span></a>
+    <a class="card" href="transient.html"><b>Tune Parts in Transients</b><span>How suspension, dampers, bars and LSDs change turn-in, lane changes and lift-off on both physics.</span></a>
+    <a class="card" href="load-transfer.html"><b>Real Load Transfer</b><span>Why GT2 moves only about a third of a real car's cornering load, and the physical transfer modern adds.</span></a>
+    <a class="card" href="wheel-mass.html"><b>Wheel Mass</b><span>Two GT2 shortcuts in how wheels add mass and share tire force, measured, and what modern uses.</span></a>
+    <a class="card" href="brake-feel.html"><b>Brake Feel</b><span>Why modern first braked straight where GT2 rotates, and the real-size brakes that came out of it.</span></a>
+  </div>
+</section>
+
+<section>
+  <h2>Graphics, sound and loading</h2>
+  <div class="grid">
+    <a class="card" href="graphics.html"><b>How GT2 Draws a Picture</b><span>How 3D cars and courses become pixels on a PlayStation, and where the wobble, shimmer and pop-in come from.</span></a>
+    <a class="card" href="sound-hud.html"><b>Sound and HUD</b><span>How the engine note is built from recordings, 24 shared sound voices, when tires squeal, and where every HUD number comes from.</span></a>
+    <a class="card" href="loading.html"><b>Inside GT2's Loading</b><span>What loads before a race, how long it takes on a console, and how RAM, video and sound memory are laid out.</span></a>
+    <a class="card" href="streaming.html"><b>Streaming and Music</b><span>What plays from the disc and when: race jingles that set the countdown, music, movies and the attract demo.</span></a>
+    <a class="card" href="text.html"><b>Text and Fonts</b><span>Where words and numbers come from: language blocks, the damaged European text, time and money formats, fonts and kerning.</span></a>
+    <a class="card" href="menu-car-view.html"><b>The Showroom Car</b><span>How GT2 draws the turning car on dealer, garage and shop pages: camera, lens, floor disc and where it appears.</span></a>
+    <a class="card" href="menu-car-native.html"><b>The Port's Showroom Car</b><span>How the port draws the showroom car with its own renderer while the game itself stays untouched.</span></a>
+    <a class="card" href="draw-perf.html"><b>Remaster Drawing Cost</b><span>What causes remaster-look stutters, what each graphics option costs, and why a race frame flashes after Exit.</span></a>
+  </div>
+</section>
+
+<section>
+  <h2>The Arcade disc</h2>
+  <div class="grid">
+    <a class="card" href="arcade.html"><b>GT2's Arcade Disc</b><span>Why the Arcade and Simulation discs are really one program, and what actually differs between them.</span></a>
+    <a class="card" href="arcade-modes.html"><b>Arcade Modes</b><span>How Arcade Mode turns menu choices into races, what each win unlocks, and how difficulty works.</span></a>
+  </div>
+</section>
+
+<footer>Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</footer>
+</div>
+</body>
+</html>

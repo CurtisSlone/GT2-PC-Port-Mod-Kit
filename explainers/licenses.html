@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 License Tests</title>
+<style>
+:root{
+  --bg:#eef1f0; --panel:#ffffff; --ink:#141a19; --ink-2:#465251; --ink-3:#768382; --rule:#d6dddc; --soft:#e6ebea;
+  --accent:#d6a400; --go:#118a4f; --stop:#c62f2f; --cool:#2a6fb8; --code-bg:#edf1f0;
+  --gold:#c99a12; --silver:#8c979a; --bronze:#a8643a;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --go:#3fcf86; --stop:#ff6464; --cool:#5fa2ec; --code-bg:#1f2726;
+  --gold:#f0c23a; --silver:#b8c2c4; --bronze:#d58b5c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --go:#3fcf86; --stop:#ff6464; --cool:#5fa2ec; --code-bg:#1f2726;
+  --gold:#f0c23a; --silver:#b8c2c4; --bronze:#d58b5c; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1060px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;border-bottom:2px solid var(--rule)}
+.medals{display:flex;gap:8px}
+.medals i{width:16px;height:16px;border-radius:50%;display:block}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:640px;height:auto}
+.diagram svg text{font-family:var(--body);fill:var(--ink)}
+.diagram svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.diagram svg .lbl{font-size:12px;fill:var(--ink-2)}
+.box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+.box.hot{fill:var(--panel);stroke:var(--accent);stroke-width:2}
+.box.go{stroke:var(--go);stroke-width:2;fill:var(--panel)}
+.box.stop{stroke:var(--stop);stroke-width:2;fill:var(--panel)}
+.edge{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+.edge.go{stroke:var(--go)} .edge.stop{stroke:var(--stop)}
+.arrowhead{fill:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+.note{font-size:13px;color:var(--ink-3)}
+.kpis{display:flex;flex-wrap:wrap;gap:10px 28px}
+.kpis div{display:flex;flex-direction:column}
+.kpis b{font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kpis span{font-size:12px;color:var(--ink-3)}
+.fail{color:var(--stop);font-weight:600}
+.pass{color:var(--go);font-weight:600}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--cool)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="medals" aria-hidden="true"><i style="background:var(--bronze)"></i><i style="background:var(--silver)"></i><i style="background:var(--gold)"></i></div>
+  <div class="eyebrow">GT2 Simulation · license tests</div>
+  <h1>GT2 License Tests</h1>
+  <p class="lede">How Gran Turismo 2 runs a license test: what ends it with a pass, what fails it, how the time is measured, how a medal is decided and what the save keeps. Measured on driven, crashed and demonstration runs of the tests.</p>
+  <div class="kpis">
+    <div><b>60</b><span>tests in 6 licenses</span></div>
+    <div><b>3</b><span>ways to pass</span></div>
+    <div><b>4</b><span>ways to fail</span></div>
+    <div><b>1 ms</b><span>time resolution</span></div>
+    <div><b>0</b><span>fixed 0.023 s offsets found</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Three kinds of test</h2>
+  <p>Each test record carries a kind byte. It decides what counts as the end of the test; everything else (the car, the course, the start, the targets) is plain data.</p>
+  <div class="grid">
+    <div class="card"><h3>Stop in the box</h3><div class="where">kind 2 · A-1, A-2, B-1, B-2, B-3</div>
+      <p>Pass on the first tick (one 1/30 s physics step) the car is below 1 km/h with all four wheels inside the box (1,000 to 1,026 m along the course; A-2: 980 to 1,020 m) and on the road. Any wheel past the box end fails at once.</p></div>
+    <div class="card"><h3>Reach the finish line</h3><div class="where">kind 3 · 42 point-to-point tests</div>
+      <p>Pass when the car crosses the last sector line of the license course. The time is the line time, worked out to a fraction of the tick.</p></div>
+    <div class="card"><h3>Drive the laps</h3><div class="where">kind 5 · all S tests, IA-1, B-4, B-5</div>
+      <p>Pass at the lap line when the completed laps equal the record's lap count (1 or 2). Rolling starts count the run-up to the line.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>One attempt</h2>
+  <p>The check runs every tick after the clock. Penalties from the same tick (a crash, a course cut) fail the test before the goal is looked at. Nothing else ends a test: there is no wrong-way fail and no time limit while driving.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 900 300" role="img" aria-label="License attempt: running, then passed or failed with a result code">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect class="box hot" x="30" y="110" width="170" height="70" rx="6"/><text x="115" y="140" text-anchor="middle" font-weight="600">Running</text><text x="115" y="160" text-anchor="middle" class="m">car+0x77D = 0</text>
+      <rect class="box go" x="560" y="30" width="300" height="70" rx="6"/><text x="710" y="58" text-anchor="middle" font-weight="600">Passed (result 1)</text><text x="710" y="78" text-anchor="middle" class="m">time saved · finish stop · grade later</text>
+      <rect class="box stop" x="560" y="190" width="300" height="80" rx="6"/><text x="710" y="216" text-anchor="middle" font-weight="600">Failed</text><text x="710" y="236" text-anchor="middle" class="m">3 overshoot · 4 off course · 5 crash</text><text x="710" y="254" text-anchor="middle" class="m">car braked to a halt · no time</text>
+      <path class="edge go" d="M200,130 C330,70 430,60 558,62" marker-end="url(#ah)"/>
+      <text x="300" y="62" class="lbl">last lap line / last sector line /</text><text x="300" y="77" class="lbl">stopped in the box, wheels on road</text>
+      <path class="edge stop" d="M200,160 C330,220 430,230 558,230" marker-end="url(#ah)"/>
+      <text x="270" y="250" class="lbl">penalty: all four wheels off road (4),</text><text x="270" y="265" class="lbl">impact ≥ 683 (5); box: overshoot (3),</text><text x="270" y="280" class="lbl">stopped with a wheel on grass (4)</text>
+      <path class="edge" d="M60,110 C40,60 190,60 170,108" marker-end="url(#ah)"/><text x="115" y="50" text-anchor="middle" class="lbl">every other tick</text>
+    </svg>
+  </div>
+  <p class="note">"car+0x77D" is a byte offset inside the car's record in memory: the test's result code lives there. Dirt courses (seven tests) have no course-cut fail at all; only a crash fails them. A run that passes but is slower than the slowest target is shown as FAIL, with its time, and still counts as a near miss or a top-five time.</p>
+</section>
+
+<section>
+  <h2>The time</h2>
+  <div class="grid">
+    <div class="card"><h3>Lines</h3>
+<pre>t = (clock_before + frac) / 3      ms
+frac = the part of the tick before
+       the line, by distance × 100</pre>
+      <p>The clock counts 1/3000 s and starts at GO. In a license test it is never reset at a lap line, so the time runs from GO.</p></div>
+    <div class="card"><h3>Stops</h3>
+<pre>t = (clock_after + v × 100 / 1138) / 3
+v = largest |velocity| + others / 4
+    (1,138 = 1 km/h, v &lt; 1,138)</pre>
+      <p>The tick's end plus up to one more tick for the speed that is left: the same stopping tick scores better the slower the car still rolls.</p></div>
+    <div class="card"><h3>Medals</h3>
+<pre>target = m × 60000 + s × 1000 + hh × 10
+medal  = time &lt; target   (strict)</pre>
+      <p>Targets have 10 ms steps, times 1 ms. 38.649 beats a 38.650 target; 38.650 does not.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>“Always 0.023 s off”</h2>
+  <p>A long-standing community report says license times are always 0.023 s off. Every link of the timing chain was checked: no fixed offset exists. Every line pass and every stop pass matches the formulas to the millisecond. The 23 ms players can see comes from a demonstration: the stop-test demos show the time stored in their file, but their runs replay to slightly different times on this disc.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Demonstration</th><th>Kind</th><th class="n">Shown (stored)</th><th class="n">Run ends at</th><th class="n">Difference</th></tr></thead>
+      <tbody>
+        <tr><td>B-1</td><td>stop</td><td class="n">38.642</td><td class="n">38.672</td><td class="n">+30 ms</td></tr>
+        <tr><td>B-2</td><td>stop</td><td class="n">29.258</td><td class="n">29.249</td><td class="n">−9 ms</td></tr>
+        <tr><td><b>B-3</b></td><td>stop</td><td class="n">26.793</td><td class="n">26.770</td><td class="n"><b>−23 ms</b></td></tr>
+        <tr><td>A-1</td><td>stop</td><td class="n">18.780</td><td class="n">18.780</td><td class="n">0</td></tr>
+        <tr><td>A-2</td><td>stop</td><td class="n">21.093</td><td class="n">21.097</td><td class="n">+4 ms</td></tr>
+        <tr><td>10 lap and finish-line demos</td><td>laps / line</td><td class="n">stored</td><td class="n">same</td><td class="n">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">The B-1 demo shows a gold time but its own run is silver. The port's classic physics keeps the demo data and the stop rule as they are.</p>
+</section>
+
+<section>
+  <h2>After the drive</h2>
+  <p>The run's replay plays at once. Only then does the result screen grade it, once, and only if it came from a fresh drive (a replay or a demonstration grades nothing).</p>
+  <div class="panel">
+<pre>grade = 4 gold · 3 silver · 2 bronze · 1 kids · 0 slower
+kids time and no result yet → near misses + 1
+     near misses reach the limit (5 / 10 / 20 / 30) → result 1 (pass)
+     otherwise grade 0
+result = max(old result, grade)
+all ten results ≠ 0  → license held (first time: "LICENSE ACQUIRED")
+all ten results = 4  → the license's prize car (first time only)
+time in the test's top five → enter your name</pre>
+  </div>
+  <p class="note">The "kids" time is the slowest target, below bronze. License L can be taken once license L + 1 is held (B, A, IC, IB, IA, S). Events ask for the license in their own rules or any higher one. Nothing about licenses is stored except the ten results per license.</p>
+</section>
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

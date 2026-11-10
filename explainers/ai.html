@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inside GT2's AI</title>
+<style>
+:root{
+  --bg:#f1f3f6; --panel:#ffffff; --ink:#131923; --ink-2:#444e60; --ink-3:#6f798b; --rule:#dce0e7; --grid:#e8ebf0; --code-bg:#edf0f4;
+  --accent:#0a64b0; --accent-soft:#e2eefa;
+  --ok:#0b7a3e; --ok-bg:#e1f3e8; --mid:#875800; --mid-bg:#faeed3; --bad:#b42318; --bad-bg:#fbe4e1; --hold:#5640b0; --hold-bg:#ebe7fa;
+  --display:"Bahnschrift SemiCondensed","Bahnschrift","DIN Alternate","DIN Condensed","Roboto Condensed","Arial Narrow",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141a; --panel:#181d25; --ink:#edf0f4; --ink-2:#b5bdca; --ink-3:#8a93a3; --rule:#2a313c; --grid:#222832; --code-bg:#212732;
+  --accent:#5aaeff; --accent-soft:#13304d;
+  --ok:#5fd394; --ok-bg:#15342a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff7b72; --bad-bg:#3d1c1c; --hold:#b7a8ff; --hold-bg:#2a2348; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141a; --panel:#181d25; --ink:#edf0f4; --ink-2:#b5bdca; --ink-3:#8a93a3; --rule:#2a313c; --grid:#222832; --code-bg:#212732;
+  --accent:#5aaeff; --accent-soft:#13304d;
+  --ok:#5fd394; --ok-bg:#15342a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff7b72; --bad-bg:#3d1c1c; --hold:#b7a8ff; --hold-bg:#2a2348; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.58}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--accent);padding-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:clamp(36px,6.5vw,56px);line-height:1;margin:0;letter-spacing:.005em;text-wrap:balance}
+h2{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:29px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-stretch:condensed;font-weight:600;font-size:21px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+ul,ol{margin:0;padding-left:1.25em;max-width:68ch;display:flex;flex-direction:column;gap:6px}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px}
+.stat{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-left:3px solid var(--accent);background:var(--panel)}
+.stat b{font-family:var(--display);font-stretch:condensed;font-size:32px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--ink-2)}
+.fig{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig svg{display:block;width:100%;height:auto}
+.fig.wide svg{min-width:660px}
+.fig svg.mx{max-width:860px;margin:0 auto}
+.cap{font-size:13px;color:var(--ink-3);max-width:80ch}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+td.n,th.n{text-align:right}
+td.n{font-family:var(--mono);white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px}
+.card .k{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.05em;padding:2px 7px;border-radius:3px;white-space:nowrap;text-transform:uppercase}
+.c-ok{background:var(--ok-bg);color:var(--ok)} .c-mid{background:var(--mid-bg);color:var(--mid)}
+.c-bad{background:var(--bad-bg);color:var(--bad)} .c-hold{background:var(--hold-bg);color:var(--hold)}
+.c-acc{background:var(--accent-soft);color:var(--accent)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+code{font-family:var(--mono);font-size:.9em;background:var(--code-bg);padding:1px 4px;border-radius:3px}
+.where{font-family:var(--mono);font-size:12px;color:var(--ink-3);overflow-wrap:anywhere}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px;align-items:start}
+.two>*{min-width:0}
+.callout{border-left:3px solid var(--accent);padding:4px 0 4px 14px;color:var(--ink-2);max-width:72ch}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+nav.series{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+nav.series a{color:var(--accent)}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg text{font-family:var(--mono);font-size:12px;fill:var(--ink-2)}
+svg .tl{font-family:var(--body);font-size:13px;fill:var(--ink)}
+svg .tb{font-family:var(--body);font-size:13px;font-weight:600;fill:var(--ink)}
+svg .t3{fill:var(--ink-3)}
+svg .ta{fill:var(--accent);font-weight:600}
+svg .box{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .boxa{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg .ln{fill:none;stroke:var(--ink-3);stroke-width:1.3}
+svg .lna{fill:none;stroke:var(--accent);stroke-width:2.2}
+svg .gr{fill:none;stroke:var(--grid);stroke-width:1}
+svg .fa{fill:var(--accent)} svg .fi{fill:var(--ink-3)} svg .fp{fill:var(--panel)} svg .fg{fill:var(--grid)}
+svg .fok{fill:var(--ok)} svg .fbad{fill:var(--bad)} svg .fmid{fill:var(--mid)}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation · the AI</div>
+  <h1>Inside GT2's AI</h1>
+  <p class="lede">How the opponents in GT Mode drive, measured on real races. The short version: each AI car follows a racing line drawn into the course file, aims at a point ahead of it, and works its own pedals and steering the way a player's pad would. The physics after that is the same physics the player's car runs.</p>
+  <nav class="series" aria-label="Other explainers"><span class="eyebrow">Also:</span><a href="inside-gt2-physics.html">Inside GT2's Physics</a><a href="events.html">Inside GT2's Events</a><a href="bugs.html">GT2's Classic Bugs</a></nav>
+</header>
+
+<section aria-label="The AI in numbers">
+  <div class="stats">
+    <div class="stat"><b>30</b><span>driver decisions per second, for every AI car, near or far</span></div>
+    <div class="stat"><b>7</b><span>precomputed lines per course, at most: racing, passing, pit</span></div>
+    <div class="stat"><b>3</b><span>rules make up all of its racecraft</span></div>
+    <div class="stat"><b>5</b><span>built-in difficulty rows, then scaled by each event</span></div>
+  </div>
+  <p class="cap">"car+0x5C" style labels below are byte offsets inside a car's record in memory (2,880 bytes per car). "AI table +0x02" is an offset inside the small AI table built at race start.</p>
+</section>
+
+<section>
+  <h2>One driver, the same inputs as a player</h2>
+  <p>GT2's race code steps every car 30 times a second (one "tick") through a fixed list of stages. The AI lives in one of them. At stage A6 (inputs), a player's car reads the pad; an AI car runs the AI driver instead. The driver writes the same values the pad would: steering, throttle, brake, clutch and a reverse request. Everything after A6 (traction control, ABS, the drivetrain, moving the car) is the same as for the player, unchanged.</p>
+  <div class="panel">
+    <div class="fig wide">
+      <svg viewBox="0 0 1000 175" role="img" aria-label="The physics tick: stages A1 to K, with the AI driver at stage A6 and two feedback paths into the next tick">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="fi"/></marker>
+        <marker id="ara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="fa"/></marker></defs>
+        <rect x="10" y="36" width="110" height="64" rx="4" class="box"/><text x="20" y="58" class="tb">A1</text><text x="20" y="76" class="tl">time step</text><text x="20" y="92" class="t3">dt × band</text>
+        <rect x="132" y="36" width="148" height="64" rx="4" class="box"/><text x="142" y="58" class="tb">A2–A5</text><text x="142" y="76" class="tl">aero, tire grip,</text><text x="142" y="92" class="tl">slip angles</text>
+        <rect x="292" y="30" width="150" height="76" rx="4" class="boxa"/><text x="302" y="54" class="tb">A6 inputs</text><text x="302" y="72" class="ta">AI: the driver</text><text x="302" y="90" class="t3">player: the pad</text>
+        <rect x="454" y="36" width="126" height="64" rx="4" class="box"/><text x="464" y="58" class="tb">A7–A9</text><text x="464" y="76" class="tl">TCS, ASC, ABS,</text><text x="464" y="92" class="tl">drivetrain</text>
+        <rect x="592" y="36" width="108" height="64" rx="4" class="box"/><text x="602" y="58" class="tb">B</text><text x="602" y="76" class="tl">collisions;</text><text x="602" y="92" class="tl">B4 zones</text>
+        <rect x="712" y="36" width="86" height="64" rx="4" class="box"/><text x="722" y="58" class="tb">F</text><text x="722" y="76" class="tl">integrate</text>
+        <rect x="810" y="36" width="88" height="64" rx="4" class="box"/><text x="820" y="58" class="tb">G</text><text x="820" y="76" class="tl">race state,</text><text x="820" y="92" class="tl">pit calls</text>
+        <rect x="910" y="36" width="80" height="64" rx="4" class="box"/><text x="920" y="58" class="tb">K</text><text x="920" y="76" class="tl">rubber</text><text x="920" y="92" class="tl">band</text>
+        <path d="M120,68 H130" class="ln" marker-end="url(#ar)"/><path d="M280,68 H290" class="ln" marker-end="url(#ar)"/><path d="M442,68 H452" class="ln" marker-end="url(#ar)"/>
+        <path d="M580,68 H590" class="ln" marker-end="url(#ar)"/><path d="M700,68 H710" class="ln" marker-end="url(#ar)"/><path d="M798,68 H808" class="ln" marker-end="url(#ar)"/><path d="M898,68 H908" class="ln" marker-end="url(#ar)"/>
+        <path d="M646,100 V136 H392 V110" class="lna" marker-end="url(#ara)"/><text x="636" y="130" text-anchor="end" class="ta">zones + closing alert, next tick</text>
+        <path d="M950,100 V158 H64 V104" class="ln" stroke-dasharray="5 4" marker-end="url(#ar)"/><text x="600" y="152">time scale → next tick's dt</text>
+        <text x="10" y="20" class="t3">one tick = 1/30 s, every car</text>
+      </svg>
+    </div>
+    <p class="cap">The AI reads this tick's time step and front slip angles, and last tick's everything else: position, speed, the proximity zones and closing alert from the collision stage (B4), and its race state from stage G. The rubber band (K) sets the AI car's time scale for the next tick, so a car held back or pushed forward lives more or less time per tick, steering included.</p>
+  </div>
+</section>
+
+<section>
+  <h2>A line follower, not a planner</h2>
+  <p>Each course file carries up to seven precomputed lines made of straights and constant-radius arcs: a main racing line, two passing lines, a side selector, a pit-entry line and the pit lane with the boxes. No speeds, widths or brake markers are stored. Every target speed is worked out from the arc's radius, the bank, the surface and the car.</p>
+  <div class="two">
+    <div class="panel">
+      <h3>Steering: aim at a point ahead</h3>
+      <div class="fig">
+        <svg viewBox="0 0 520 340" role="img" aria-label="Pure pursuit: the car steers along the arc that reaches a target point one lookahead ahead on the racing line">
+          <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="fi"/></marker></defs>
+          <path d="M108,336 C110,230 150,140 262,90 S430,38 512,36" class="ln" stroke-width="10" stroke="var(--grid)"/>
+          <path d="M108,336 C110,230 150,140 262,90 S430,38 512,36" class="ln" stroke-dasharray="7 5"/>
+          <path d="M150,300 V170" class="ln" marker-end="url(#ar2)"/>
+          <path d="M150,300 A255.45,255.45 0 0 1 260,90" class="lna"/>
+          <path d="M150,300 L260,90" class="ln" stroke-dasharray="2 4"/>
+          <path d="M150,90 H260" class="ln"/>
+          <path d="M150,84 V96" class="ln"/>
+          <rect x="140" y="296" width="20" height="34" rx="4" class="fa"/>
+          <circle cx="260" cy="90" r="7" class="fp" stroke="var(--accent)" stroke-width="3"/>
+          <text x="200" y="82" text-anchor="middle">y</text>
+          <text x="214" y="210">L</text>
+          <text x="128" y="186" text-anchor="end">heading</text>
+          <text x="276" y="112" class="tl">target point</text>
+          <text x="276" y="128" class="t3">one lookahead ahead,</text>
+          <text x="276" y="143" class="t3">measured along the course</text>
+          <text x="380" y="70" class="t3">racing line</text>
+          <text x="242" y="250" class="ta">ω = 2·v·y / L²</text>
+          <text x="242" y="268" class="t3">the yaw rate that reaches it</text>
+        </svg>
+      </div>
+      <p>This method is called "pure pursuit". The wanted yaw rate (how fast the car should turn) goes through a one-sided controller: the AI steers K × (wanted − actual yaw rate) only while the car turns less than wanted. An over-rotating car gets no counter-steer from it. The angle is clamped at the tire's best slip angle (not on dirt), the mean front slip angle is added, and the wheel then moves toward that target at the car's own steering rate.</p>
+    </div>
+    <div class="panel">
+      <h3>How far ahead it looks</h3>
+      <div class="fig">
+        <svg viewBox="0 0 520 300" role="img" aria-label="Lookahead distance against speed for the AI table rows">
+          <g><line x1="46" x2="430" y1="260" y2="260" class="gr"/><line x1="46" x2="430" y1="210.8" y2="210.8" class="gr"/><line x1="46" x2="430" y1="161.6" y2="161.6" class="gr"/><line x1="46" x2="430" y1="112.4" y2="112.4" class="gr"/><line x1="46" x2="430" y1="63.2" y2="63.2" class="gr"/><line x1="46" x2="430" y1="14" y2="14" class="gr"/></g>
+          <g text-anchor="end"><text x="38" y="264">0</text><text x="38" y="215">10</text><text x="38" y="166">20</text><text x="38" y="117">30</text><text x="38" y="67">40</text><text x="38" y="18">50 m</text></g>
+          <g text-anchor="middle"><text x="46" y="280">0</text><text x="142" y="280">30</text><text x="238" y="280">60</text><text x="334" y="280">90</text><text x="430" y="280">120 km/h</text></g>
+          <line x1="46" x2="430" y1="260" y2="260" class="ln"/>
+          <path d="M46,161.6 L334,63.2 H430" class="ln" stroke-width="2" stroke-dasharray="6 4"/>
+          <path d="M46,176.4 L334,38.6 H430" class="ln" stroke-width="2"/>
+          <path d="M46,210.8 L334,23.8 H430" class="lna"/>
+          <text x="436" y="27" class="ta">rear drive</text>
+          <text x="436" y="43">FF, AWD</text>
+          <text x="436" y="67">dirt</text>
+        </svg>
+      </div>
+      <p>The lookahead grows with speed and tops out at 90 km/h in every row: 10 to 48 m for rear-drive cars, 17 to 45 m for front-drive and AWD, 20 to 40 m on dirt. The game overrides it in special cases: 5 m in the pit lane, 20 m entering the pit, 10 m while reversing, 40 m while recovering from a spin.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Corner speeds and braking points</h2>
+  <div class="grid">
+    <article class="panel card">
+      <div class="k"><h3>Corner speed from the arc and its own grip</h3></div>
+      <p>At each node the AI looks up the next segment. A straight's target is the car's top-speed estimate. An arc's target comes from its radius and the car's own sideways grip on that surface, raised when the road is banked into the turn, plus an offset, kept between 20 km/h and top speed. On tarmac k = 1.05: the AI aims 5 % above the steady cornering speed of its own grip.</p>
+      <pre>v = k · √( R · a_lat · surface grip · wear / (1 − sin|bank|) ) + offset
+k = 1.05 tarmac, 1.00 dirt (+5 km/h offset)</pre>
+      <div class="where">car+0x5C, car+0x370 · AI table +0x02, +0x04</div>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>Brake when the stopping distance runs out</h3></div>
+      <p>The AI compares the distance it needs to slow to the next arc's speed with the straight-line distance to the next node. The deceleration is the smaller of what the brakes and what the grip on that surface allow, adjusted for slope. Each unit of closing alert (a car close ahead) adds 20 m. When the need reaches the distance, it brakes.</p>
+      <pre>need = (v² − v_next²) / (2 · a_brake) · (1 − sin pitch) + 20 m × alert</pre>
+      <div class="where">car+0x62, car+0x44C · AI table +0x00, +0x26</div>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>Pedals: full, proportional, or all-or-nothing</h3></div>
+      <p>On a straight the throttle is full. In a corner a proportional controller holds the segment's speed: 0.75 throttle at 2 km/h under the target, 0.5 less per m/s faster. Braking for the next corner uses the same controller, stiffer. The brake is either off or fully on; ABS, which every car runs, shapes it. The AI never feathers the brake pedal.</p>
+      <pre>corner:  throttle = 0.75 − 0.5 per m/s over (target − 2 km/h)
+braking: −2 per m/s (from a straight), −1 (from a corner)
+brake:   0 or 100 %, only once throttle hits 0 above target</pre>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>It holds the gearbox while it feathers</h3></div>
+      <p>Each time the speed controller gives a partial throttle it bumps the car's shift timer by one. The automatic gearbox does not decide a shift while that timer is above zero, so an AI car that is feathering the throttle never changes gear.</p>
+      <pre>partial throttle → shift timer + 1   (car+0x648)</pre>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>Racecraft is three rules</h2>
+  <div class="two">
+    <div class="panel">
+      <div class="fig">
+        <svg viewBox="0 0 420 290" role="img" aria-label="The proximity zones around an AI car">
+          <rect x="60" y="20" width="96" height="70" rx="4" class="box"/><text x="108" y="50" text-anchor="middle" class="tb">1</text><text x="108" y="70" text-anchor="middle">ahead-left</text>
+          <rect x="162" y="20" width="96" height="70" rx="4" class="boxa"/><text x="210" y="50" text-anchor="middle" class="tb">0</text><text x="210" y="70" text-anchor="middle" class="ta">ahead</text>
+          <rect x="264" y="20" width="96" height="70" rx="4" class="box"/><text x="312" y="50" text-anchor="middle" class="tb">2</text><text x="312" y="70" text-anchor="middle">ahead-right</text>
+          <rect x="60" y="96" width="96" height="70" rx="4" class="box"/><text x="108" y="126" text-anchor="middle" class="tb">3</text><text x="108" y="146" text-anchor="middle">left</text>
+          <rect x="264" y="96" width="96" height="70" rx="4" class="box"/><text x="312" y="126" text-anchor="middle" class="tb">4</text><text x="312" y="146" text-anchor="middle">right</text>
+          <rect x="60" y="172" width="300" height="56" rx="4" class="box" stroke-dasharray="4 3"/><text x="210" y="198" text-anchor="middle" class="tb">5–7</text><text x="210" y="216" text-anchor="middle">behind (not used for line choice)</text>
+          <rect x="196" y="108" width="28" height="48" rx="6" class="fa"/>
+          <path d="M210,104 V96" class="lna"/>
+          <text x="210" y="256" text-anchor="middle" class="t3">closing alert: 0, 1024, 2048 or 4096 (0, ¼, ½, full)</text>
+          <text x="210" y="274" text-anchor="middle" class="t3">computed by the collision stage, read next tick</text>
+        </svg>
+      </div>
+    </div>
+    <div class="panel">
+      <ol>
+        <li><b>Closing on a car ahead</b> (the alert is on): take a passing line on the free side, preferring the one the coming arc favors. If neither side is free, lift by the alert: half throttle at half alert, none at full.</li>
+        <li><b>A car alongside on one side</b>: move to the line away from it.</li>
+        <li><b>Nobody in the five forward and side zones</b>: go back to the main racing line.</li>
+      </ol>
+      <p>That is all. The AI does not look at other cars' lines and plans nothing beyond the next node. Line changes happen at once: the target point jumps to the new line and the steering ramp smooths the move. The two passing lines are drawn beside the main line, and the selector line marks the stretches where they change sides. In one two-lap race on Grindelwald with five AI cars there were 53 line changes.</p>
+      <p class="cap">A car on the pit-lane line is invisible to the collision check: no zones, no draft, no contact.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Spins, starts, pit stops and the finish</h2>
+  <div class="panel">
+    <div class="fig wide">
+      <svg class="mx" viewBox="0 0 760 272" role="img" aria-label="The AI race states: racing, pit entry, pit lane, pit exit, cool-down, brake to a stop, parked">
+        <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="fi"/></marker></defs>
+        <rect x="10" y="110" width="160" height="56" rx="4" class="boxa"/><text x="22" y="132" class="tb">0 racing</text><text x="22" y="152" class="t3">main or passing line</text>
+        <rect x="190" y="20" width="170" height="56" rx="4" class="box"/><text x="202" y="42" class="tb">2 pit entry</text><text x="202" y="62" class="t3">≤ 102, then 79 km/h</text>
+        <rect x="390" y="20" width="180" height="56" rx="4" class="box"/><text x="402" y="42" class="tb">3 pit lane, 20 km/h</text><text x="402" y="62" class="t3">5 s stop, new tires</text>
+        <rect x="600" y="20" width="140" height="56" rx="4" class="box"/><text x="612" y="42" class="tb">4 pit exit</text><text x="612" y="62" class="t3">back up to speed</text>
+        <rect x="190" y="186" width="150" height="46" rx="4" class="box"/><text x="202" y="214" class="tb">1 cool-down lap</text>
+        <rect x="390" y="186" width="150" height="46" rx="4" class="box"/><text x="402" y="214" class="tb">5 brake to a stop</text>
+        <rect x="600" y="186" width="140" height="46" rx="4" class="box"/><text x="612" y="214" class="tb">7 parked</text>
+        <path d="M170,124 L188,70" class="ln" marker-end="url(#ar3)"/><text x="196" y="98" class="t3">tire worn,</text><text x="196" y="112" class="t3">not last lap</text>
+        <path d="M360,48 H388" class="ln" marker-end="url(#ar3)"/><path d="M570,48 H598" class="ln" marker-end="url(#ar3)"/>
+        <path d="M670,20 V8 H90 V108" class="ln" marker-end="url(#ar3)"/>
+        <path d="M170,152 L188,200" class="ln" marker-end="url(#ar3)"/><text x="196" y="178" class="t3">finish (circuits)</text>
+        <path d="M90,166 V248 H465 V234" class="ln" marker-end="url(#ar3)"/><text x="100" y="264" class="t3">finish on point-to-point courses and race types 3, 7, 8, 11</text>
+        <path d="M540,209 H598" class="ln" marker-end="url(#ar3)"/><text x="548" y="200" class="t3">still</text>
+      </svg>
+    </div>
+    <p class="cap">States 2 → 3 → 4 → 0 are the pit stop: in an endurance race the car moves over lines 6 → 3 → 4 → 3 → 6. State 6 (a stop at the end of a license test) also leads to parked.</p>
+  </div>
+  <div class="grid">
+    <article class="panel card">
+      <div class="k"><h3>Recovery</h3></div>
+      <p>Decided from the heading error and the wall contacts alone. More than 80° off the line direction: recover, with a long 40 m lookahead. Both front corners against a wall: reverse. Reversing ends once the car points within 10° of the line; recovering ends within 40° above 30 km/h.</p>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>The start</h3></div>
+      <p>On the grid the AI blips the throttle, holds the revs near the redline for the last 0.7 s, and lets the clutch in once the revs pass ¾ of the redline. For the first 3 s it does not steer while it is on a straight segment.</p>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>Pit stops only for tires</h3></div>
+      <p>An AI car pits only when tire wear is on and one tire falls under the low-grip threshold, and never on its last lap. It follows dedicated pit lines at fixed speeds (102, 79 and 20 km/h), enters the lane 25 m before its box if it is under 100 km/h, stops for 5 s, and rejoins at the lane's end. Car <i>i</i>'s box is pit-lane node 8 − <i>i</i>.</p>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>The player's car uses it too</h3></div>
+      <p>Whenever the player's race state is not "racing" (the cool-down lap after the finish, the pit lane) the same driver takes over the player's car. That is why your car drives itself through the pits in an endurance race.</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>Difficulty is data</h2>
+  <p>There is no global difficulty switch in the driver. At race start the game builds a small AI table from five built-in 16-byte rows in the race code, one per drive type plus one used by every car on dirt. Each event then scales it. A few of the row values:</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Row</th><th class="n">Corner gain k</th><th class="n">Offset</th><th class="n">Steering gain</th><th class="n">Lookahead</th><th class="n">Grip mix (front share)</th></tr></thead>
+      <tbody>
+        <tr><td>Rear drive (FR, MR, RR)</td><td class="n">105 %</td><td class="n">0</td><td class="n">1.30</td><td class="n">10–48 m</td><td class="n">1.00</td></tr>
+        <tr><td>Front drive, AWD mode 0</td><td class="n">105 %</td><td class="n">0</td><td class="n">1.70</td><td class="n">17–45 m</td><td class="n">1.00</td></tr>
+        <tr><td>AWD modes 1, 2, 4</td><td class="n">105 %</td><td class="n">0</td><td class="n">1.20</td><td class="n">17–45 m</td><td class="n">0.70</td></tr>
+        <tr><td>AWD mode 3</td><td class="n">105 %</td><td class="n">0</td><td class="n">1.20</td><td class="n">17–45 m</td><td class="n">0.70</td></tr>
+        <tr><td>Dirt (every class)</td><td class="n">100 %</td><td class="n">+5 km/h</td><td class="n">1.00</td><td class="n">20–40 m</td><td class="n">0.50</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The rows also hold the AI's own traction and stability control settings, which replace the car's settings for AI cars. The grip mix applies to every car, the player's included: it sets the sideways grip figure the traction control reads.</p>
+  <h3>What an event can change</h3>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Event bytes</th><th>Lever</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td class="n">e[4..11]</td><td>AI tire grip %</td><td>front and rear grip per drive type, AI cars only (0 = 100)</td></tr>
+        <tr><td class="n">e[12..15]</td><td>AI throttle cap %</td><td>caps the whole throttle per drive type</td></tr>
+        <tr><td class="n">e[16..19]</td><td>AI brake margin</td><td>below 100 the AI lifts before its braking point (the rally event DO20001 uses 80)</td></tr>
+        <tr><td class="n">e[20..28]</td><td>Rubber band</td><td>the time scale ahead of and behind the player (see <a href="rubber-band.html">the rubber band</a>)</td></tr>
+        <tr><td class="n">e[29..35]</td><td>Tire wear</td><td>the only trigger of AI pit stops</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">"e[4..11]" means bytes 4 to 11 of the event's record.</p>
+</section>
+
+<section>
+  <h2>Two surprises</h2>
+  <div class="grid">
+    <article class="panel card">
+      <div class="k"><h3>The rally "AI" is a ghost</h3></div>
+      <p>In the GT Mode rally events the opponent is not the AI driver. It is a recorded run, stored with the event, played back as pad input through the same steps as the player's controls, with no contacts. The physics simulates it again every time. The AI takes over only after the ghost's finish, to brake it to a stop: in one rally it took over at tick 2,636 and parked the car 129 ticks later. (This is also why the Tahiti Maze opponent can crash at the start; see <a href="bugs.html">bugs</a>, B6.)</p>
+      <div class="where">race type 11</div>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>No shortcuts for distant cars</h3></div>
+      <p>There is no simplified mode for cars far from the camera. With the player's car parked on the grid while the five AI cars raced up to 7.7 km of course away (two laps of Grindelwald), every AI car still got its full driver step on every one of 7,304 ticks.</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>How tightly the AI is tied into the physics</h2>
+  <p>The AI is not a separate module. It touches the physics in nine places:</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Link</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td>Order inside the tick</td><td>The AI reads this tick's slip angles and tire wear. Moving those stages after the input step changes its steering and corner speeds.</td></tr>
+        <tr><td>Shared outputs</td><td>It writes the engine throttle and per-wheel brake demand directly; TCS and ABS then scale them for every car.</td></tr>
+        <tr><td>The shift timer</td><td>Partial throttle holds the automatic gearbox (above).</td></tr>
+        <tr><td>Assists from the AI table</td><td>AI cars use the table's TCS and ASC settings, not their own. The AI's TCS has no steering term.</td></tr>
+        <tr><td>Car values built for the AI</td><td>The drive type, steering limit, steering rate and grip mix are built for every car, the player's too.</td></tr>
+        <tr><td>Rubber band</td><td>It becomes the AI car's time step for the whole physics of that car; contacts weigh cars by it.</td></tr>
+        <tr><td>Collision rules from AI state</td><td>Cars on the pit-lane line skip collisions; entering the lane resets contact history.</td></tr>
+        <tr><td>Race state controls the physics</td><td>It picks the input path and assists; AI and auto-driven cars never take damage.</td></tr>
+        <tr><td>No level of detail</td><td>Every AI car runs the full driver and physics every tick, near or far.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

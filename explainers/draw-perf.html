@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Remaster Drawing Cost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f4f6; --panel:#ffffff; --ink:#16191f; --ink-2:#4a5160; --ink-3:#7a8191; --rule:#dfe2e8; --grid:#eceef2;
+  --accent:#c8102e; --code-bg:#f0f2f6;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --ok:#0b7a3e; --ok-bg:#e3f4ea; --mid:#8a5a00; --mid-bg:#fbf0d9;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121417; --panel:#1b1e23; --ink:#eef0f3; --ink-2:#b8bec9; --ink-3:#8b92a0; --rule:#2c3038; --grid:#252930;
+  --accent:#ff4d5e; --code-bg:#23272e;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --ok:#5fd394; --ok-bg:#16352a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121417; --panel:#1b1e23; --ink:#eef0f3; --ink-2:#b8bec9; --ink-3:#8b92a0; --rule:#2c3038; --grid:#252930;
+  --accent:#ff4d5e; --code-bg:#23272e;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --ok:#5fd394; --ok-bg:#16352a; --mid:#f1c46b; --mid-bg:#3a2f16; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-direction:column;gap:8px;border-bottom:3px solid var(--accent);padding-bottom:16px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:500;font-size:22px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:16px}
+.card .k{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-mid{background:var(--mid-bg);color:var(--mid)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule)}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+.note{font-size:13px;color:var(--ink-3)}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:minmax(120px,240px) 1fr 64px;gap:10px;align-items:center;font-size:13px}
+.bar .t{height:14px;border-radius:2px;background:var(--grid);position:relative;overflow:hidden}
+.bar .t i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}
+.bar .v{font-family:var(--mono);text-align:right}
+.strip{display:flex;height:34px;border-radius:4px;overflow:hidden;border:1px solid var(--rule)}
+.strip div{display:flex;align-items:center;justify-content:center;font-size:12px;font-family:var(--mono);color:#fff;white-space:nowrap;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:10px;border-radius:2px;display:inline-block}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:72ch}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+@media (max-width:560px){.bar{grid-template-columns:110px 1fr 52px}}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+<nav class="xback" style="font-size:13px;margin:6px 0 0;padding:0"><a href="index.html" style="color:inherit;opacity:.8">&larr; All explainers</a></nav>
+  <div class="eyebrow">GT2 port · remaster look · drawing cost</div>
+  <h1>Remaster Drawing Cost</h1>
+  <p class="lede">Why the remaster stutters early in a session, what a race retry changes, what each graphics option costs, and where the "flash of the race" after Exit comes from. Measured by replaying a recorded 13-minute play session, without a window, with the same settings; the replay matched the recording exactly. "Remaster look" is the port's own renderer drawing GT2's races (<code>--scene native</code>); <code>--scene off</code> lets GT2 draw everything as on the PlayStation.</p>
+</header>
+
+<section>
+  <h2>Answers</h2>
+  <div class="grid">
+    <article class="panel card">
+      <div class="k"><h3>Early stutters: work done the first time</h3><span class="badge b-ok">MEASURED</span></div>
+      <p>Two things run on the game's own thread the first time they are needed in a session. The 2D text and HUD sheets are upscaled when they first appear (up to 243 ms each: the start countdown, lap 2, lap 3). The race intro's first picture uploads every texture of the course and cars and builds their mipmaps on the CPU (590 ms for 242 textures, 549 MB). Later races reuse both, so they do not stutter again.</p>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>Retry: the same drawing, more memory</h3><span class="badge b-mid">NOT REPRODUCED</span></div>
+      <p>Per picture, race 4 draws what race 1 draws: same draw calls, nothing made or uploaded mid-race. Memory grows by about 66 MB of GPU textures per new opponent car (549 to 967 MB over four races). The slow pictures reported in that session cost about 1 ms of drawing CPU, so the drop is on the presentation side on Windows (GPU time, window size, in-between pictures); which one is not measured yet.</p>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>The live car reflection is half the CPU</h3><span class="badge b-ok">MEASURED</span></div>
+      <p>The live cube reflection draws two extra views of the scene every picture: 1.6 to 2.2 ms of the 3.4 to 4.0 ms the renderer spends. Every other effect is within run-to-run noise on the CPU. Dense detail triples the triangles and upscaled textures triple the texture memory; their cost is on the GPU. (Later the live reflection was rebuilt: three sides of the cube a picture, so it refreshes smoothly, at about 1.8 ms per picture.)</p>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>The flash is GT2's own transition</h3><span class="badge b-ok">MEASURED</span></div>
+      <p>After Exit, GT2 draws one more race frame without the pause dialog, stops drawing while it loads, and keeps showing that frame for about 0.9 s, then black, then the menu. The original drawing does exactly the same at the same fields. Nothing is left uncleared by the port; the frozen frame just looks like the race coming back because it is the full remaster picture.</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>Early stutters, by size</h2>
+  <div class="panel">
+    <div class="bars" id="stalls"></div>
+    <p class="note">Replay times (OpenGL on Linux). On Windows, the stalls at the same moments were 622 ms (countdown), 264 ms (lap 2) and 115 ms (lap 3): the 2D sheets also write their inventory files, slower on Windows.</p>
+  </div>
+</section>
+
+<section>
+  <h2>A retry, race by race</h2>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th></th><th class="n">Race 1</th><th class="n">Race 2</th><th class="n">Race 3</th><th class="n">Race 4</th></tr></thead>
+      <tbody>
+        <tr><td>Renderer CPU per picture (ms)</td><td class="n">3.41</td><td class="n">3.42</td><td class="n">3.42</td><td class="n">3.73</td></tr>
+        <tr><td>Draw calls per picture</td><td class="n">568</td><td class="n">576</td><td class="n">547</td><td class="n">545</td></tr>
+        <tr><td>GPU objects made mid-race</td><td class="n">0</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td>First picture's freeze (replay ms)</td><td class="n">1,077</td><td class="n">379</td><td class="n">230</td><td class="n">8</td></tr>
+        <tr><td>Cars loaded</td><td class="n">6</td><td class="n">10</td><td class="n">12</td><td class="n">12</td></tr>
+        <tr><td>Scene textures on the GPU (MB)</td><td class="n">549</td><td class="n">814</td><td class="n">967</td><td class="n">967</td></tr>
+        <tr><td>Process memory (GB)</td><td class="n">2.01</td><td class="n">2.08</td><td class="n">2.12</td><td class="n">2.19</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>What each option costs on the CPU</h2>
+  <div class="panel">
+    <div class="bars" id="costs"></div>
+    <p class="note">Median renderer CPU per picture over race 1 (2,909 pictures), OpenGL on a Linux setup that runs about 3x slower than Windows. GPU time could not be read here, so screen effects such as bloom, FXAA and the ground detail look free in this chart even though they cost GPU time.</p>
+  </div>
+</section>
+
+<section>
+  <h2>The Exit transition, field by field</h2>
+  <div class="panel">
+    <div class="strip" id="strip"></div>
+    <div class="legend" id="stripkey"></div>
+    <p class="note">Fields (1/60 s video fields) 10,350 to 10,450 of the recording. The same with the original drawing (<code>--scene off</code>) and with render interpolation off. Entering a race is clean: black, the pre-race menu, black, then the race.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Since these measurements</h2>
+  <div class="panel">
+    <ul>
+      <li>The live car reflections are on by default and refresh smoothly; <b>K</b> turns them off while playing (a little faster). <code>PSX_SCENE_COAT</code> sets how glossy they look (guide 13).</li>
+      <li>The port can prepare tracks and cars in the background while you play (<code>--warmup on</code>, the default; the title shows "warming N/M"), so less of the first-time work lands in a race.</li>
+      <li>Every option in the cost chart can be switched with <code>--scene-fx</code> and the other <code>--scene-*</code> flags (see the flags and settings guide).</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div>No game pictures on this page.</div>
+<p class="xfoot" style="font-size:12px;line-height:1.5;opacity:.7;margin:28px 0 0;padding:0;max-width:none">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</footer>
+</div>
+
+<script>
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function bars(id,rows,max,unit){
+  document.getElementById(id).innerHTML=rows.map(r=>`<div class="bar"><span>${r[0]}</span><span class="t"><i style="width:${Math.min(100,r[1]/max*100)}%;background:var(${r[2]||'--s1'})"></i></span><span class="v">${r[1].toLocaleString()} ${unit}</span></div>`).join('');
+}
+bars('stalls',[
+  ['Race intro: texture prewarm',590,'--s2'],
+  ['Race set-up: 7 text sheets',740,'--s2'],
+  ['Countdown: text sheet',243,'--s1'],
+  ['Lap 2: text sheet',80,'--s1'],
+  ['Lap 3: text sheet',29,'--s1'],
+  ['Race 2 intro: 4 new cars',379,'--s4'],
+  ['Race 3 intro: 2 new cars',230,'--s4'],
+],800,'ms');
+bars('costs',[
+  ['All on',3.41,'--s2'],
+  ['All on, batching off',4.69,'--s2'],
+  ['Live reflection off',1.83,'--s3'],
+  ['All reflections off',1.79,'--s3'],
+  ['Effects none',1.74,'--s3'],
+  ['3D trees off',3.44,'--s1'],
+  ['Ground detail off',3.56,'--s1'],
+  ['Bloom, flare, sun, dither off',3.39,'--s1'],
+  ['Particles off',3.49,'--s1'],
+  ['Original textures',3.40,'--s1'],
+  ['Curves detail (default)',3.47,'--s1'],
+  ['Game reach',3.44,'--s1'],
+  ['AA off',3.42,'--s1'],
+  ['Internal scale 4',3.58,'--s1'],
+],5,'ms');
+const seg=[['Pause dialog',19,'--s1'],['Frozen race frame, no dialog',54,'--s2'],['Black',19,'--ink-3'],['Menu',8,'--s3']];
+document.getElementById('strip').innerHTML=seg.map(s=>`<div style="flex:${s[1]};background:var(${s[2]})" title="${s[0]}: ${s[1]} fields">${s[1]}</div>`).join('');
+document.getElementById('stripkey').innerHTML=seg.map(s=>`<span><i style="background:var(${s[2]})"></i>${s[0]}</span>`).join('');
+</script>
+</body></html>

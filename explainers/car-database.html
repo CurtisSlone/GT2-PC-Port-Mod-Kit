@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Car Database</title>
+<style>
+
+:root{
+  --bg:#f1efe9; --card:#fcfbf7; --ink:#1b1d1f; --ink-2:#45494e; --ink-3:#72767c; --rule:#d9d5ca; --rule-2:#bdb7a8;
+  --accent:#0f6b5c; --accent-bg:#dcefe9; --warm:#a3521a; --warm-bg:#f6e5d6; --code-bg:#ece9e0; --focus:#a3521a;
+  --display:"Rockwell","Roboto Slab","DejaVu Serif",Georgia,serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121413; --card:#1b1e1d; --ink:#e8e9e6; --ink-2:#b9bdb8; --ink-3:#8b908b; --rule:#2c312f; --rule-2:#3d4441;
+  --accent:#5cc4ae; --accent-bg:#17322c; --warm:#e39a5e; --warm-bg:#3a2617; --code-bg:#222725; --focus:#e39a5e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121413; --card:#1b1e1d; --ink:#e8e9e6; --ink-2:#b9bdb8; --ink-3:#8b908b; --rule:#2c312f; --rule-2:#3d4441;
+  --accent:#5cc4ae; --accent-bg:#17322c; --warm:#e39a5e; --warm-bg:#3a2617; --code-bg:#222725; --focus:#e39a5e; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.55}
+.wrap{max-width:1000px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:40px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.12;font-weight:700}
+h1{font-size:clamp(34px,6.5vw,54px)}
+h2{font-size:clamp(23px,3.6vw,29px)}
+h3{font-size:18px}
+p{margin:0;max-width:68ch}
+section{display:flex;flex-direction:column;gap:14px;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--code-bg);padding:1px 4px;border-radius:3px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+header{display:flex;flex-direction:column;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:20px}
+.lede{font-size:18px;color:var(--ink-2)}
+.ledger{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;border:1px solid var(--rule-2);background:var(--card)}
+.ledger div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+.ledger b{font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+.ledger span{font-size:13px;color:var(--ink-2)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--rule-2);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h3{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card h3 small{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--ink-3)}
+.rows{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.rows dt{font-family:var(--mono);font-size:12.5px;color:var(--accent);padding-top:2px}
+.rows dd{margin:0;color:var(--ink-2)}
+.chart{background:var(--card);border:1px solid var(--rule-2);padding:12px;overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--body);fill:var(--ink-2);font-size:13px}
+svg .t{font-family:var(--display);fill:var(--ink);font-size:16px;font-weight:700}
+svg .m{font-family:var(--mono);font-size:11.5px;fill:var(--ink-3)}
+svg .box{fill:var(--card);stroke:var(--rule-2);stroke-width:1.5}
+svg .hot{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1.5}
+svg .wire{stroke:var(--ink-3);stroke-width:1.5;fill:none}
+svg .ah{fill:var(--ink-3)}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .stock{fill:var(--rule-2)}
+svg .fill{fill:var(--accent)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--ink-2)}
+.legend i{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule-2);background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ok{color:var(--accent);font-weight:600}
+.note{background:var(--warm-bg);border-left:3px solid var(--warm);padding:12px 14px;font-size:14.5px}
+footer{border-top:1px solid var(--rule-2);padding-top:16px;font-size:13px;color:var(--ink-3);display:flex;flex-direction:column;gap:6px}
+
+/* release explainers */
+.backlink{font-size:13px;margin:0 0 4px}
+.backlink a{text-decoration:none}
+/* logo */
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.sitefoot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="backlink"><a href="index.html">&larr; All explainers</a></p>
+<header>
+<a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">Gran Turismo 2 · Simulation disc (US) · the car database</div>
+  <h1>Every car is a list of part numbers</h1>
+  <p class="lede">A Gran Turismo 2 car is one 72-byte record that points at 27 part records. When a race starts, the game turns those parts and your settings into a 448-byte race spec, the block of numbers the physics reads. This page shows how that works.</p>
+</header>
+
+<div class="ledger" role="list">
+  <div role="listitem"><b>618</b><span>GT mode cars</span></div>
+  <div role="listitem"><b>27</b><span>part slots per car</span></div>
+  <div role="listitem"><b>1,220</b><span>event opponents</span></div>
+  <div role="listitem"><b>3</b><span>databases, one format</span></div>
+</div>
+
+<section>
+  <h2>Three files, one format</h2>
+  <p>All three car databases are GTDT files: a short index of blocks, each block an array of fixed-size records. The record sizes are not in the file; they are a table inside the game's program, one per database. The first 30 blocks are the same part kinds everywhere (brakes, engines, gearboxes, tires...), so a car in any mode is built the same way.</p>
+  <div class="cards">
+    <div class="card"><h3>GT mode <small>usa_gtmode_data.dat</small></h3>
+      <dl class="rows"><dt>blocks</dt><dd>31 · 772 KB</dd><dt>30</dt><dd>618 car records (ID, 27 part indices, maker, names, year, price)</dd><dt>0..29</dt><dd>parts, keyed by car ID; car <code>00000</code> holds the generic kits</dd></dl></div>
+    <div class="card"><h3>Arcade <small>usa_arcade_data.dat</small></h3>
+      <dl class="rows"><dt>blocks</dt><dd>34 · 41 KB</dd><dt>30, 31</dt><dd>15 events, 38 opponents</dd><dt>32, 33</dt><dd>63 fixed car set-ups (15 arcade-only race cars)</dd></dl></div>
+    <div class="card"><h3>License <small>usa_license_data.dat</small></h3>
+      <dl class="rows"><dt>blocks</dt><dd>32 · 36 KB</dd><dt>30</dt><dd>60 license tests</dd><dt>31</dt><dd>53 test cars (50 different)</dd></dl></div>
+  </div>
+  <p>Opponents in GT mode events come from a fourth file, <code>usa_gtmode_race.dat</code>: 1,220 opponent records naming 451 different cars, each with its own settings and a power multiplier. Colors and the region filter (26 cars hidden in the US game) live in <code>.carinfoa</code>, not in the database.</p>
+</section>
+
+<section>
+  <h2>From parts to physics</h2>
+  <p>Your tune is the 0x84-byte <b>set-up</b> (132 bytes): part indices plus every setting. The hex numbers in the boxes below are sizes in bytes (0x84 = 132, 0xC4 = 196, 0x1C0 = 448). At race start the game expands the set-up step by step.</p>
+  <div class="chart"><svg viewBox="0 0 960 230" style="min-width:720px" role="img" aria-label="Pipeline: car record to set-up, context, race spec and the car's physics record">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+    <rect x="10" y="40" width="160" height="130" class="box"/><text x="22" y="66" class="t">Car record</text><text x="22" y="90">72 bytes</text><text x="22" y="110">27 part indices</text><text x="22" y="150" class="m">(database)</text>
+    <rect x="210" y="40" width="170" height="130" class="hot"/><text x="222" y="66" class="t">Set-up 0x84</text><text x="222" y="90">your tune; saved</text><text x="222" y="110">gear ratios filled</text><text x="222" y="128">when a box is fitted</text><text x="222" y="150" class="m">(garage)</text>
+    <rect x="420" y="40" width="150" height="130" class="box"/><text x="432" y="66" class="t">Context 0xC4</text><text x="432" y="90">settings + 27</text><text x="432" y="110">part pointers</text><text x="432" y="150" class="m">(race start)</text>
+    <rect x="610" y="40" width="150" height="130" class="box"/><text x="622" y="66" class="t">Race spec</text><text x="622" y="90">0x1C0 bytes</text><text x="622" y="110">47 copy lists</text><text x="622" y="150" class="m">(race start)</text>
+    <rect x="800" y="40" width="150" height="130" class="box"/><text x="812" y="66" class="t">Car physics</text><text x="812" y="90">engine curve,</text><text x="812" y="110">turbo, gearbox</text><text x="812" y="150" class="m">(race code)</text>
+    <path d="M170 105H205" class="wire" marker-end="url(#a)"/><path d="M380 105H415" class="wire" marker-end="url(#a)"/><path d="M570 105H605" class="wire" marker-end="url(#a)"/><path d="M760 105H795" class="wire" marker-end="url(#a)"/>
+    <text x="10" y="24" class="m">GARAGE</text><text x="420" y="24" class="m">RACE START</text>
+    <text x="10" y="205">Each part either copies its values into the spec, scales them (x % / 100, x ‰ / 1000) or adds to them.</text>
+  </svg></div>
+</section>
+
+<section>
+  <h2>The sports gearboxes have no ratios on file</h2>
+  <p>All three shop transmissions (Sports, Semi-Racing, Full-Racing) store 0xFFFF where the ratios should be. The game computes them from one number, the <b>auto level</b>: the top gear reaches the rev limit at auto level x 10 km/h on the driven wheel, each lower gear is a step shorter, the steps grow down the box, and reverse is three quarters of first plus a quarter of second. It does this when the box is fitted, when the car enters the garage, and at race start for opponents.</p>
+  <div class="chart"><svg viewBox="0 0 640 280" role="img" aria-label="Mazda RX-7 gear ratios: stock box against the Sports Transmission computed for auto level 24">
+    <g id="gears"></g>
+  </svg></div>
+  <div class="legend"><span><i style="background:var(--rule-2)"></i>stock box (from the file)</span><span><i style="background:var(--accent)"></i>Sports Transmission, auto level 24 (computed)</span></div>
+  <p class="mono" style="font-size:13px;color:var(--ink-3)">RX-7 GT-C (a2gcn), final drive 4.300. The sports box is a close-ratio box: taller 1st, shorter 5th.</p>
+</section>
+
+<section>
+  <h2>Same numbers as the game</h2>
+  <p>The port builds cars the same way the original does. For every one of the 618 cars (stock, garage set-up, full tune, every setting at its minimum and maximum), for every part each car can fit (21,747 combinations), and for every event opponent, arcade car and license car, the race spec comes out identical to the game's own.</p>
+</section>
+
+<section>
+  <h2>What the setting numbers really mean</h2>
+  <p>The settings screens show plain numbers. Here is what each stored byte stands for in real units.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Setting</th><th>What the byte means</th></tr></thead>
+    <tbody>
+      <tr><td>Springs</td><td>a position 10..255 mapped onto 1.6..8.5 kgf/mm: 30 is 2.1 kgf/mm, not 3.0</td></tr>
+      <tr><td>Dampers</td><td>two forces per direction: at 0.3 m/s and 0.7 m/s, 49 N per unit</td></tr>
+      <tr><td>Stabilizers</td><td>quadratic anti-roll, 98 N per m² of left-right stroke difference</td></tr>
+      <tr><td>Brakes</td><td>98 N·m per unit; the third brake byte is the handbrake</td></tr>
+      <tr><td>Brake balance controller</td><td>an ABS gain per axle; it never moves torque front to rear</td></tr>
+      <tr><td>AWD</td><td>drivetrain byte +7 = front torque share %; five center modes, one forced on dirt</td></tr>
+      <tr><td>LSD kind</td><td>an ASCII letter: f none, r locked, n open, m and h LSD, v viscous, y yaw control, t torque transfer</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">A detail worth knowing: shop items 44 and 45 are "Simulation Tires" (grip byte 115) and "Dirt Tires" (grip byte 200), going by the game's own name strings. They are easy to mix up, and a mix-up makes the dirt tire look worse on dirt than it is.</p>
+</section>
+
+<footer>
+  <div>Addresses are for the US Simulation disc (SCUS-94488). No game data beyond a few quoted numbers.</div>
+</footer>
+<p class="sitefoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</p>
+</div>
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg', g=document.getElementById('gears');
+  const stock=[3.483,2.015,1.391,1.000,0.762], sport=[2.909,1.954,1.412,1.078,0.869];
+  const W=640,H=280,L=48,R=16,T=16,B=40,max=4;
+  const Y=v=>H-B-v/max*(H-T-B);
+  function el(t,a,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;g.appendChild(e);return e;}
+  for(let v=0;v<=4;v++){el('line',{x1:L,x2:W-R,y1:Y(v),y2:Y(v),class:'grid'});el('text',{x:L-8,y:Y(v)+4,'text-anchor':'end'},v.toFixed(1));}
+  const bw=(W-L-R)/5;
+  stock.forEach((s,i)=>{const x=L+bw*i+bw*0.18,w=bw*0.3;
+    el('rect',{x:x,y:Y(s),width:w,height:Y(0)-Y(s),class:'stock'});
+    el('rect',{x:x+w+4,y:Y(sport[i]),width:w,height:Y(0)-Y(sport[i]),class:'fill'});
+    el('text',{x:x+w+2,y:H-B+18,'text-anchor':'middle'},['1st','2nd','3rd','4th','5th'][i]);
+    el('text',{x:x+w/2,y:Y(s)-5,'text-anchor':'middle',class:'m'},s.toFixed(3));
+    el('text',{x:x+w*1.5+4,y:Y(sport[i])-5,'text-anchor':'middle',class:'m'},sport[i].toFixed(3));
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GT2 Race Flow</title>
+<style>
+:root{
+  --bg:#eef1f0; --panel:#ffffff; --ink:#141a19; --ink-2:#465251; --ink-3:#768382; --rule:#d6dddc; --soft:#e6ebea;
+  --accent:#d6a400; --go:#118a4f; --stop:#c62f2f; --cool:#2a6fb8; --code-bg:#edf1f0;
+  --display:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --go:#3fcf86; --stop:#ff6464; --cool:#5fa2ec; --code-bg:#1f2726; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101413; --panel:#181e1d; --ink:#e9efee; --ink-2:#b2bfbd; --ink-3:#83908e; --rule:#2a3332; --soft:#1f2726;
+  --accent:#f0c23a; --go:#3fcf86; --stop:#ff6464; --cool:#5fa2ec; --code-bg:#1f2726; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1060px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;border-bottom:2px solid var(--rule)}
+.lights{display:flex;gap:8px}
+.lights i{width:16px;height:16px;border-radius:50%;background:var(--stop);display:block}
+.lights i.go{background:var(--go)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:clamp(34px,6vw,54px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-stretch:condensed;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:640px;height:auto}
+.diagram svg text{font-family:var(--body);fill:var(--ink)}
+.diagram svg .m{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.diagram svg .lbl{font-size:12px;fill:var(--ink-2)}
+.box{fill:var(--soft);stroke:var(--rule);stroke-width:1.2}
+.box.hot{fill:var(--panel);stroke:var(--accent);stroke-width:2}
+.box.go{stroke:var(--go);stroke-width:2;fill:var(--panel)}
+.box.stop{stroke:var(--stop);stroke-width:2;fill:var(--panel)}
+.edge{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+.edge.go{stroke:var(--go)} .edge.stop{stroke:var(--stop)} .edge.cool{stroke:var(--cool)}
+.arrowhead{fill:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.badge{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:3px;align-self:flex-start;border:1px solid currentColor}
+.ok{color:var(--go)} .rd{color:var(--ink-3)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+td.n{text-align:right;font-family:var(--mono)}
+.note{font-size:13px;color:var(--ink-3)}
+.kpis{display:flex;flex-wrap:wrap;gap:10px 28px}
+.kpis div{display:flex;flex-direction:column}
+.kpis b{font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kpis span{font-size:12px;color:var(--ink-3)}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+a{color:var(--cool)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="lights" aria-hidden="true"><i></i><i></i><i></i><i class="go"></i></div>
+  <div class="eyebrow">GT2 Simulation · race flow</div>
+  <h1>GT2 Race Flow</h1>
+  <p class="lede">How Gran Turismo 2 runs a race from the pre-race page to the prize money: the steps around a race, a single frame, the countdown, lap timing, positions, the finish and the results.</p>
+  <div class="kpis">
+    <div><b>30</b><span>physics ticks a second</span></div>
+    <div><b>1/3000 s</b><span>race clock unit</span></div>
+    <div><b>6</b><span>cars, fixed all through the code</span></div>
+    <div><b>0</b><span>random draws inside a race</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Two machines, one inside the other</h2>
+  <p>A "state machine" is a list of steps plus rules for which step comes next. GT2 uses two here. A <b>session</b> runs the pages around a race and the drives. A <b>drive</b> is the race itself, run once per frame until it says stop. The session decides what comes after a drive from one byte: how the drive ended.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 900 330" role="img" aria-label="Session state machine: init, pre-race page, drive, after drive, replay, after race, end">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect class="box" x="20" y="40" width="120" height="54" rx="6"/><text x="80" y="64" text-anchor="middle" font-weight="600">S0 Init</text><text x="80" y="82" text-anchor="middle" class="m">set up the event</text>
+      <rect class="box" x="200" y="40" width="150" height="54" rx="6"/><text x="275" y="64" text-anchor="middle" font-weight="600">S4 Pre-race page</text><text x="275" y="82" text-anchor="middle" class="m">Test Run / Start Race</text>
+      <rect class="box go" x="420" y="40" width="130" height="54" rx="6"/><text x="485" y="64" text-anchor="middle" font-weight="600">S5 Drive</text><text x="485" y="82" text-anchor="middle" class="m">race, mode 0</text>
+      <rect class="box hot" x="620" y="40" width="150" height="54" rx="6"/><text x="695" y="64" text-anchor="middle" font-weight="600">S6 After drive</text><text x="695" y="82" text-anchor="middle" class="m">how did it end?</text>
+      <rect class="box" x="620" y="200" width="150" height="54" rx="6"/><text x="695" y="224" text-anchor="middle" font-weight="600">S8 Replay</text><text x="695" y="242" text-anchor="middle" class="m">race, mode 1</text>
+      <rect class="box" x="380" y="200" width="170" height="54" rx="6"/><text x="465" y="224" text-anchor="middle" font-weight="600">S2 Results, next race</text><text x="465" y="242" text-anchor="middle" class="m">pay, standings</text>
+      <rect class="box stop" x="800" y="40" width="80" height="54" rx="6"/><text x="840" y="72" text-anchor="middle" font-weight="600">End</text>
+      <path class="edge" d="M140,67 H198" marker-end="url(#ah)"/>
+      <path class="edge go" d="M350,67 H418" marker-end="url(#ah)"/><text x="384" y="58" text-anchor="middle" class="lbl">Test Run</text>
+      <path class="edge" d="M275,40 V18 H80 V38" marker-end="url(#ah)"/><text x="178" y="13" text-anchor="middle" class="lbl">Start Race: kind 1 → 2, start over</text>
+      <path class="edge" d="M550,67 H618" marker-end="url(#ah)"/>
+      <path class="edge stop" d="M770,67 H798" marker-end="url(#ah)"/><text x="785" y="112" text-anchor="middle" class="lbl">Exit in a race:</text><text x="785" y="127" text-anchor="middle" class="lbl">no results</text>
+      <path class="edge" d="M695,94 V198" marker-end="url(#ah)"/><text x="705" y="150" class="lbl">finished, or quit</text><text x="705" y="165" class="lbl">a Test Run</text>
+      <path class="edge" d="M620,227 H552" marker-end="url(#ah)"/>
+      <path class="edge" d="M465,254 V290 H80 V96" marker-end="url(#ah)"/><text x="270" y="306" text-anchor="middle" class="lbl">next championship race</text>
+      <path class="edge stop" d="M550,215 C640,170 780,150 830,96" marker-end="url(#ah)"/><text x="590" y="186" class="lbl">Exit</text>
+      <path class="edge" d="M275,94 V150 H820 V96" stroke-dasharray="4 4" marker-end="url(#ah)"/><text x="300" y="144" class="lbl">Exit on the pre-race page</text>
+    </svg>
+  </div>
+  <p class="note">The GT Mode session. Steps S1, S3, S7 and S9 only pass control on and are left out of the drawing. In a race (kind 2), Start Race on the pre-race page rebuilds the session and goes straight to the drive.</p>
+</section>
+
+<section>
+  <h2>One drive, start to finish</h2>
+  <p>Inside a drive the race moves through four phases. The moment the player crosses the finish line is the moment GT2 writes the result.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 900 220" role="img" aria-label="Drive timeline: hold and countdown, racing, finish sequence, end">
+      <rect style="fill:var(--soft);stroke:var(--stop)" x="20" y="60" width="210" height="44" rx="4" stroke-width="2"/>
+      <text x="125" y="87" text-anchor="middle" font-weight="600">Hold + countdown</text>
+      <rect style="fill:var(--soft);stroke:var(--go)" x="230" y="60" width="380" height="44" rx="4" stroke-width="2"/>
+      <text x="420" y="87" text-anchor="middle" font-weight="600">Racing</text>
+      <rect style="fill:var(--soft);stroke:var(--accent)" x="610" y="60" width="190" height="44" rx="4" stroke-width="2"/>
+      <text x="705" y="87" text-anchor="middle" font-weight="600">Finish sequence</text>
+      <rect style="fill:var(--panel);stroke:var(--rule)" x="800" y="60" width="80" height="44" rx="4" stroke-width="1.2"/>
+      <text x="840" y="87" text-anchor="middle" font-weight="600">End</text>
+      <g class="lbl"><text x="20" y="40">cars frozen, no collisions,</text><text x="20" y="54">no lap lines, clock stopped</text></g>
+      <g class="lbl"><text x="236" y="40">clock +1/30 s a tick, lap lines,</text><text x="236" y="54">positions; AI finishes → cool-down lap</text></g>
+      <g class="lbl"><text x="614" y="40">~10.5 s, a press at the end;</text><text x="614" y="54">X or Start = 3× speed, no pause</text></g>
+      <line style="stroke:var(--go)" x1="230" y1="104" x2="230" y2="140" stroke-width="2"/><text x="230" y="156" text-anchor="middle" class="lbl">GO: hold reaches 0</text>
+      <text x="230" y="172" text-anchor="middle" class="m">clock starts one frame before the sound</text>
+      <line style="stroke:var(--accent)" x1="610" y1="104" x2="610" y2="140" stroke-width="2"/><text x="610" y="156" text-anchor="middle" class="lbl">the player crosses the line</text>
+      <text x="610" y="172" text-anchor="middle" class="m">place, time, points for all 6 cars</text>
+      <g class="m"><text x="40" y="200">beeps 3-2-1</text><text x="130" y="200">hold 3 s, or the jingle's length</text></g>
+    </svg>
+  </div>
+  <p class="note">A Test Run has no hold (rolling start): GO comes on the first frame. You can pause any time before you finish; Exit ends the drive.</p>
+</section>
+
+<section>
+  <h2>Inside one frame</h2>
+  <p>GT2 races at 30 frames a second, one physics tick per frame (a "tick" is one step of the simulation). The order below is fixed, and it matters: lap lines see the positions of the tick before, and the on-screen timers run after the camera.</p>
+  <div class="panel">
+<pre>one race frame  (every 2 VBlanks = 1/30 s)
+  pads · pause check · race hold −2 fields
+  ┌ physics tick ──────────────────────────────────────────────┐
+  │ A controls + AI driver · B collisions (not during the hold) │
+  │ C–F wheels, road probe, suspension                          │
+  │ G progress: each car in running order → lap lines, wrong way│
+  │ H race clock +100 (1/3000 s)                                │
+  │ J positions (insertion sort)   K rubber band                │
+  └─────────────────────────────────────────────────────────────┘
+  camera · HUD timers · countdown · finish sequence (0 = stop)
+  exit code (1 replay over, 2 Exit) · music · car sounds</pre>
+  </div>
+  <p class="note">A VBlank is one 60 Hz screen refresh; a "field" is the same 1/60 s unit.</p>
+</section>
+
+<section>
+  <h2>The rules, as GT2 computes them</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>A line crossed inside a tick</h3>
+      <p>A car rarely sits exactly on the line at a tick, so the crossing time is worked out by distance inside the 1/30 s tick, in hundredths of the tick, then cut down to the millisecond.</p>
+<pre>frac = 100 × (L − d0) / (L − d0 + d1)
+t_ms = (clock + frac) / 3
+lap  = t_ms − last line time</pre>
+      <span class="where">L = course length · d0, d1 = distance before and after</span>
+    </div>
+    <div class="card">
+      <h3>Positions</h3>
+      <p>Laps first, then distance along the course. A car that has finished is frozen in the order once ranked: nobody passes it, it passes nobody.</p>
+<pre>key  = lap − (crossed the line backward ? 1 : 0)
+sort = stable insertion, every tick</pre>
+    </div>
+    <div class="card">
+      <h3>The finish</h3>
+      <p>Each car finishes when its own lap counter reaches the race's laps, then drives a cool-down lap (or stops: rally, point-to-point, license test). Laps after that are ignored.</p>
+    </div>
+    <div class="card">
+      <h3>Points are taken when you finish</h3>
+      <p>At the player's finish every car gets points for the place it holds right then. AI cars still racing keep the place they had.</p>
+<pre>place  1  2  3  4  5  6
+points 8  6  4  3  2  1</pre>
+      <span class="where">points table at 0x8002F478 (RAM address)</span>
+    </div>
+    <div class="card">
+      <h3>Prize money</h3>
+      <p>After the replay, the result page pays the event's prize for your place. Credits stop at 99,999,999. A single-race win adds one prize car, picked at random.</p>
+    </div>
+    <div class="card">
+      <h3>Random numbers</h3>
+      <p>No shared random state. Each caller steps its own seed, taken from the VBlank count. A race draws its music at the start, the trackside boards at the load, the prize car at the end, and nothing in between. More on the <a href="rng.html">random numbers</a> page.</p>
+<pre>s = 17·s + 17
+r = s XOR rotate16(s)</pre>
+    </div>
+    <div class="card">
+      <h3>Countdown and finish sequence</h3>
+      <p>The countdown runs 240 fields past the hold: beeps at 3, 2 and 1 s, GO at 0. After the player's finish a frame counter runs to 316 (single race) or 569 (championship), waiting for a press at its stop frames.</p>
+    </div>
+    <div class="card">
+      <h3>Championships and the 2-hour limit</h3>
+      <p>Standings sort by total points, with ties going to the player. A 99-lap race ends at each car's first lap line after two hours of race clock.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Where GT2 assumes six cars</h2>
+  <p>Six cars on track is not one setting you can change: it is built into many parts of the game.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Part</th><th>Fixed at six</th></tr></thead>
+      <tbody>
+        <tr><td>Running order</td><td>a 6-byte array of car numbers</td></tr>
+        <tr><td>Sector boards</td><td>4 lines × 6 times; nothing stops a seventh from overwriting memory</td></tr>
+        <tr><td>Points and standings</td><td>6 points, 6 totals, a 6-car sort</td></tr>
+        <tr><td>Prizes</td><td>6 places in every event record</td></tr>
+        <tr><td>Race set-up</td><td>6 entries of 208 bytes</td></tr>
+        <tr><td>Car records and loads</td><td>6 records of 0xB40 bytes, 6 model slots in RAM and video memory</td></tr>
+        <tr><td>Contact history, pit boxes</td><td>6 × 5 pairs; pit box node = 8 − car number</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

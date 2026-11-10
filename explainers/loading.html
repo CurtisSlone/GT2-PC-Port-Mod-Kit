@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inside GT2's Loading</title>
+<style>
+:root{
+  --bg:#f2f4f6; --panel:#ffffff; --ink:#15181d; --ink-2:#4a5160; --ink-3:#6f7685; --rule:#dce0e6; --grid:#eceef2;
+  --code-bg:#eef1f5; --empty:#e6e9ee;
+  --accent:#6a3dc0; --accent-soft:#eee8fb;
+  --s1:#2a6fd0; --s2:#d65f28; --s3:#14916a; --s4:#b07d00; --s5:#8a6fb8; --s6:#5f6b7d; --on:#ffffff;
+  --ok:#0b7a3e; --ok-bg:#e1f3e8; --mid:#8a5a00; --mid-bg:#fbefd6; --bad:#b3261e; --bad-bg:#fbe4e2;
+  --display:"Avenir Next Condensed","Roboto Condensed","Helvetica Neue","Arial Narrow",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111317; --panel:#1a1d22; --ink:#eef0f3; --ink-2:#b6bcc7; --ink-3:#8b92a0; --rule:#2c3038; --grid:#23272e;
+  --code-bg:#22262d; --empty:#22262c;
+  --accent:#ad92ff; --accent-soft:#2a2142;
+  --s1:#3f86e3; --s2:#e0733d; --s3:#21a57a; --s4:#c99a1c; --s5:#9a82cc; --s6:#6c788b; --on:#ffffff;
+  --ok:#5fd394; --ok-bg:#16352a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff8a80; --bad-bg:#3d1c1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111317; --panel:#1a1d22; --ink:#eef0f3; --ink-2:#b6bcc7; --ink-3:#8b92a0; --rule:#2c3038; --grid:#23272e;
+  --code-bg:#22262d; --empty:#22262c;
+  --accent:#ad92ff; --accent-soft:#2a2142;
+  --s1:#3f86e3; --s2:#e0733d; --s3:#21a57a; --s4:#c99a1c; --s5:#9a82cc; --s6:#6c788b; --on:#ffffff;
+  --ok:#5fd394; --ok-bg:#16352a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff8a80; --bad-bg:#3d1c1a; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px}
+header{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--accent);padding-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1.02;margin:0;letter-spacing:.005em;text-wrap:balance}
+h2{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-stretch:condensed;font-weight:600;font-size:21px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:70ch}
+ul,ol{margin:0;padding-left:1.25em;max-width:70ch;display:flex;flex-direction:column;gap:4px}
+.lede{color:var(--ink-2)}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+code,.m{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;white-space:nowrap}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+nav.toc a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+nav.toc a:hover{color:var(--accent);border-color:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.facts div{background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts b{font-family:var(--display);font-stretch:condensed;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums;color:var(--ink)}
+.facts span{font-size:12.5px;color:var(--ink-2);line-height:1.35}
+.scope{font-size:13.5px;color:var(--ink-2);border-left:3px solid var(--rule);padding-left:12px;max-width:80ch}
+section{display:flex;flex-direction:column;gap:14px;scroll-margin-top:12px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.two>*{min-width:0}
+.diagram{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.diagram svg{display:block;width:100%;height:auto;min-width:560px}
+.diagram.narrow svg{min-width:0}
+.cap{font-size:13px;color:var(--ink-3);max-width:80ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+td.k{font-family:var(--mono);white-space:nowrap;color:var(--ink-2)}
+tr:last-child td{border-bottom:0}
+.bar{display:block;height:8px;border-radius:2px;background:var(--accent);min-width:2px}
+.note{font-size:13px;color:var(--ink-3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px}
+.card .k{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-mid{background:var(--mid-bg);color:var(--mid)}
+.b-bad{background:var(--bad-bg);color:var(--bad)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+.where{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.steps{counter-reset:st;list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:st;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.steps li::before{content:counter(st);font-family:var(--mono);font-size:12px;width:24px;height:24px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+svg text{fill:var(--ink);font-family:var(--body);font-size:12px}
+svg .t1{fill:var(--ink)} svg .t2{fill:var(--ink-2)} svg .t3{fill:var(--ink-3)} svg .ta{fill:var(--accent)}
+svg .on{fill:var(--on);font-weight:600}
+svg .b{font-weight:600} svg .sm{font-size:11px} svg .lg{font-size:14px} svg .mono{font-family:var(--mono)}
+svg .box{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .boxa{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+svg .emptyr{fill:var(--empty)}
+svg .free{fill:none;stroke:var(--ink-3);stroke-dasharray:4 3}
+svg .gridl{stroke:var(--grid);stroke-width:1}
+svg .axis{stroke:var(--ink-3);stroke-width:1}
+svg .ln{stroke:var(--ink-3);stroke-width:1.4;fill:none}
+svg .lna{stroke:var(--accent);stroke-width:1.6;fill:none}
+svg .dash{stroke-dasharray:5 4}
+svg .arrowhead{fill:var(--ink-3)} svg .arrowheada{fill:var(--accent)}
+svg .s1{fill:var(--s1)} svg .s2{fill:var(--s2)} svg .s3{fill:var(--s3)} svg .s4{fill:var(--s4)} svg .s5{fill:var(--s5)} svg .s6{fill:var(--s6)}
+svg .s1p{fill:var(--s1);opacity:.55} svg .clut{fill:var(--s6);opacity:.6} svg .acc{fill:var(--accent)}
+svg .c1{stroke:var(--s1);stroke-width:2.2;fill:none} svg .c2{stroke:var(--s2);stroke-width:2.2;fill:none} svg .c3{stroke:var(--s3);stroke-width:2.2;fill:none}
+@media (max-width:560px){h2{font-size:24px}.facts b{font-size:22px}.panel{padding:14px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs></svg>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation · loading</div>
+  <h1>Inside GT2's Loading</h1>
+  <p class="lede">What GT2 reads from the disc between choosing a race and the first frame on track, how long each part takes on a real console, where it all lands in the PS1's 2 MB of RAM, video memory and sound memory, and where the game's fixed six-car layout is built in.</p>
+  <div class="facts">
+    <div><b>10.25 s</b><span>GT Mode to first race frame on a console (2x CD)</span></div>
+    <div><b>3.08 s</b><span>Start Race from the pre-race page (six cars)</span></div>
+    <div><b>8.08 s</b><span>Exit back to the city map</span></div>
+    <div><b>~0.2 s</b><span>for the same first load in the port with fast loads, on a PC</span></div>
+    <div><b>0</b><span>files read during a race (only CD music)</span></div>
+    <div><b>6</b><span>car slots, fixed in RAM, video memory and the race set-up</span></div>
+  </div>
+  <p class="scope">Measured on the US Simulation disc, with a model of the console's 2x CD drive. The timed route is a quick start into GT League Japan Nationals race 2 on Midfield Raceway with a Toyota. The menu route from GT League to a race (about 11.3 s) is a sum of measured phases, not one timed run.</p>
+  <nav class="toc" aria-label="Contents"><a href="#three">Three loads</a><a href="#timeline">Timeline</a><a href="#kept">Kept or reloaded</a><a href="#ram">RAM</a><a href="#vram">Video memory</a><a href="#spu">Sound memory</a><a href="#six">The six-car assumptions</a><a href="#limits">Limits</a><a href="#quirks">Bugs and quirks</a></nav>
+</header>
+
+<section id="three">
+  <h2>Three loads, not one</h2>
+  <ol class="steps">
+    <li><span><b>The overlay switch.</b> GT2 does not keep all its code in memory: parts of it, called overlays, are loaded when needed. Going from GT Mode's code (ovl4) to the race code (ovl0): The whole overlay container <code>GT2.OVL</code> is read again and one member inflated, about 1.1 s on the drive, at every switch.</span></li>
+    <li><span><b>The session's first drive:</b> race strings, font and the effects bank, then engine sounds and car models (once per session), then the course (once per session).</span></li>
+    <li><span><b>Start Race</b> from the pre-race page: the course stays; the cars and engine sounds load again, now six cars.</span></li>
+  </ol>
+  <p>Going back to the menus is another overlay switch plus GT Mode's own full reload: the car and race databases, the menu art, the 387 KB menu sound bank and the menu pages.</p>
+</section>
+
+<section id="timeline">
+  <h2>The timeline, on a console</h2>
+  <p class="lede">Measured with a model of the console's 2x CD drive, one time scale for all three loads. On the console, the engine sounds cost more than all six car models: four sound banks of about 241 KB against six models and textures of about 110 KB compressed.</p>
+  <div class="panel">
+    <div class="legend"><span><i style="background:var(--s6)"></i>code and databases</span><span><i style="background:var(--s4)"></i>strings, fonts, effects, menu art</span><span><i style="background:var(--s2)"></i>sound banks</span><span><i style="background:var(--s1)"></i>cars</span><span><i style="background:var(--s3)"></i>course</span><span><i style="background:var(--s5)"></i>menu pages, race state</span></div>
+    <div class="diagram"><svg viewBox="0 0 760 300" role="img" aria-label="Load timeline: three loads drawn to one time scale">
+<line class="gridl" x1="10.0" y1="8" x2="10.0" y2="268"/>
+<text class="t3 mono" x="10.0" y="286" text-anchor="middle">0 s</text>
+<line class="gridl" x1="74.8" y1="8" x2="74.8" y2="268"/>
+<text class="t3 mono" x="74.8" y="286" text-anchor="middle">1 s</text>
+<line class="gridl" x1="139.5" y1="8" x2="139.5" y2="268"/>
+<text class="t3 mono" x="139.5" y="286" text-anchor="middle">2 s</text>
+<line class="gridl" x1="204.3" y1="8" x2="204.3" y2="268"/>
+<text class="t3 mono" x="204.3" y="286" text-anchor="middle">3 s</text>
+<line class="gridl" x1="269.0" y1="8" x2="269.0" y2="268"/>
+<text class="t3 mono" x="269.0" y="286" text-anchor="middle">4 s</text>
+<line class="gridl" x1="333.8" y1="8" x2="333.8" y2="268"/>
+<text class="t3 mono" x="333.8" y="286" text-anchor="middle">5 s</text>
+<line class="gridl" x1="398.6" y1="8" x2="398.6" y2="268"/>
+<text class="t3 mono" x="398.6" y="286" text-anchor="middle">6 s</text>
+<line class="gridl" x1="463.3" y1="8" x2="463.3" y2="268"/>
+<text class="t3 mono" x="463.3" y="286" text-anchor="middle">7 s</text>
+<line class="gridl" x1="528.1" y1="8" x2="528.1" y2="268"/>
+<text class="t3 mono" x="528.1" y="286" text-anchor="middle">8 s</text>
+<line class="gridl" x1="592.9" y1="8" x2="592.9" y2="268"/>
+<text class="t3 mono" x="592.9" y="286" text-anchor="middle">9 s</text>
+<line class="gridl" x1="657.6" y1="8" x2="657.6" y2="268"/>
+<text class="t3 mono" x="657.6" y="286" text-anchor="middle">10 s</text>
+<text class="t1 b" x="10" y="20">Quick start: GT Mode to first race frame</text>
+<rect class="s6" x="10.0" y="28" width="70.4" height="26"><title>ovl4 switch 1.11 s</title></rect>
+<text class="on" x="45.9" y="45" text-anchor="middle">1.11</text>
+<text class="t2 sm" x="11.0" y="70">ovl4 switch</text>
+<rect class="s6" x="81.9" y="28" width="128.7" height="26"><title>GT Mode loads 2.01 s</title></rect>
+<text class="on" x="147.0" y="45" text-anchor="middle">2.01</text>
+<text class="t2 sm" x="82.9" y="84">GT Mode loads</text>
+<rect class="s6" x="212.1" y="28" width="73.0" height="26"><title>ovl0 switch 1.15 s</title></rect>
+<text class="on" x="249.3" y="45" text-anchor="middle">1.15</text>
+<text class="t2 sm" x="213.1" y="70">ovl0 switch</text>
+<rect class="s4" x="286.5" y="28" width="135.8" height="26"><title>strings, font, effects 2.12 s</title></rect>
+<text class="on" x="355.2" y="45" text-anchor="middle">2.12</text>
+<text class="t2 sm" x="287.5" y="84">strings, font, effects</text>
+<rect class="s2" x="423.8" y="28" width="89.2" height="26"><title>engine sounds 1.40 s</title></rect>
+<text class="on" x="469.2" y="45" text-anchor="middle">1.40</text>
+<text class="t2 sm" x="424.8" y="70">engine sounds</text>
+<rect class="s1" x="514.5" y="28" width="10.2" height="26"><title>car 0.18 s</title></rect>
+<text class="t2 sm" x="515.5" y="84">car</text>
+<rect class="s3" x="526.2" y="28" width="116.4" height="26"><title>course 1.82 s</title></rect>
+<text class="on" x="585.1" y="45" text-anchor="middle">1.82</text>
+<text class="t2 sm" x="527.2" y="70">course</text>
+<rect class="s3" x="644.0" y="28" width="26.3" height="26"><title>maps, boards 0.43 s</title></rect>
+<text class="t2 sm" x="645.0" y="84">maps, boards</text>
+<rect class="s5" x="671.9" y="28" width="0.8" height="26"><title>race state, HUD 0.03 s</title></rect>
+<text class="t1 b mono" x="679.8" y="46">10.25 s</text>
+<text class="t1 b" x="10" y="108">Start Race: six cars</text>
+<rect class="s4" x="10.0" y="116" width="25.7" height="26"><title>font 0.42 s</title></rect>
+<text class="t2 sm" x="11.0" y="158">font</text>
+<rect class="s2" x="37.2" y="116" width="89.2" height="26"><title>engine sounds 1.40 s</title></rect>
+<text class="on" x="82.5" y="133" text-anchor="middle">1.40</text>
+<text class="t2 sm" x="38.2" y="172">engine sounds</text>
+<rect class="s1" x="127.9" y="116" width="78.2" height="26"><title>six cars 1.23 s</title></rect>
+<text class="on" x="167.7" y="133" text-anchor="middle">1.23</text>
+<text class="t2 sm" x="128.9" y="158">six cars</text>
+<rect class="s5" x="207.5" y="116" width="0.8" height="26"><title>race state, HUD 0.03 s</title></rect>
+<text class="t1 b mono" x="215.5" y="134">3.08 s</text>
+<text class="t1 b" x="10" y="196">Exit: back to the city map</text>
+<rect class="s6" x="10.0" y="204" width="70.4" height="26"><title>ovl4 switch 1.11 s</title></rect>
+<text class="on" x="45.9" y="221" text-anchor="middle">1.11</text>
+<text class="t2 sm" x="11.0" y="246">ovl4 switch</text>
+<rect class="s6" x="81.9" y="204" width="116.4" height="26"><title>GT Mode loads 1.82 s</title></rect>
+<text class="on" x="140.8" y="221" text-anchor="middle">1.82</text>
+<text class="t2 sm" x="82.9" y="260">GT Mode loads</text>
+<rect class="s4" x="199.8" y="204" width="78.8" height="26"><title>menu art 1.24 s</title></rect>
+<text class="on" x="239.9" y="221" text-anchor="middle">1.24</text>
+<text class="t2 sm" x="200.8" y="246">menu art</text>
+<rect class="s2" x="280.1" y="204" width="83.3" height="26"><title>menu sound bank 1.31 s</title></rect>
+<text class="on" x="322.5" y="221" text-anchor="middle">1.31</text>
+<text class="t2 sm" x="281.1" y="260">menu sound bank</text>
+<rect class="s5" x="364.9" y="204" width="158.5" height="26"><title>menu pages 2.47 s</title></rect>
+<text class="on" x="444.9" y="221" text-anchor="middle">2.47</text>
+<text class="t2 sm" x="365.9" y="246">menu pages</text>
+<rect class="s5" x="524.9" y="204" width="6.9" height="26"><title>race state, HUD 0.13 s</title></rect>
+<text class="t1 b mono" x="539.3" y="222">8.08 s</text>
+</svg></div>
+    <p class="cap">Hover a segment for its name and time. Race set-up (choosing the course, building six race specs) takes under one field and is not drawn. With the port's fast loads the first load takes 131 fields (2.2 s of game time, a field being 1/60 s) and about 0.2 s on a PC; Start Race 29 fields and about 45 ms.</p>
+  </div>
+  <div class="panel tablewrap"><table>
+    <thead><tr><th>Phase (first load)</th><th>What is read</th><th class="n">Seconds</th></tr></thead>
+    <tbody>
+      <tr><td>ovl4 switch</td><td><code>GT2.OVL</code>, 288,776 B, whole</td><td class="n">1.11</td></tr>
+      <tr><td>GT Mode loads</td><td>car names, colors, used cars, car database, race database (twice)</td><td class="n">2.01</td></tr>
+      <tr><td>ovl0 switch</td><td><code>GT2.OVL</code> again</td><td class="n">1.15</td></tr>
+      <tr><td>race overlay entry</td><td>race strings 40,313 B, race font 65,920 B, race effects 79,844 B</td><td class="n">2.12</td></tr>
+      <tr><td>engine sounds</td><td>player car's set + variant, two generic opponent banks</td><td class="n">1.40</td></tr>
+      <tr><td>car model</td><td>model + texture, about 8 KB each compressed</td><td class="n">0.18</td></tr>
+      <tr><td>course</td><td>minimap, textures 289,812 B, geometry 450,412 B, sky</td><td class="n">1.82</td></tr>
+      <tr><td>reflection maps, boards</td><td><code>crstim.arc</code> 28,760 B, sponsor boards 159,072 B</td><td class="n">0.43</td></tr>
+      <tr><td>race state, HUD</td><td>HUD images 12,360 B; physics and AI set-up</td><td class="n">0.03</td></tr>
+      <tr><td><b>total</b></td><td>609 fields</td><td class="n"><b>10.25</b></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="kept">
+  <h2>What is kept and what is loaded again</h2>
+  <div class="panel tablewrap"><table>
+    <thead><tr><th>Data</th><th>Kept across</th><th>Loaded again at</th></tr></thead>
+    <tbody>
+      <tr><td>resident code, boot tables, the save, the race set-up, race specs, system sounds</td><td>everything</td><td>never (boot)</td></tr>
+      <tr><td>race or GT Mode code</td><td>nothing</td><td>every mode switch (the whole <code>GT2.OVL</code>)</td></tr>
+      <tr><td>GT Mode's tables, menu pages, menu art, menu sound bank</td><td>nothing (the race reuses their RAM)</td><td>every GT Mode entry</td></tr>
+      <tr><td>race strings, race font, effects bank</td><td>the session</td><td>every race overlay entry (the font at every drive)</td></tr>
+      <tr><td>engine sounds, car models, car video memory slots</td><td>the session's drives, until a flag is cleared</td><td>Start Race, the settings page, license and arcade paths</td></tr>
+      <tr><td>course geometry, textures, sky, minimap, boards</td><td>the whole session (Test Run, Start Race, replays)</td><td>the next race overlay entry</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="ram">
+  <h2>RAM during a race (2 MB)</h2>
+  <p class="lede">Everything a race uses sits at a fixed offset from one race object. There is no free space that does not depend on the course: what a race leaves untouched is the tail of the course buffer, a second garage used only in two-player play, and each car slot past its model.</p>
+  <div class="panel">
+    <div class="legend"><span><i style="background:var(--s6)"></i>code, kernel, stack</span><span><i style="background:var(--s3)"></i>course and sky</span><span><i style="background:var(--s1)"></i>cars</span><span><i style="background:var(--s4)"></i>drawing</span><span><i style="background:var(--s2)"></i>sound</span><span><i style="background:var(--s5)"></i>state, save, tables</span></div>
+    <div class="diagram"><svg viewBox="0 0 760 260" role="img" aria-label="RAM map of a race, 2 MB in four rows of 512 KB">
+<text class="t3 mono sm" x="0" y="27">0 KB</text>
+<rect class="emptyr" x="64" y="6" width="688" height="34"/>
+<text class="t3 mono sm" x="0" y="91">512 KB</text>
+<rect class="emptyr" x="64" y="70" width="688" height="34"/>
+<text class="t3 mono sm" x="0" y="155">1024 KB</text>
+<rect class="emptyr" x="64" y="134" width="688" height="34"/>
+<text class="t3 mono sm" x="0" y="219">1536 KB</text>
+<rect class="emptyr" x="64" y="198" width="688" height="34"/>
+<rect class="s6" x="64.0" y="6" width="85.2" height="34"><title>kernel: 65,536 B at 0x80000000</title></rect>
+<text class="on sm" x="68.0" y="27">kernel</text>
+<rect class="s6" x="150.0" y="6" width="414.9" height="34"><title>ovl0 (race code): 316,776 B at 0x80010000</title></rect>
+<text class="on sm" x="154.0" y="27">ovl0 (race code)</text>
+<rect class="s6" x="565.7" y="6" width="185.5" height="34"><title>resident code + data: 309,904 B at 0x8005D570</title></rect>
+<text class="on sm" x="569.7" y="27">resident code + data</text>
+<rect class="s6" x="64.0" y="70" width="219.6" height="34"><title>resident code + data: 309,904 B at 0x8005D570</title></rect>
+<text class="on sm" x="68.0" y="91">resident code + data (cont.)</text>
+<rect class="s5" x="284.4" y="70" width="0.6" height="34"><title>BSS, race object: 888 B at 0x800A9000</title></rect>
+<rect class="s1" x="285.5" y="70" width="21.9" height="34"><title>6 car records: 17,280 B at 0x800A9378</title></rect>
+<rect class="s5" x="308.2" y="70" width="7.3" height="34"><title>smoke: 6,168 B at 0x800AD6FC</title></rect>
+<rect class="s3" x="316.3" y="70" width="28.8" height="34"><title>sky .bso: 22,528 B at 0x800AEF24</title></rect>
+<rect class="s3" x="345.9" y="70" width="405.3" height="34"><title>course .tro (700,000 B): 700,000 B at 0x800B4724</title></rect>
+<text class="on sm" x="349.9" y="91">course .tro (700,000 B)</text>
+<rect class="s3" x="64.0" y="134" width="511.7" height="34"><title>course .tro (700,000 B): 700,000 B at 0x800B4724</title></rect>
+<text class="on sm" x="68.0" y="155">course .tro (700,000 B) (cont.)</text>
+<rect class="s1" x="576.5" y="134" width="160.4" height="34"><title>6 car models: 122,880 B at 0x8015F584</title></rect>
+<text class="on sm" x="580.5" y="155">6 car models</text>
+<rect class="s2" x="737.7" y="134" width="2.3" height="34"><title>sound lists: 2,364 B at 0x8017D584</title></rect>
+<rect class="s4" x="740.8" y="134" width="10.4" height="34"><title>2 ordering tables: 68,144 B at 0x8017DEC0</title></rect>
+<rect class="s4" x="64.0" y="198" width="77.5" height="34"><title>2 ordering tables: 68,144 B at 0x8017DEC0</title></rect>
+<rect class="s4" x="142.3" y="198" width="300.2" height="34"><title>primitive pool = load scratch: 229,376 B at 0x8018E8F0</title></rect>
+<text class="on sm" x="146.3" y="219">primitive pool = load scratch</text>
+<rect class="s5" x="443.3" y="198" width="13.4" height="34"><title>flags, globals: 10,832 B at 0x801C68F0</title></rect>
+<rect class="s5" x="457.5" y="198" width="41.1" height="34"><title>save: 31,900 B at 0x801C9340</title></rect>
+<text class="on sm" x="461.5" y="219">save</text>
+<rect class="s5" x="499.3" y="198" width="21.7" height="34"><title>2nd garage: 17,120 B at 0x801D0FDC</title></rect>
+<rect class="s1" x="521.8" y="198" width="1.1" height="34"><title>set-up: 1,420 B at 0x801D52BC</title></rect>
+<rect class="s1" x="523.7" y="198" width="49.4" height="34"><title>race specs: 38,232 B at 0x801D5848</title></rect>
+<text class="on sm" x="526.7" y="219">race</text>
+<rect class="s5" x="573.8" y="198" width="86.0" height="34"><title>boot tables: 66,176 B at 0x801DEDA0</title></rect>
+<text class="on sm" x="577.8" y="219">boot tables</text>
+<rect class="s5" x="660.7" y="198" width="7.0" height="34"><title>hand-over: 5,936 B at 0x801EF020</title></rect>
+<rect class="s6" x="668.5" y="198" width="82.4" height="34"><title>stack: 63,408 B at 0x801F0750</title></rect>
+<text class="on sm" x="672.5" y="219">stack</text>
+</svg></div>
+    <p class="cap">Drawn to scale by address, four rows of 512 KB. Hover for exact sizes. The primitive pool doubles as the load scratch: car textures, sky textures and the sponsor boards pass through it before the race starts.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Buffer</th><th class="n">Size</th><th class="n">Largest on the disc</th><th class="n">Room</th></tr></thead>
+      <tbody>
+        <tr><td>course geometry <code>.tro</code> (read-only after loading)</td><td class="n">700,000 B</td><td class="n">696,792 (highway)</td><td class="n">3,208 B</td></tr>
+        <tr><td>sky model <code>.bso</code></td><td class="n">22,528 B</td><td class="n">22,096</td><td class="n">432 B, unchecked</td></tr>
+        <tr><td>one car model</td><td class="n">20,480 B</td><td class="n">20,000</td><td class="n">480 B</td></tr>
+        <tr><td>load scratch</td><td class="n">229,376 B</td><td class="n">159,072 (boards)</td><td class="n"></td></tr>
+        <tr><td>race code overlay</td><td class="n">316,776 B</td><td class="n"></td><td class="n">8 B</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Midfield's geometry is 450,412 B, so on that course 249,588 B of the buffer are never touched. The port's 8 MB mode moves the primitive pool (for a longer draw distance) and adds room for new files; the course and sky buffers, the six car slots and the race code stay where GT2 put them.</p>
+  </div>
+</section>
+
+<section id="vram">
+  <h2>Video memory during a race</h2>
+  <p class="lede">The PS1 has 1 MB of video memory, laid out as 1024 x 512 16-bit units. Frame buffers, the race font, the HUD, sponsor boards, course textures and one fixed slot per car share it.</p>
+  <div class="panel">
+    <div class="diagram"><svg viewBox="0 0 718 360" role="img" aria-label="VRAM during a race">
+<rect class="emptyr" x="1" y="1" width="716" height="358"/>
+<rect class="s6" x="1.0" y="1.0" width="223.0" height="167.0"><title>frame buffer A (0, 0) 320 x 240</title></rect>
+<text class="on sm" x="6.0" y="17.0">frame buffer A</text>
+<rect class="s6" x="1.0" y="169.0" width="223.0" height="167.0"><title>frame buffer B (0, 240) 320 x 240</title></rect>
+<text class="on sm" x="6.0" y="185.0">frame buffer B</text>
+<rect class="free" x="1.0" y="337.0" width="223.0" height="21.4"><title>free (0, 480) 320 x 32</title></rect>
+<text class="t2 sm" x="6.0" y="353.0">free</text>
+<rect class="free" x="225.0" y="1.0" width="43.8" height="178.2"><title>free (320, 0) 64 x 256</title></rect>
+<text class="t2 sm" x="230.0" y="17.0">free</text>
+<rect class="s4" x="269.8" y="1.0" width="88.6" height="178.2"><title>race font (384, 0) 128 x 256</title></rect>
+<text class="on sm" x="274.8" y="17.0">race font</text>
+<rect class="s5" x="359.4" y="1.0" width="88.6" height="178.2"><title>HUD, minimap, smoke, reflection (512, 0) 128 x 256</title></rect>
+<text class="on sm" x="363.4" y="17.0">HUD,</text>
+<text class="on sm" x="363.4" y="31.0">minimap,</text>
+<text class="on sm" x="363.4" y="45.0">smoke,</text>
+<text class="on sm" x="363.4" y="59.0">reflection</text>
+<rect class="s2" x="449.0" y="1.0" width="43.8" height="178.2"><title>boards (640, 0) 64 x 256</title></rect>
+<text class="on sm" x="454.0" y="17.0">boards</text>
+<rect class="s3" x="493.8" y="1.0" width="223.0" height="357.4"><title>course textures + sky (704, 0) 320 x 512</title></rect>
+<text class="on sm" x="498.8" y="17.0">course textures + sky</text>
+<rect class="s1" x="449.0" y="180.2" width="43.8" height="155.8"><title>car 0 (640, 256) 64 x 224</title></rect>
+<text class="on sm" x="471.4" y="258.6" text-anchor="middle">car 0</text>
+<rect class="s1p" x="449.0" y="337.0" width="43.8" height="10.2"><title>car palettes (640, 480) 64 x 16</title></rect>
+<rect class="s1" x="404.2" y="180.2" width="43.8" height="155.8"><title>car 1 (576, 256) 64 x 224</title></rect>
+<text class="on sm" x="426.6" y="258.6" text-anchor="middle">car 1</text>
+<rect class="s1p" x="404.2" y="337.0" width="43.8" height="10.2"><title>car palettes (576, 480) 64 x 16</title></rect>
+<rect class="s1" x="359.4" y="180.2" width="43.8" height="155.8"><title>car 2 (512, 256) 64 x 224</title></rect>
+<text class="on sm" x="381.8" y="258.6" text-anchor="middle">car 2</text>
+<rect class="s1p" x="359.4" y="337.0" width="43.8" height="10.2"><title>car palettes (512, 480) 64 x 16</title></rect>
+<rect class="s1" x="314.6" y="180.2" width="43.8" height="155.8"><title>car 3 (448, 256) 64 x 224</title></rect>
+<text class="on sm" x="337.0" y="258.6" text-anchor="middle">car 3</text>
+<rect class="s1p" x="314.6" y="337.0" width="43.8" height="10.2"><title>car palettes (448, 480) 64 x 16</title></rect>
+<rect class="s1" x="269.8" y="180.2" width="43.8" height="155.8"><title>car 4 (384, 256) 64 x 224</title></rect>
+<text class="on sm" x="292.2" y="258.6" text-anchor="middle">car 4</text>
+<rect class="s1p" x="269.8" y="337.0" width="43.8" height="10.2"><title>car palettes (384, 480) 64 x 16</title></rect>
+<rect class="s1" x="225.0" y="180.2" width="43.8" height="155.8"><title>car 5 (320, 256) 64 x 224</title></rect>
+<text class="on sm" x="247.4" y="258.6" text-anchor="middle">car 5</text>
+<rect class="s1p" x="225.0" y="337.0" width="43.8" height="10.2"><title>car palettes (320, 480) 64 x 16</title></rect>
+<rect class="clut" x="247.4" y="348.2" width="245.4" height="10.2"><title>CLUTs (352, 496) 352 x 16</title></rect>
+</svg></div>
+    <p class="cap">Drawn to scale. Each car slot holds a 256 x 224 4-bit texture plus four light-variant palettes below it (car 0 at x 640, car 5 at x 320). Dashed areas are free in a race. Measured on Midfield: 258 free 16 x 16 cells, 132 KB of 1 MB, mostly in the two dashed areas and in holes of the course area.</p>
+  </div>
+</section>
+
+<section id="spu">
+  <h2>Sound memory during a race (512 KB)</h2>
+  <div class="panel">
+    <div class="diagram"><svg viewBox="0 0 760 60" role="img" aria-label="Sound RAM during a race, 512 KB">
+<rect class="s6" x="8.0" y="4" width="4.8" height="34"><title>hw</title></rect>
+<rect class="s5" x="13.8" y="4" width="47.8" height="34"><title>system</title></rect>
+<text class="on sm" x="18.8" y="25">system</text>
+<rect class="s4" x="62.6" y="4" width="111.8" height="34"><title>race effects</title></rect>
+<text class="on sm" x="67.6" y="25">race effects</text>
+<rect class="s2" x="175.3" y="4" width="348.9" height="34"><title>engine banks: player set + variant, ene_n, ene_t</title></rect>
+<text class="on sm" x="180.3" y="25">engine banks: player set + variant, ene_n, ene_t</text>
+<rect class="free" x="525.1" y="4" width="185.2" height="34"><title>free: 131,232 B</title></rect>
+<text class="t2 sm" x="530.1" y="25">free: 131,232 B</text>
+<rect class="s6" x="711.4" y="4" width="39.6" height="34"><title>reverb</title></rect>
+<text class="on sm" x="716.4" y="25">reverb</text>
+<text class="t3 mono sm" x="8" y="54">0</text><text class="t3 mono sm" x="752" y="54" text-anchor="end">512 KB</text>
+</svg></div>
+    <p><b>Every AI car sounds alike</b> because one player's own engine set already takes about 160 KB, so all five opponents share one non-turbo and one turbo bank. A distinct engine per opponent would need about 140 KB each, which does not fit 512 KB with reverb. A two-player race (two player sets, no generic banks) leaves about 49 KB below the reverb area. On the way back to GT Mode, the 387,280-byte menu sound bank is loaded over the race effects and every engine bank, which is why the race reloads its effects at every entry.</p>
+    <p class="note">This is a hard limit of the console's sound memory, not of the game logic.</p>
+  </div>
+</section>
+
+<section id="six">
+  <h2>Where the six-car assumptions sit</h2>
+  <p class="lede">Six cars is not one constant. It is built into several layouts at once, and more cars in a race would need every one of them to grow.</p>
+  <div class="panel tablewrap"><table>
+    <thead><tr><th>Place</th><th>What is fixed</th></tr></thead>
+    <tbody>
+      <tr><td>race set-up</td><td>6 entries, written by GT Mode before the race overlay starts</td></tr>
+      <tr><td>car records</td><td>6 records of 0xB40 bytes (17,280 B) in the race object</td></tr>
+      <tr><td>car models</td><td>6 slots of 20,480 B, one per entry by index</td></tr>
+      <tr><td>video memory</td><td>6 texture slots at x 320 to 703; one more 64 x 224 slot fits at x 320 only if the pre-race page stops using it</td></tr>
+      <tr><td>race specs</td><td>6 specs of 0x1C0 bytes, built in GT Mode</td></tr>
+      <tr><td>sound memory</td><td>the five opponents share two engine banks</td></tr>
+      <tr><td>physics and AI</td><td>their loops run over 6 cars</td></tr>
+    </tbody>
+  </table></div>
+  <div class="panel">
+    <p>Nothing is shared between cars in RAM or video memory. Each texture passes through the one scratch buffer, one car at a time. Two entries with the same car load it twice. Per car: model 20,480 B inflated, texture exactly 45,984 B (16 paints at most), 192 wheels in the wheel table (all used), 305 of 328 engine sets.</p>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>What limits bigger mods</h2>
+  <div class="panel tablewrap"><table>
+    <thead><tr><th>Goal</th><th>Limit met first</th></tr></thead>
+    <tbody>
+      <tr><td>more cars in a race</td><td>the six-car layouts above</td></tr>
+      <tr><td>bigger courses</td><td>the 700,000 B course buffer; the car slots sit right after it</td></tr>
+      <tr><td>more course textures</td><td>video memory at x 704 to 1023, less the sky</td></tr>
+      <tr><td>richer skies</td><td>22,528 B, 432 B of room</td></tr>
+      <tr><td>distinct AI engine sounds</td><td>512 KB of sound memory</td></tr>
+      <tr><td>faster loads</td><td>the console's CD drive and unpacking; the port's fast loads take the first load from 10.25 s to 2.2 s of game time</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="quirks">
+  <h2>Bugs and quirks</h2>
+  <div class="grid">
+    <article class="panel card"><div class="k"><h3>L1 · Sky buffer unchecked</h3><span class="badge b-mid">CAUSE FOUND</span></div><p>Nothing checks the sky model's size. A sky over 22,528 B (a mod) would silently overwrite the course header that was loaded before it.</p></article>
+    <article class="panel card"><div class="k"><h3>L2 · GT2.OVL read whole every switch</h3><span class="badge b-ok">MEASURED</span></div><p>141 sectors read to inflate one member. The code has a cache this disc never sets. About 2.8 s of every GT Mode, race, menus round trip on a console.</p></article>
+    <article class="panel card"><div class="k"><h3>L3 · Race database inflated twice</h3><span class="badge b-ok">MEASURED</span></div><p>170,566 B inflated twice per GT Mode entry, about 0.16 s on the drive. Harmless.</p></article>
+    <article class="panel card"><div class="k"><h3>L4 · A 46 KB buffer on the stack</h3><span class="badge b-mid">CAUSE FOUND</span></div><p>The race overlay reads all languages' race strings into a 46,072-byte stack buffer and keeps 5,759 bytes. Safe only because the call is shallow.</p></article>
+    <article class="panel card"><div class="k"><h3>L5 · Load speed changes the field</h3><span class="badge b-ok">MEASURED</span></div><p>Opponents are drawn at random at Start Race, and the draw follows load timing: the same presses fielded different cars with fast loads and with the drive model.</p></article>
+    <article class="panel card"><div class="k"><h3>P7 · Car texture errors are data</h3><span class="badge b-ok">MEASURED</span></div><p>The G20 race car is a byte copy of the Primera's, the 3000GT race car lacks two logos, and two pairs of Golfs share textures. The loader picks the night files by a course flag, so night-only issues show only on night courses.</p></article>
+  </div>
+  <p class="note">No loading hang, buffer overrun or wrong file was seen in any run.</p>
+</section>
+
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>

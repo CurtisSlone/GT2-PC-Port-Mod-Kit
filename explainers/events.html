@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inside GT2's Events</title>
+<style>
+:root{
+  --bg:#f1f3f6; --panel:#ffffff; --ink:#131923; --ink-2:#444e60; --ink-3:#6f798b; --rule:#dce0e7; --grid:#e8ebf0; --code-bg:#edf0f4;
+  --accent:#9a5b00; --accent-soft:#f8ecd6;
+  --ok:#0b7a3e; --ok-bg:#e1f3e8; --mid:#875800; --mid-bg:#faeed3; --bad:#b42318; --bad-bg:#fbe4e1; --hold:#5640b0; --hold-bg:#ebe7fa;
+  --display:"Bahnschrift SemiCondensed","Bahnschrift","DIN Alternate","DIN Condensed","Roboto Condensed","Arial Narrow",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141a; --panel:#181d25; --ink:#edf0f4; --ink-2:#b5bdca; --ink-3:#8a93a3; --rule:#2a313c; --grid:#222832; --code-bg:#212732;
+  --accent:#f0b44c; --accent-soft:#3b2c12;
+  --ok:#5fd394; --ok-bg:#15342a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff7b72; --bad-bg:#3d1c1c; --hold:#b7a8ff; --hold-bg:#2a2348; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141a; --panel:#181d25; --ink:#edf0f4; --ink-2:#b5bdca; --ink-3:#8a93a3; --rule:#2a313c; --grid:#222832; --code-bg:#212732;
+  --accent:#f0b44c; --accent-soft:#3b2c12;
+  --ok:#5fd394; --ok-bg:#15342a; --mid:#f1c46b; --mid-bg:#3a2f16; --bad:#ff7b72; --bad-bg:#3d1c1c; --hold:#b7a8ff; --hold-bg:#2a2348; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.58}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px;border-bottom:3px solid var(--accent);padding-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:clamp(36px,6.5vw,56px);line-height:1;margin:0;letter-spacing:.005em;text-wrap:balance}
+h2{font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:29px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-stretch:condensed;font-weight:600;font-size:21px;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0;max-width:68ch}
+ul,ol{margin:0;padding-left:1.25em;max-width:68ch;display:flex;flex-direction:column;gap:6px}
+.lede{color:var(--ink-2)}
+section{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px}
+.stat{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-left:3px solid var(--accent);background:var(--panel)}
+.stat b{font-family:var(--display);font-stretch:condensed;font-size:32px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--ink-2)}
+.fig{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig svg{display:block;width:100%;height:auto}
+.fig.wide svg{min-width:660px}
+.fig svg.mx{max-width:860px;margin:0 auto}
+.cap{font-size:13px;color:var(--ink-3);max-width:80ch}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+td.n,th.n{text-align:right}
+td.n{font-family:var(--mono);white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px}
+.card .k{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.05em;padding:2px 7px;border-radius:3px;white-space:nowrap;text-transform:uppercase}
+.c-ok{background:var(--ok-bg);color:var(--ok)} .c-mid{background:var(--mid-bg);color:var(--mid)}
+.c-bad{background:var(--bad-bg);color:var(--bad)} .c-hold{background:var(--hold-bg);color:var(--hold)}
+.c-acc{background:var(--accent-soft);color:var(--accent)}
+pre{margin:0;background:var(--code-bg);border-radius:4px;padding:10px 12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+code{font-family:var(--mono);font-size:.9em;background:var(--code-bg);padding:1px 4px;border-radius:3px}
+.where{font-family:var(--mono);font-size:12px;color:var(--ink-3);overflow-wrap:anywhere}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px;align-items:start}
+.two>*{min-width:0}
+.callout{border-left:3px solid var(--accent);padding:4px 0 4px 14px;color:var(--ink-2);max-width:72ch}
+footer{font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+nav.series{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+nav.series a{color:var(--accent)}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg text{font-family:var(--mono);font-size:12px;fill:var(--ink-2)}
+svg .tl{font-family:var(--body);font-size:13px;fill:var(--ink)}
+svg .tb{font-family:var(--body);font-size:13px;font-weight:600;fill:var(--ink)}
+svg .t3{fill:var(--ink-3)}
+svg .ta{fill:var(--accent);font-weight:600}
+svg .box{fill:var(--panel);stroke:var(--rule);stroke-width:1.2}
+svg .boxa{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg .ln{fill:none;stroke:var(--ink-3);stroke-width:1.3}
+svg .lna{fill:none;stroke:var(--accent);stroke-width:2.2}
+svg .gr{fill:none;stroke:var(--grid);stroke-width:1}
+svg .fa{fill:var(--accent)} svg .fi{fill:var(--ink-3)} svg .fp{fill:var(--panel)} svg .fg{fill:var(--grid)}
+svg .fok{fill:var(--ok)} svg .fbad{fill:var(--bad)} svg .fmid{fill:var(--mid)}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+.idbox{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.idpart{display:flex;flex-direction:column;gap:4px;padding:10px 14px;background:var(--panel);border:1px solid var(--rule);border-radius:4px;min-width:0}
+.idpart b{font-family:var(--mono);font-size:30px;line-height:1;letter-spacing:.04em}
+.idpart.acc{border-color:var(--accent);background:var(--accent-soft)}
+.idpart span{font-size:13px;color:var(--ink-2)}
+.stack{display:flex;height:30px;border-radius:3px;overflow:hidden;gap:2px}
+.stack div{min-width:3px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+.checks{counter-reset:c;list-style:none;padding:0;display:flex;flex-direction:column;gap:0;max-width:none}
+.checks li{counter-increment:c;display:grid;grid-template-columns:2.2em 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--rule)}
+.checks li::before{content:counter(c);font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:20px;color:var(--accent);line-height:1.3}
+.checks li>div{min-width:0}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:var(--display);font-stretch:condensed;font-weight:700;font-size:22px}
+.ladder span.l{padding:4px 12px;border:1px solid var(--rule);border-radius:4px;background:var(--panel)}
+.ladder span.a{color:var(--ink-3);font-size:16px}
+.gt99{display:block;border-radius:12px;overflow:hidden;max-width:100%;aspect-ratio:1400/420}
+.gt99 img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.xnav{max-width:1100px;margin:0 auto;padding:12px 16px 0;font-size:14px}
+.xnav a{color:inherit;opacity:.8;text-decoration:none}
+.xnav a:hover{opacity:1;text-decoration:underline}
+.xfoot{max-width:1100px;margin:32px auto 0;padding:16px 16px 28px;font-size:12px;opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<nav class="xnav"><a href="index.html">&larr; All explainers</a></nav>
+<div class="wrap">
+<header>
+  <a class="gt99" href="index.html"><img src="gt-99.jpg" alt="Grand Tour '99" width="1400" height="695"></a>
+  <div class="eyebrow">GT2 Simulation · events</div>
+  <h1>Inside GT2's Events</h1>
+  <p class="lede">What GT Mode's races are made of: one data file of event records, a fixed set of entry checks, a random draw of five opponents, and a prize table per event. Checked against the race set-ups the game actually builds. At the end: why the completion figure stops at 98.20 %, and why a cheat-device code makes it 111.21 %.</p>
+  <nav class="series" aria-label="Other explainers"><span class="eyebrow">Also:</span><a href="inside-gt2-physics.html">Inside GT2's Physics</a><a href="ai.html">Inside GT2's AI</a><a href="bugs.html">GT2's Classic Bugs</a></nav>
+</header>
+
+<section>
+  <h2>Everything is data</h2>
+  <p>Every GT Mode event is a 156-byte record in one file on the disc, <code>/carparam/usa_gtmode_race.dat</code> inside GT2.VOL. The same file holds the opponents' cars and the lists of cars an event accepts. The license tests sit in a second file with the same record layout. The code supplies only a few tables: the sorted list of event IDs, the unlock lists, the points per place, and the courses for "random course" events.</p>
+  <div class="stats">
+    <div class="stat"><b>248</b><span>event records</span></div>
+    <div class="stat"><b>1,220</b><span>opponent car records</span></div>
+    <div class="stat"><b>94</b><span>eligible-car lists</span></div>
+    <div class="stat"><b>60</b><span>license tests in 6 licenses</span></div>
+  </div>
+  <div class="panel">
+    <h3>What the 248 records are</h3>
+    <div class="stack" role="img" aria-label="248 records: 204 races, 27 rally, 8 free race, 6 license prize records, 3 machine test">
+      <div style="flex:204;background:var(--accent)"></div><div style="flex:27;background:var(--ok)"></div><div style="flex:8;background:var(--hold)"></div><div style="flex:6;background:var(--bad)"></div><div style="flex:3;background:var(--ink-3)"></div>
+    </div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>204 races</span><span><i style="background:var(--ok)"></i>27 rally</span><span><i style="background:var(--hold)"></i>8 free race</span><span><i style="background:var(--bad)"></i>6 license prize records</span><span><i style="background:var(--ink-3)"></i>3 machine test</span></div>
+    <p class="cap">The license "prize records" (<code>LIx00</code>) are not races: each holds only the car you win for all-gold in that license. 102 events have no fixed course and draw one of 39 courses at random each time.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Reading an event ID</h2>
+  <p>IDs are seven characters. The digits carry meaning the code uses: the first pair says how many races the championship has (00 = a single race), the second pair which race this is.</p>
+  <div class="idbox" aria-label="GT30503 split into GT3, 05, 03">
+    <div class="idpart"><b>GT3</b><span>cup prefix</span></div>
+    <div class="idpart acc"><b>05</b><span>races in the championship<br>(00 = single race)</span></div>
+    <div class="idpart"><b>03</b><span>race number</span></div>
+  </div>
+  <p class="cap"><code>GT30503</code> is race 3 of the 5-race GT305 championship; <code>GJL0002</code> is GT League Japan race 2, a single race. Other IDs: <code>FREERACE01..03</code>, <code>FREECHAMP0501..05</code>, the machine tests <code>G400</code>, <code>G1000</code>, <code>GMAX</code>. "GT League", "Special Events" or "Endurance" exist only as menu pages: an event belongs to whichever pages name it.</p>
+</section>
+
+<section>
+  <h2>One record, 156 bytes</h2>
+  <div class="panel">
+    <div class="fig wide">
+      <svg viewBox="0 0 1000 270" role="img" aria-label="Layout of the 156-byte event record, with the 64 rule bytes expanded">
+        <text x="20" y="30" class="t3">ID, course</text>
+        <text x="980" y="30" text-anchor="end" class="t3">board set, power limit, bonus, car rules</text>
+        <rect x="20" y="40" width="24.6" height="40" class="box"/>
+        <rect x="44.6" y="40" width="393.9" height="40" class="box"/><text x="241.5" y="65" text-anchor="middle" class="tl">16 opponent slots (4 bytes each)</text>
+        <rect x="438.5" y="40" width="393.8" height="40" class="boxa"/><text x="635.4" y="65" text-anchor="middle" class="tb">64 rule bytes</text>
+        <rect x="832.3" y="40" width="98.5" height="40" class="box"/><text x="881.5" y="65" text-anchor="middle" class="tl">prize cars ×4</text>
+        <rect x="930.8" y="40" width="49.2" height="40" class="box"/>
+        <g class="t3"><text x="20" y="98">+00</text><text x="44.6" y="98">+04</text><text x="438.5" y="98" text-anchor="middle">+44</text><text x="832.3" y="98" text-anchor="middle">+84</text><text x="930.8" y="98" text-anchor="middle">+94</text><text x="980" y="98" text-anchor="end">+9C</text></g>
+        <path d="M438.5,80 L20,140 M832.3,80 L980,140" class="ln" stroke-dasharray="3 3"/>
+        <rect x="20" y="140" width="60" height="40" class="box"/><text x="50" y="165" text-anchor="middle" class="tl">basics</text>
+        <rect x="80" y="140" width="240" height="40" class="boxa"/><text x="200" y="158" text-anchor="middle" class="tl">AI grip · throttle cap ·</text><text x="200" y="173" text-anchor="middle" class="tl">brake margin</text>
+        <rect x="320" y="140" width="135" height="40" class="boxa"/><text x="387.5" y="165" text-anchor="middle" class="tl">rubber band</text>
+        <rect x="455" y="140" width="105" height="40" class="boxa"/><text x="507.5" y="165" text-anchor="middle" class="tl">tire wear</text>
+        <rect x="560" y="140" width="60" height="40" class="box" stroke-dasharray="3 3"/><text x="590" y="165" text-anchor="middle" class="t3">?</text>
+        <rect x="620" y="140" width="135" height="40" class="box"/><text x="687.5" y="158" text-anchor="middle" class="tl">license targets,</text><text x="687.5" y="173" text-anchor="middle" class="tl">near-miss limit</text>
+        <rect x="755" y="140" width="45" height="40" class="box"/>
+        <rect x="800" y="140" width="180" height="40" class="box"/><text x="890" y="165" text-anchor="middle" class="tl">prize money ×6</text>
+        <g class="t3"><text x="20" y="198">0</text><text x="80" y="198" text-anchor="middle">4</text><text x="320" y="198" text-anchor="middle">20</text><text x="455" y="198" text-anchor="middle">29</text><text x="560" y="198" text-anchor="middle">36</text><text x="620" y="198" text-anchor="middle">40</text><text x="755" y="198" text-anchor="middle">49</text><text x="800" y="198" text-anchor="middle">52</text><text x="980" y="198" text-anchor="end">64</text></g>
+        <path d="M777.5,180 V222" class="ln"/><text x="777.5" y="238" text-anchor="middle">49 rally · 50 eligible list · 51 drivetrain</text>
+        <text x="20" y="238" class="t3">0 start speed (0 = standing) · 1 laps · 3 license</text>
+        <text x="20" y="262" class="t3">rule bytes, numbered from 0; "?" = 36..39, not decoded</text>
+      </svg>
+    </div>
+    <p class="cap">The 64 rule bytes are copied as one block into the race set-up, where the AI and the physics read their parts (see <a href="ai.html">Inside GT2's AI</a>). The power limit is in PS; prize money is stored in hundreds of credits.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Who may enter</h2>
+  <p>When you pick an event, the game runs these checks in order. The first one that fails shows its message and the race does not start. Nothing else blocks an event: not money, not days, not a previous race.</p>
+  <div class="panel">
+    <ol class="checks">
+      <li><div><b>You have a current car.</b></div></li>
+      <li><div><b>Pro leagues</b> (PFL, EPL): all 16 national GT League races won.</div></li>
+      <li><div><b>GT World Cup</b>: all 6 pro league races won.</div></li>
+      <li><div><b>Rally</b>: the car owns dirt tires.</div></li>
+      <li><div><b>License</b>: you hold the license the event names (B, A, IC, IB, IA or S).</div></li>
+      <li><div><b>Drivetrain</b>: FF, FR, MR, RR or 4WD, if the event sets one.</div></li>
+      <li><div><b>Car kind</b>: a two-way rule used by two events each way. What exactly it tests is not known.</div></li>
+      <li><div><b>Modification</b>: no racing modification, racing modification required, or no tuning parts at all (tires and weight reduction are not checked).</div></li>
+      <li><div><b>Power limit</b>: the car's stored power in PS, which tuning parts update, must not exceed the limit.</div></li>
+      <li><div><b>Eligible-car list</b>: the car must be on it, if the event has one. Maker and country rules exist only this way.</div></li>
+    </ol>
+  </div>
+  <p class="cap">The power check reads the shown PS. 61 of 618 engines carry a hidden multiplier between 96 % and 118 % (the R34 GT-R 116 %), so some cars make more real power than the limit sees. The <a href="inside-gt2-physics.html">physics page</a> covers that. Before the race the game also changes your garage car: dirt tires go on for a rally and come off for anything else.</p>
+</section>
+
+<section>
+  <h2>Drawing five opponents</h2>
+  <p>Each record lists up to 16 opponent cars, each a complete car with its parts and settings. At every race start the game draws five of them at random. It draws again when a car repeats or is not sold in your save's region, up to 64 tries. With fewer than five entries, cars repeat.</p>
+  <div class="panel">
+    <div class="fig wide">
+      <svg class="mx" viewBox="0 0 780 330" role="img" aria-label="Example draw: five opponents picked from an eight-car list, with re-rolls for a repeat and a region-hidden car">
+        <defs><marker id="e1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="fi"/></marker></defs>
+        <text x="20" y="24" class="tb">The event's list</text>
+        <g>
+          <rect x="20" y="36" width="170" height="26" rx="3" class="boxa"/><text x="32" y="54" class="tl">slot 1</text>
+          <rect x="20" y="66" width="170" height="26" rx="3" class="boxa"/><text x="32" y="84" class="tl">slot 2</text>
+          <rect x="20" y="96" width="170" height="26" rx="3" class="boxa"/><text x="32" y="114" class="tl">slot 3</text>
+          <rect x="20" y="126" width="170" height="26" rx="3" class="box"/><text x="32" y="144" class="tl">slot 4</text>
+          <rect x="20" y="156" width="170" height="26" rx="3" class="box"/><text x="32" y="174" class="tl">slot 5</text><text x="180" y="174" text-anchor="end" class="t3">region-hidden</text>
+          <rect x="20" y="186" width="170" height="26" rx="3" class="box"/><text x="32" y="204" class="tl">slot 6</text>
+          <rect x="20" y="216" width="170" height="26" rx="3" class="boxa"/><text x="32" y="234" class="tl">slot 7</text>
+          <rect x="20" y="246" width="170" height="26" rx="3" class="boxa"/><text x="32" y="264" class="tl">slot 8</text>
+          <rect x="20" y="276" width="170" height="26" rx="3" class="box" stroke-dasharray="3 3"/><text x="32" y="294" class="t3">slots 9–16 empty</text>
+        </g>
+        <text x="270" y="24" class="tb">Random rolls</text>
+        <g>
+          <text x="270" y="54">roll 1 → slot 3</text><text x="430" y="54" class="ta">pick</text>
+          <text x="270" y="84">roll 2 → slot 7</text><text x="430" y="84" class="ta">pick</text>
+          <text x="270" y="114">roll 3 → slot 3</text><text x="430" y="114" class="t3">repeat, roll again</text>
+          <text x="270" y="144">roll 4 → slot 5</text><text x="430" y="144" class="t3">hidden, roll again</text>
+          <text x="270" y="174">roll 5 → slot 1</text><text x="430" y="174" class="ta">pick</text>
+          <text x="270" y="204">roll 6 → slot 8</text><text x="430" y="204" class="ta">pick</text>
+          <text x="270" y="234">roll 7 → slot 2</text><text x="430" y="234" class="ta">pick</text>
+        </g>
+        <path d="M200,150 H256" class="ln" marker-end="url(#e1)"/>
+        <path d="M574,150 H602" class="ln" marker-end="url(#e1)"/>
+        <text x="610" y="24" class="tb">Race entries</text>
+        <g>
+          <rect x="610" y="36" width="150" height="30" rx="3" class="box"/><text x="622" y="56" class="tl">0 · your car</text>
+          <rect x="610" y="72" width="150" height="30" rx="3" class="boxa"/><text x="622" y="92" class="tl">1 · slot 3</text>
+          <rect x="610" y="108" width="150" height="30" rx="3" class="boxa"/><text x="622" y="128" class="tl">2 · slot 7</text>
+          <rect x="610" y="144" width="150" height="30" rx="3" class="boxa"/><text x="622" y="164" class="tl">3 · slot 1</text>
+          <rect x="610" y="180" width="150" height="30" rx="3" class="boxa"/><text x="622" y="200" class="tl">4 · slot 8</text>
+          <rect x="610" y="216" width="150" height="30" rx="3" class="boxa"/><text x="622" y="236" class="tl">5 · slot 2</text>
+        </g>
+        <text x="270" y="282" class="t3">An example draw, not a real event.</text>
+        <text x="270" y="300" class="t3">The power limit is never checked here.</text>
+      </svg>
+    </div>
+    <p class="cap">Each pick copies the opponent record into a full car set-up: 27 part choices, gearing, LSD, downforce, alignment, springs, dampers, stabilizers, ASC and TCS, and a power multiplier. A rally lists one car: the opponent is a recorded run stored with the event, played back as a ghost.</p>
+  </div>
+  <div class="grid">
+    <article class="panel card">
+      <div class="k"><h3>Why some opponents look wrong</h3></div>
+      <p>Two classic complaints come straight from this draw. Six endurance events start their lists with one stray car (the RUF BTR2 at Apricot Hill, the Vector M12 LM at Trial Mountain), so it shows up in some races and not others. And the draw never checks power, so a few lists hold cars over the event's limit. Both are covered on <a href="bugs.html">GT2's Classic Bugs</a>.</p>
+    </article>
+    <article class="panel card">
+      <div class="k"><h3>The draw follows load timing</h3></div>
+      <p>The random seed depends on when loading finishes. The same button presses gave different opponents with console-speed and fast disc loading, so a faster load changes the field (see <a href="rng.html">random numbers</a>).</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>Prizes and points</h2>
+  <div class="two">
+    <div class="panel">
+      <h3>What a race pays</h3>
+      <ul>
+        <li>Each record carries its own prize money for places 1 to 6. First prizes run from 3,000 to 500,000 credits.</li>
+        <li>A win in a single event also gives one prize car, chosen at random from up to four. 82 events have prize cars. The car is always stock, and its color is drawn when the race starts.</li>
+        <li>Championship races pay race 01's prize table each round, with no car. Taking the title pays the bonus plus one prize car.</li>
+        <li>No prize car is added when the garage already holds 100 cars.</li>
+        <li>Credits are capped at 99,999,999.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Championship points</h3>
+      <div class="fig">
+        <svg viewBox="0 0 360 170" role="img" aria-label="Points per place: 8, 6, 4, 3, 2, 1">
+          <line x1="30" x2="350" y1="140" y2="140" class="ln"/>
+          <rect x="40" y="44" width="36" height="96" class="fa"/><text x="58" y="38" text-anchor="middle" class="tb">8</text><text x="58" y="158" text-anchor="middle">1st</text>
+          <rect x="92" y="68" width="36" height="72" class="fa" opacity=".8"/><text x="110" y="62" text-anchor="middle" class="tb">6</text><text x="110" y="158" text-anchor="middle">2nd</text>
+          <rect x="144" y="92" width="36" height="48" class="fa" opacity=".65"/><text x="162" y="86" text-anchor="middle" class="tb">4</text><text x="162" y="158" text-anchor="middle">3rd</text>
+          <rect x="196" y="104" width="36" height="36" class="fa" opacity=".55"/><text x="214" y="98" text-anchor="middle" class="tb">3</text><text x="214" y="158" text-anchor="middle">4th</text>
+          <rect x="248" y="116" width="36" height="24" class="fa" opacity=".45"/><text x="266" y="110" text-anchor="middle" class="tb">2</text><text x="266" y="158" text-anchor="middle">5th</text>
+          <rect x="300" y="128" width="36" height="12" class="fa" opacity=".35"/><text x="318" y="122" text-anchor="middle" class="tb">1</text><text x="318" y="158" text-anchor="middle">6th</text>
+        </svg>
+      </div>
+      <p>Every car scores, the AI too, and the same six cars race every round. Ties go to the player: the standings sort keeps equal totals in car order, and you are car 0.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Championship</th><th class="n">Races</th><th class="n">Title bonus</th></tr></thead>
+        <tbody><tr><td>GT305</td><td class="n">5</td><td class="n">100,000</td></tr><tr><td>GT505</td><td class="n">5</td><td class="n">200,000</td></tr><tr><td>GTW05 (World Cup)</td><td class="n">5</td><td class="n">150,000</td></tr><tr><td>FREECHAMP05</td><td class="n">5</td><td class="n">50,000</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Licenses</h2>
+  <p>Six licenses of ten tests each, taken in a fixed order. Within a license the tests can be run in any order. A license counts as held when all ten tests have a result; the save stores no separate "license" flag.</p>
+  <div class="ladder" aria-label="License order"><span class="l">B</span><span class="a">→</span><span class="l">A</span><span class="a">→</span><span class="l">IC</span><span class="a">→</span><span class="l">IB</span><span class="a">→</span><span class="l">IA</span><span class="a">→</span><span class="l">S</span></div>
+  <div class="two">
+    <div class="panel">
+      <h3>Grading</h3>
+      <ul>
+        <li>Each test has four target times: gold, silver, bronze and "kids".</li>
+        <li>A kids time does not pass on its own. Each kids run adds one to a near-miss counter; when it reaches the test's limit (5, 10, 20 or 30 runs) the test passes with the lowest result.</li>
+        <li>All ten gold, the first time: the license's prize car goes to the garage. Licenses pay no money.</li>
+        <li>Leaving the course ends a run with no grade. That is decided by the race code, not the test data.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Events per license required</h3>
+      <div class="stack" role="img" aria-label="Events by license required: none 109, B 13, A 31, IC 16, IB 38, IA 33, S 8">
+        <div style="flex:109;background:var(--grid)"></div><div style="flex:13;background:var(--accent);opacity:.35"></div><div style="flex:31;background:var(--accent);opacity:.5"></div><div style="flex:16;background:var(--accent);opacity:.62"></div><div style="flex:38;background:var(--accent);opacity:.75"></div><div style="flex:33;background:var(--accent);opacity:.88"></div><div style="flex:8;background:var(--accent)"></div>
+      </div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>License</th><th class="n">None</th><th class="n">B</th><th class="n">A</th><th class="n">IC</th><th class="n">IB</th><th class="n">IA</th><th class="n">S</th></tr></thead>
+        <tbody><tr><td>Events</td><td class="n">109</td><td class="n">13</td><td class="n">31</td><td class="n">16</td><td class="n">38</td><td class="n">33</td><td class="n">8</td></tr></tbody>
+      </table></div>
+      <p class="cap">Of all 248 records. The license is the only "unlock" most events have; the pro leagues and the World Cup add the win chains above.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Why completion stops at 98.20 %</h2>
+  <p>The status screen's completion figure comes from one calculation: the number of events whose best result is a win, times 100, divided by 248 − 25 = 223. It counts over all 248 records but divides by 223.</p>
+  <div class="panel">
+    <div class="fig wide">
+      <svg viewBox="0 0 1000 300" role="img" aria-label="Completion math: 248 records, 223 counted, 219 winnable on US v1.0, 248 marked by the cheat-device code">
+        <line x1="733.6" x2="733.6" y1="30" y2="272" class="ln" stroke-dasharray="5 4"/><text x="733.6" y="22" text-anchor="middle" class="ta">223 = 100 %</text>
+        <text x="20" y="48" class="tb">All event records: 248</text>
+        <rect x="20" y="56" width="713.6" height="30" class="fg"/><rect x="733.6" y="56" width="80" height="30" class="fp" stroke="var(--ink-3)" stroke-dasharray="3 3"/>
+        <text x="376" y="76" text-anchor="middle" class="tl">223 can be written by play (the divisor)</text>
+        <text x="826" y="68" class="t3">25 never</text><text x="826" y="82" class="t3">written by play</text>
+        <text x="20" y="126" class="tb">Winnable on US v1.0: 219</text>
+        <rect x="20" y="134" width="700.8" height="30" class="fa"/><rect x="720.8" y="134" width="12.8" height="30" class="fbad"/>
+        <text x="376" y="154" text-anchor="middle" class="tl" style="fill:var(--panel)">219 events a US player can win</text>
+        <text x="826" y="146" class="t3">4 can't be</text><text x="826" y="160" class="t3">won → 98.20 %</text>
+        <text x="20" y="204" class="tb">Cheat code "All Races Completed": 248</text>
+        <rect x="20" y="212" width="793.6" height="30" style="fill:var(--hold)"/>
+        <text x="376" y="232" text-anchor="middle" class="tl" style="fill:var(--panel)">every one of the 248 marked as won</text>
+        <text x="826" y="224" class="t3">÷ 223 →</text><text x="826" y="238" class="t3">111.21 %</text>
+        <text x="20" y="288" class="t3">Bars to scale: one event = 3.2 units.</text>
+      </svg>
+    </div>
+  </div>
+  <div class="two">
+    <div class="panel">
+      <h3>The 25 that don't count</h3>
+      <p>A result is saved only for single races and for a championship's final place, which goes under race 01's slot. So these 25 records can never get a result from play, and the divisor leaves out exactly them:</p>
+      <ul>
+        <li>6 license prize records (<code>LIx00</code>)</li>
+        <li>3 machine tests (<code>G400</code>, <code>G1000</code>, <code>GMAX</code>)</li>
+        <li>16 championship races 2 to 5 (four championships × four)</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>The 4 a US player can't win</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Event</th><th>Why it can't be won</th></tr></thead>
+        <tbody>
+          <tr><td>BVN0001<br><span class="cap">Vauxhall Tigra</span></td><td>Only the Tigra is eligible, and the car is hidden in the US region. The Vauxhall dealer page is not linked from the US Europe page.</td></tr>
+          <tr><td>BVR0001<br><span class="cap">Vauxhall Tigra, racing</span></td><td>Both eligible cars are hidden in the US region.</td></tr>
+          <tr><td>FPM0001<br><span class="cap">Peugeot 206</span></td><td>No menu item leads to it.</td></tr>
+          <tr><td>FPS0001<br><span class="cap">Peugeot 206, racing</span></td><td>No menu item leads to it.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">The Opel Tigra events are fine on the US disc. 219 × 10,000 / 223 = 9,820, shown as "98.20 %", the figure players report.</p>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Measured on save copies</h3>
+    <p>Copies of a memory card with results written in, loaded into GT Mode, and the completion figure the game computes from them:</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Card copy</th><th class="n">Events marked won</th><th class="n">Shown</th></tr></thead>
+      <tbody>
+        <tr><td>The base save card</td><td class="n">44</td><td class="n">19.73 %</td></tr>
+        <tr><td>Every event a US v1.0 player can win</td><td class="n">219</td><td class="n"><b>98.20 %</b></td></tr>
+        <tr><td>All 223 counted events</td><td class="n">223</td><td class="n">100.00 %</td></tr>
+        <tr><td>The v1.0 cheat-device code "All Races Completed"</td><td class="n">248</td><td class="n"><b>111.21 %</b></td></tr>
+      </tbody>
+    </table></div>
+    <p class="cap">The cheat-device code writes "won" to every one of the 248 slots (and 12 bytes past them), so the 25 slots play can't reach count too. Any save editor that marks every event won does the same. On an unmodified US v1.0 card no way past 100 % was found. Only the NTSC-U v1.0 disc was checked; PAL's 100.91 % is a PAL matter.</p>
+  </div>
+</section>
+
+<section>
+  <h2>What the save keeps</h2>
+  <ul>
+    <li>A days counter, +1 for every event or license race started from the menus.</li>
+    <li>The best place per event, half a byte each. Trophies on the event pages come from it.</li>
+    <li>Races, wins, total prize money; license results and times; the garage and credits.</li>
+  </ul>
+  <p>There is no "unlocked" bit anywhere. Every unlock is re-checked from the saved results every time. The championship and prize state are rebuilt before every race, and there is no autosave.</p>
+</section>
+
+
+<section>
+  <h2>Room for new events</h2>
+  <p>For modders: the first limit is not the file format but the RAM buffer GT Mode inflates the race file into: 181,440 bytes for a 170,566-byte file. That leaves about 10,800 bytes, roughly 65 more events if they reuse existing opponent cars.</p>
+  <div class="panel tablewrap">
+    <table>
+      <thead><tr><th>Limit</th><th class="n">Allowed</th><th class="n">Used</th></tr></thead>
+      <tbody>
+        <tr><td>Event IDs (code arrays and loops)</td><td class="n">248</td><td class="n">248</td></tr>
+        <tr><td>Opponents listed per event</td><td class="n">16</td><td class="n">16</td></tr>
+        <tr><td>Cars per race</td><td class="n">6</td><td class="n">6</td></tr>
+        <tr><td>Races per championship</td><td class="n">6</td><td class="n">5</td></tr>
+        <tr><td>Prize cars per event</td><td class="n">4</td><td class="n">4</td></tr>
+        <tr><td>Licenses × tests</td><td class="n">6 × 10</td><td class="n">60</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Going past these needs changes to the game's code (bigger tables) or a larger save. New events count toward completion automatically, because the divisor is the event count minus 25.</p>
+</section>
+
+</div>
+<div class="xfoot">Fan project. Not affiliated with Sony Interactive Entertainment or Polyphony Digital. Gran Turismo is a trademark of Sony Interactive Entertainment. No game files are included.</div>
+</body>
+</html>
