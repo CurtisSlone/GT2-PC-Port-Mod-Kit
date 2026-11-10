@@ -31,6 +31,10 @@ goto warm
 
 :warm
 echo.
+echo Building the Grand Tour 99 menus (part of the game, in data\builtin) from your install.
+gt2-tools.exe builtin build --data data >nul
+if errorlevel 1 echo The Grand Tour 99 menus were not built (see the message above). The game plays with GT2's own menus. To try again: gt2-tools.exe builtin build
+echo.
 echo Preparing your tracks and cars. This runs once, takes a while and uses several GB in data\scene-cache.
 echo You can close this window and play now instead; anything not ready yet is prepared when the game needs it.
 echo.

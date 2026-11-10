@@ -53,6 +53,11 @@ The installer runs `UGT2R "<your.cue>" --install-only`, which:
    reads them);
 4. copies `cards/blank.mcd` to `cards/card1.mcr` if you have no card yet.
 
+Next it **builds the Grand Tour 99 menus** from your install (`gt2-tools builtin build`, under a second) into
+`data/builtin`. They are part of the game, not a mod: guides/02-PLAY.md says what they change. If that step fails the
+game still plays, with GT2's own menus, and running the installer again (or `gt2-tools builtin build` in the port
+folder) builds them.
+
 Then it **prepares the tracks and cars** for the remaster look (`UGT2R --warmup-all`). It prints
 "Preparing your tracks and cars... N of M". This runs once, takes a while and writes several GB into
 `data/scene-cache`. You can close the window (Linux: Ctrl+C) and play right away: whatever is not ready is

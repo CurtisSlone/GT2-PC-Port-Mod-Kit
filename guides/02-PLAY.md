@@ -107,6 +107,20 @@ them: `--record off --debug-log off --watch off` (guide 13).
 
 The recording holds only your button presses and your memory card. No game data.
 
+## The Grand Tour 99 menus
+
+These menus are part of the game (the installer builds them into `data/builtin` from your disc). They change GT
+Mode's city map:
+
+* the Wheel Shop sign is now **Tuning Village**. It opens a hub with four buttons: Wheel Shop, Car Wash, Tune Shops
+  (the tune shop of your current car's maker) and Machine Test. Back from Wheel Shop, Car Wash and Machine Test returns to the hub; Back from a tune shop goes to
+  that maker's dealer, as in GT2;
+* the Car Wash sign is now an **Arcade Mode** sign and the Machine Test sign is now **Team Home**. Both are pictures
+  only for now: the cursor skips them. Arcade Mode itself is on the title screen, as before.
+
+They stay with `--mods none` and with an empty `mods` folder. A mod of yours that replaces the same pages wins over
+them (guides/03-MODS.md).
+
 ## Mods and the disc lock
 
 Mods in `mods` load at every start (guides/03-MODS.md). `data` itself is never changed, and the disc lock checks it

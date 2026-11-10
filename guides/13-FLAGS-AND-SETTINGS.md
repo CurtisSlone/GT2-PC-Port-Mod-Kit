@@ -106,6 +106,7 @@ the game with its messages.
 | another memory card | `UGT2R.exe --card1 cards\modded.mcr` | `./UGT2R-x86_64.AppImage --card1 cards/modded.mcr` |
 | every race on one course | `UGT2R.exe --course zz_mytrack` | `./UGT2R-x86_64.AppImage --course zz_mytrack` |
 | no mods this time | `UGT2R.exe --mods none` | `./UGT2R-x86_64.AppImage --mods none` |
+| GT2's own city map, without the Grand Tour 99 menus (testing) | `UGT2R.exe --builtin off` | `./UGT2R-x86_64.AppImage --builtin off` |
 | the software renderer (a driver problem) | `UGT2R.exe --gpu soft` | `./UGT2R-x86_64.AppImage --gpu soft` |
 | GT2's car-to-car contacts in modern physics | `set GT2_MODERN_CARS=gt2` then `UGT2R.exe` | `GT2_MODERN_CARS=gt2 ./UGT2R-x86_64.AppImage` |
 | the yaw inertia from the car's mass and size (experimental: cars rotate more easily) | `set GT2_MODERN_YAW_INERTIA=physical` then `UGT2R.exe` | `GT2_MODERN_YAW_INERTIA=physical ./UGT2R-x86_64.AppImage` |
@@ -124,7 +125,7 @@ the game with its messages.
 | `--stick-shape gt2` | the stick shaped for GT2: past a small dead zone every movement reaches GT2 | `--stick-shape off`: the stick as the system reports it |
 | `--scene native` | the remaster look: the race's 3D drawn by the runtime's renderer, GT2's HUD over it | `--scene off`: GT2 draws everything (F1 switches while playing) |
 | `--scene-batch on` | the renderer packs meshes into shared buffers: fewer draw calls, the same picture | `--scene-batch off` |
-| `--scene-fx all` | every drawing effect of the remaster look (shadow, sun glow, bloom, lamp glows, reflections, smoke, dust, detail, 3D trees, ...) | `--scene-fx none`, or a list: `--scene-fx shadow,sun,bloom` (the names: `--help`) |
+| `--scene-fx all` | every drawing effect of the remaster look (shadow, sun glow, bloom, lamp glows, reflections, live car reflections, smoke, dust, detail, 3D trees, ...) | `--scene-fx none`, or a list: `--scene-fx shadow,sun,bloom` (the names: `--help`) |
 | `--scene-textures upscaled` | the remaster's textures, redrawn 4x and smooth | `original`: GT2's texels, sharp (Left Alt+F1) |
 | `--scene-detail curves` | the tracks' bends smoothed | `dense` (also denser track, objects and cars) or `original` (GT2's polygons) (Left Shift+F1) |
 | `--scene-lod upscaled` | every car at its most detailed model, with the rounded body | `game` (GT2's detail by distance) or `0` (most detailed, not rounded) |
@@ -220,8 +221,9 @@ More `GT2_MODERN_*` variables exist for our own tuning work; they are not covere
 | `--scene-menu-car on\|off` | `on` | the GT Mode menu car drawn by the runtime's car renderer |
 | `--scene-menu-shine gt2\|race` | `gt2` | the menu car's shine: GT2's reflection pass or the race's look |
 | `--scene-screen-car on\|off` | `on` | the cars on the pre-race, results, prize and car-select screens drawn by the runtime |
+| `PSX_SCENE_COAT=coat\|subtle\|old` | `coat` | how glossy the live car reflections (`cuberefl` in `--scene-fx`) look. `coat`: a clear coat, weak where you look straight at the paint and strong where it turns away from you (the roof and flanks at a low angle). `subtle`: less of the world in the paint. `old`: the first look, the world reflected at full strength everywhere (glossier). Also `FACE,EDGE`, two numbers (`0.45,1.6` is `coat`). K turns the live reflections off and on while playing |
 | `--scene-debug off\|layers\|paint\|reflection\|sum\|mask` | `off` | debug views of the renderer |
-| `PSX_DRAW_FIX=all\|none\|LIST` | `all` | the renderer's loading and memory fixes (`-name` turns one off) |
+| `PSX_DRAW_FIX=all\|none\|LIST` | `all` | the renderer's loading and memory fixes (`-name` turns one off). `cube` is not in `all`: it redraws the live reflections only 5 times a second (cheaper, but choppy); add it to a list only on a slow machine |
 | `PSX_EXIT_FADE=on\|off\|MS` | `on` (200 ms) | the last race picture fades to black when GT2 leaves a race |
 | `--warmup-all` (`--warmup-threads N`) | | prepare every track and car now, then exit (the installer runs this) |
 
@@ -251,7 +253,8 @@ More `GT2_MODERN_*` variables exist for our own tuning work; they are not covere
 | `--card-mods check\|ignore` | `check` | refuse a card saved with a missing mod that adds things (guide 03) |
 | `--card-backups DIR\|none` | `none` | see the built-in flags |
 | `--save-edit EDIT` | | a save edit applied with the Insert key (testing) |
-| `--mods DIR\|none` (`PSX_MODS`) | `mods` | the mods folder, or no mods |
+| `--mods DIR\|none` (`PSX_MODS`) | `mods` | the mods folder, or no mods (`data/builtin` stays) |
+| `--builtin on\|off` (`PSX_BUILTIN`) | `on` | the game's built-in content in `data/builtin` (the Grand Tour 99 menus), loaded under your mods. `off` is for testing: GT2's own city map |
 | `--ram 2\|8` (`PSX_RAM`) | `8` | 8 MB like the development console, or the console's 2 MB (mods that add files need 8) |
 | `--quick-start`, `--quick-event ID` | | straight into a Test Run with the card's car (testing) |
 | `--cruising`, `--debug-doors FILE` | | for the overworld work; not used in this release |

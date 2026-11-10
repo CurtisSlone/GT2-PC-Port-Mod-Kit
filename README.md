@@ -1,4 +1,4 @@
-# GT2 PC Port + Mod Kit v0.4.0-debug
+# GT2 PC Port + Mod Kit v0.4.3-debug
 
 This runs **Gran Turismo 2** natively on Windows and Linux. It is built from a byte-matched decompilation of the
 game's code and runs on the PSX Runtime, a native PlayStation runtime, so it is not an emulator. The game logic is
@@ -60,9 +60,13 @@ graphics, no sounds and no music. Everything the game needs is read from your di
 
 | | Windows | Linux |
 |---|---|---|
-| 1. Unpack | Unzip `gt2-pc-port-v0.4.0-debug-windows.zip` anywhere you can write, for example `C:\Games\gt2-pc-port`. Avoid `Program Files`. | `tar xf gt2-pc-port-v0.4.0-debug-linux.tar.gz` (keeps the programs executable) somewhere you can write, for example `~/Games`. |
+| 1. Unpack | Unzip `gt2-pc-port-v0.4.3-debug-windows.zip` anywhere you can write, for example `C:\Games\gt2-pc-port`. Avoid `Program Files`. | `tar xf gt2-pc-port-v0.4.3-debug-linux.tar.gz` (keeps the programs executable) somewhere you can write, for example `~/Games`. |
 | 2. Install from your disc | Double-click `install-gt2.bat` and pick your `.cue` (or drag the `.cue` onto it). | `./install-gt2.sh` (a file picker opens with zenity or kdialog; without one it asks for the path), or `./install-gt2.sh /path/to/game.cue`. |
 | 3. Play | Double-click `UGT2R.exe`. | Double-click `UGT2R-x86_64.AppImage`, or `./UGT2R-x86_64.AppImage`. |
+
+The **Grand Tour 99 menus** are part of the game: on GT Mode's city map, Tuning Village (Wheel Shop, Car Wash, Tune
+Shops, Machine Test) and the Arcade Mode and Team Home signs. The installer makes them on your PC from your disc, into
+`data/builtin`. They are not a mod: they stay with an empty `mods` folder, and your own mods load on top of them.
 
 No flags are needed. guides/01-INSTALL.md has the details, guides/02-PLAY.md the controls, saves, screenshots and
 bug reports.
@@ -98,11 +102,11 @@ edit's `.gt2patch`, the pictures you paint, your own car model. guides/03-MODS.m
 
 ```text
 UGT2R.exe / UGT2R-x86_64.AppImage   the game: plays GT2 from data (and installs it from your disc)
-gt2-tools.exe / gt2-tools           the mod kit's program (cars, courses, tracks, edits)
+gt2-tools.exe / gt2-tools           the mod kit's program (cars, courses, tracks, edits; builds the Grand Tour 99 menus)
 install-gt2.bat / install-gt2.sh    install from your disc, then prepare the tracks and cars
 modules/                            GT2's decompiled code, compiled (no game data)
 cards/blank.mcd                     an empty, formatted memory card
-mods/                               your mods (empty; see mods/README.txt)
+mods/                               your mods (see mods/README.txt)
 kit/                                the Blender add-on (gt2_track_tools-0.4.0.zip) and sample tracks
 guides/                             the guides above
 THIRD-PARTY.md                      license notices for the AppImage runtime

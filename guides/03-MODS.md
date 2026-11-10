@@ -22,7 +22,7 @@ remaster look (the native scene), found by texture ID. guides/06-RETEXTURE-A-COU
 
 **`mods/load-order.txt`** lists the mods to load, one folder name per line, in order (later ones win when two mods
 have the same file). A line starting with `#` is off. Without `load-order.txt`, every folder loads, in alphabetical
-order. The release ships a `load-order.txt` with only comments in it, which loads nothing until you add lines.
+order. The release ships a `load-order.txt` with only comments in it. Mods you make load once you add their lines.
 
 Add a line from a command prompt in the port folder:
 
@@ -41,6 +41,40 @@ start, and a `.gz` file you made yourself is served as it is.
 
 At start, the console lists each mod and every file it replaces or adds, with sizes. A file with a name the game
 does not know, in a folder the archive does not have, is listed as **ignored**.
+
+## The Grand Tour 99 menus: under your mods
+
+The Grand Tour 99 menus are part of the game, not a mod. The installer builds them into **`data/builtin`**, laid out
+like a mod folder. They replace four GT Mode pages (the city map, Wheel Shop, Car Wash, Machine Test) and add one
+(the Tuning Village hub, page 3382). guides/02-PLAY.md says what they change.
+
+UGT2R loads `data/builtin` first, at every start, then your mods in their order. So:
+
+* they stay with an empty `mods` folder, without `load-order.txt` lines and with `--mods none`;
+* a mod of yours with one of those pages (for example `gtmenu/usa/gtmenudat.dat/0000.bin`, the city map) wins: your
+  page is used. A mod that adds its own page 3382 replaces the Tuning Village hub.
+
+They are not in the download: `gt2-tools` makes the pages on your PC from your own disc (the signs and words are cut
+from GT2's own city map and title lettering; only our own drawings ship inside `gt2-tools`). Build them again any
+time, for example after deleting `data/builtin`:
+
+```bat
+gt2-tools.exe builtin build
+```
+
+```sh
+./gt2-tools builtin build
+```
+
+Run it in the port folder: it reads `data` and writes `data/builtin`. `install-gt2 verify` does not count
+`data/builtin` as a difference and leaves it as it is.
+
+**From an earlier build:** an install from before this release has the same menus as a mod, `mods/GrandTour99`, with
+a line `GrandTour99` in `mods/load-order.txt`. It still works and is left as it is: it loads on top of
+`data/builtin` with the same pages. You can delete the folder and the line.
+
+**Testing only:** `--builtin off` (or `PSX_BUILTIN=off`) starts without `data/builtin`, with GT2's own city map
+(guides/13-FLAGS-AND-SETTINGS.md).
 
 ## Replacing and adding
 
@@ -96,6 +130,7 @@ edits. Share only what is your own work:
 | `.crsinfo` | `gt2-tools track new`, `course add-course` | the game's course table with your record appended | **no** |
 | `carparam/usa_gtmode_data.dat`, `usa_gtmode_race.dat`, `usa_unistrdb.dat` | `gt2-tools car add-car`, `course add-course` | the game's car, event and text tables | **no** |
 | `gtmenu/...`, `.carinfo*`, `.carcolor`, `carlogo/` | `gt2-tools car add-car` | game menu pages, names, logos | **no** |
+| `data/builtin` (and an older `mods/GrandTour99`) | the installer, `gt2-tools builtin build` | game menu pages with our changes | **no**: everyone builds it from their own install |
 | `carobj/*.cdo/.cno/.cdp/.cnp` | `gt2-tools car import`, the add-on | the game's car with your changes, **unless** the model or paint is entirely your own | only if it is entirely your own |
 | anything from `course export`, `car export`, `course catalog`, `texture list`, the starter `.blend`, a `.blend` with a GT2 course or car in it, a `textures` folder from `export --edit --textures` | gt2-tools, the add-on | the game's courses, cars, textures | **no** |
 
