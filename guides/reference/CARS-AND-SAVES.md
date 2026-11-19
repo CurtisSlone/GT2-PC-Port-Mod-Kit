@@ -102,7 +102,7 @@ Loaded without the mod that added its car, a save breaks: the garage view and th
 (`func_8005D8C0`), get nothing and **crash**; the Car lookup falls back to the first car; and the set-up's part
 numbers point past the end of the blocks.
 
-**Save slots (v0.5.0's default).** The port saves into its own slot files (`saves/slotN.gt2s`, guides/02-PLAY.md):
+**Save slots (v0.5.1's default).** The port saves into its own slot files (`saves/slotN.gt2s`, guides/02-PLAY.md):
 the career GT2 keeps on the card, plus the mods that were on. Loaded without a mod that adds files, a slot is not
 refused: the console says which mod is missing, and the cars that mod added are **set aside** (parked: GT2 never
 sees them, so it cannot crash on them) until a later load with the mod on again. Play mods that add things in their own save folder (`--save-dir saves-modded`) all the same.

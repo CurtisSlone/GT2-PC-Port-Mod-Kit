@@ -23,7 +23,7 @@ tool that read raw sectors.
 
 | Windows | Linux | macOS |
 |---|---|---|
-| Unzip `gt2-pc-port-v0.5.0-windows.zip` into a folder you can write to, for example `C:\Games\gt2-pc-port`. Avoid `Program Files`: the game writes its data, saves and screenshots beside itself. | Unpack with `tar xf gt2-pc-port-v0.5.0-linux.tar.gz` into a folder you own, for example `~/Games`. `tar` keeps the programs executable (some archive managers do not; then run `chmod +x UGT2R-x86_64.AppImage gt2-tools install-gt2.sh`). | Unzip `gt2-pc-port-v0.5.0-macos.zip` and move the folder somewhere you can write, for example a `Games` folder in your home folder. Then do the one-time step below. |
+| Unzip `gt2-pc-port-v0.5.1-windows.zip` into a folder you can write to, for example `C:\Games\gt2-pc-port`. Avoid `Program Files`: the game writes its data, saves and screenshots beside itself. | Unpack with `tar xf gt2-pc-port-v0.5.1-linux.tar.gz` into a folder you own, for example `~/Games`. `tar` keeps the programs executable (some archive managers do not; then run `chmod +x UGT2R-x86_64.AppImage gt2-tools install-gt2.sh`). | Unzip `gt2-pc-port-v0.5.1-macos.zip` and move the folder somewhere you can write, for example a `Games` folder in your home folder. Then do the one-time step below. |
 
 The guides call this folder **the port folder**.
 
@@ -103,10 +103,10 @@ Linux without FUSE (some minimal systems and containers): the installer notices 
 
 ## Updating from v0.4
 
-Unpack v0.5.0 into a new folder and move `data`, `cards` and `mods` over from the old one. Running the installer
+Unpack v0.5.1 into a new folder and move `data`, `cards` and `mods` over from the old one. Running the installer
 again is not needed (run it if you want the main tracks prepared with the new settings up front).
 
-**Your v0.4 memory card comes along by itself.** v0.5.0 saves into **save slots** in `saves/`
+**Your v0.4 memory card comes along by itself.** v0.5.1 saves into **save slots** in `saves/`
 (guides/02-PLAY.md, "Saves"). The first time it starts, if `cards/card1.mcr` holds a GT2 save, its career (with its
 replay, ghosts and mods list) is copied into a new save slot. That happens once per card; the card file itself is not
 changed. A card from DuckStation or ePSXe: start once with `--import-card path/to/card.mcr`.

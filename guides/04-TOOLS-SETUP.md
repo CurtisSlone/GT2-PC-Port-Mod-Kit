@@ -18,7 +18,7 @@ Neither installs anything outside the port folder and your Blender.
 * **Windows:** in File Explorer, open the port folder, click the address bar, type `cmd` and press Enter. A Command
   Prompt opens in that folder.
 * **Linux:** open a terminal in the port folder (most file managers: right-click > Open in Terminal), or
-  `cd ~/Games/gt2-pc-port-v0.5.0-linux`.
+  `cd ~/Games/gt2-pc-port-v0.5.1-linux`.
 * **macOS:** open **Terminal**, type `cd ` (with a space), drag the port folder onto the window, press Return.
 
 Every command in the guides is typed there. The guides show each command twice: once for Windows, once for Linux.

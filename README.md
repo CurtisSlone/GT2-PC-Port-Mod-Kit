@@ -1,4 +1,4 @@
-# GT2 PC Port + Mod Kit v0.5.0
+# GT2 PC Port + Mod Kit v0.5.1
 
 This runs **Gran Turismo 2** natively on Windows, Linux and macOS (Apple Silicon). It is built from a byte-matched decompilation of the
 game's code and runs on the PSX Runtime, a native PlayStation runtime, so it is not an emulator. The game logic is
@@ -13,7 +13,7 @@ graphics, no sounds and no music. Everything the game needs is read from your di
 
 **Remaster + Mod in progress** join us at [Grand Tour '99](https://discord.gg/fmMeQDFkMe)
 
-## New in v0.5.0
+## New in v0.5.1
 
 The game changed, and so did the mod kit: the current `gt2-tools` (the game's Grand Tour 99 menus need it) and the
 Blender add-on 0.5.0 (`kit/gt2_track_tools-0.5.0.zip`). Where a guide says something else about the points below,
@@ -85,11 +85,11 @@ this README is right.
 
 | | Windows | Linux | macOS |
 |---|---|---|---|
-| 1. Unpack | Unzip `gt2-pc-port-v0.5.0-windows.zip` anywhere you can write, for example `C:\Games\gt2-pc-port`. Avoid `Program Files`. | `tar xf gt2-pc-port-v0.5.0-linux.tar.gz` (keeps the programs executable) somewhere you can write, for example `~/Games`. | Double-click `gt2-pc-port-v0.5.0-macos.zip` and move the folder somewhere you can write, for example a `Games` folder in your home folder. Then allow it once (below). |
+| 1. Unpack | Unzip `gt2-pc-port-v0.5.1-windows.zip` anywhere you can write, for example `C:\Games\gt2-pc-port`. Avoid `Program Files`. | `tar xf gt2-pc-port-v0.5.1-linux.tar.gz` (keeps the programs executable) somewhere you can write, for example `~/Games`. | Double-click `gt2-pc-port-v0.5.1-macos.zip` and move the folder somewhere you can write, for example a `Games` folder in your home folder. Then allow it once (below). |
 | 2. Install from your disc | Double-click `install-gt2.bat` and pick your `.cue` (or drag the `.cue` onto it). | `./install-gt2.sh` (a file picker opens with zenity or kdialog; without one it asks for the path), or `./install-gt2.sh /path/to/game.cue`. | Double-click `install-gt2.command` and pick your `.cue`, or in Terminal `./install-gt2.command /path/to/game.cue`. |
 | 3. Play | Double-click `UGT2R.exe`. | Double-click `UGT2R-x86_64.AppImage`, or `./UGT2R-x86_64.AppImage`. | Double-click `UGT2R`. |
 
-Updating from v0.4: unpack v0.5.0 into a new folder and move `data`, `cards` and `mods` over from the old one.
+Updating from v0.4: unpack v0.5.1 into a new folder and move `data`, `cards` and `mods` over from the old one.
 Running the installer again is not needed.
 
 ### macOS: the first start
@@ -166,7 +166,7 @@ The copy before the last save is kept as `slotN.gt2s.prev`, and UGT2R reads it i
 UGT2R starts the slot you saved last; another one: `--save-slot 2`. An empty slot starts a new game.
 
 **Your v0.4 card:** if `cards/card1.mcr` holds a GT2 save, its career (with its replay, ghosts and mods list) is
-copied into a new save slot the first time v0.5.0 starts. Once per card; the card file itself is not changed.
+copied into a new save slot the first time v0.5.1 starts. Once per card; the card file itself is not changed.
 Another card (from DuckStation or ePSXe, for example): start once with `--import-card path/to/card.mcr`. While
 save slots are on, the card file is not written. Mods that add cars or courses: play them in their own save folder,
 `--save-dir saves-modded` (where the guides say `--card1 cards/....mcr`, use `--save-dir saves-...`).

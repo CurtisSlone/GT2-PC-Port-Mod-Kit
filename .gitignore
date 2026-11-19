@@ -31,3 +31,9 @@ mods/*
 *.img
 *.chd
 *.ecm
+
+# your disc images and patches for testing
+discs/
+
+# an unpacked add-on (Blender can use it as a local extension folder)
+kit/gt2_track_tools-*/

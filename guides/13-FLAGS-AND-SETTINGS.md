@@ -128,8 +128,8 @@ Make it executable (`chmod +x ugt2r-modded.sh`) and run it.
 [Desktop Entry]
 Type=Application
 Name=UGT2R (modded saves)
-Path=/home/you/Games/gt2-pc-port-v0.5.0-linux
-Exec=/home/you/Games/gt2-pc-port-v0.5.0-linux/UGT2R-x86_64.AppImage --save-dir /home/you/Games/gt2-pc-port-v0.5.0-linux/saves-modded
+Path=/home/you/Games/gt2-pc-port-v0.5.1-linux
+Exec=/home/you/Games/gt2-pc-port-v0.5.1-linux/UGT2R-x86_64.AppImage --save-dir /home/you/Games/gt2-pc-port-v0.5.1-linux/saves-modded
 Terminal=false
 ```
 
