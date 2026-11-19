@@ -102,7 +102,13 @@ Loaded without the mod that added its car, a save breaks: the garage view and th
 (`func_8005D8C0`), get nothing and **crash**; the Car lookup falls back to the first car; and the set-up's part
 numbers point past the end of the blocks.
 
-So the port keeps a **manifest** next to the card, while the card itself stays a standard card:
+**Save slots (v0.5.0's default).** The port saves into its own slot files (`saves/slotN.gt2s`, guides/02-PLAY.md):
+the career GT2 keeps on the card, plus the mods that were on. Loaded without a mod that adds files, a slot is not
+refused: the console says which mod is missing, and the cars that mod added are **set aside** (parked: GT2 never
+sees them, so it cannot crash on them) until a later load with the mod on again. Play mods that add things in their own save folder (`--save-dir saves-modded`) all the same.
+
+**Memory cards** (with save slots off, `--card1`): the port keeps a **manifest** next to the card, while the card
+itself stays a standard card:
 
 * When the card's contents change in a session with mods on (you save), UGT2R writes `<card>.mods.json` beside
   it (e.g. `cards/card1.mcr.mods.json`): the active mods, whether each adds files, their file count and a hash.
@@ -115,8 +121,8 @@ So the port keeps a **manifest** next to the card, while the card itself stays a
   place; delete it yourself once the card no longer needs the mod.
 * Emulators (DuckStation, ePSXe) do not read the manifest: do not take a card with modded cars to one.
 
-Play mods on a separate card (`--card1 cards/modded.mcr`), keep backups of your cards (UGT2R's card backups are off
-by default in this release: `--card-backups cards-backup`), and do not share a card saved with mods as a stock save.
+Play mods in their own save folder (or on a separate card), keep backups of your saves, and do not share a save made
+with mods as a stock save.
 
 ## Tested
 

@@ -6,6 +6,7 @@ rem   install-gt2.bat "game.cue"           install from that image (or drag the 
 rem   install-gt2.bat "game.cue" verify    compare an existing install with the disc (and repair it)
 rem Only Gran Turismo 2 (USA) Simulation Mode v1.0 (SCUS-94488) is accepted; any other disc is refused.
 rem The disc is read once; afterwards the game plays from data\ and the image is not needed.
+rem The tracks and cars are prepared with GT2's own textures: nothing is upscaled (README.md, "Textures").
 cd /d "%~dp0"
 set "CUE=%~1"
 if not "%CUE%"=="" goto have_cue
@@ -19,7 +20,6 @@ echo Installing from: %CUE%
 echo.
 UGT2R.exe "%CUE%" --install-only
 if errorlevel 1 goto failed
-if not exist "cards\card1.mcr" copy /y "cards\blank.mcd" "cards\card1.mcr" >nul
 goto warm
 
 :verify
@@ -35,13 +35,14 @@ echo Building the Grand Tour 99 menus (part of the game, in data\builtin) from y
 gt2-tools.exe builtin build --data data >nul
 if errorlevel 1 echo The Grand Tour 99 menus were not built (see the message above). The game plays with GT2's own menus. To try again: gt2-tools.exe builtin build
 echo.
-echo Preparing your tracks and cars. This runs once, takes a while and uses several GB in data\scene-cache.
+echo Preparing the main tracks (GT2's own textures, nothing upscaled) and every car. This runs once and takes a while.
+echo The 2-player, reverse and license versions of the tracks are prepared the first time you race on them.
 echo You can close this window and play now instead; anything not ready yet is prepared when the game needs it.
 echo.
-UGT2R.exe --warmup-all
+UGT2R.exe --warmup-all --warmup-set main --option-lock textures=smooth --scene-textures smooth
 if errorlevel 1 goto warm_failed
 echo.
-echo Done. Start UGT2R.exe to play. Your saves go to cards\card1.mcr.
+echo Done. Start UGT2R.exe to play. Your saves go to saves\.
 pause
 exit /b 0
 

@@ -14,7 +14,8 @@ install in a `textures` folder beside the `.glb`, linked by relative path, never
 * **Nodes:** `gt2_track` (the high-detail section meshes: the main view and the road) and `gt2_track_low` (the
   mirror's meshes).
 * **Materials:** one primitive per material name. `tex:NNNN` is a face that uses entry NNNN of the course's
-  texture table (its picture, UVs and palette come from your install at build time); `untex` is an untextured face.
+  texture table (its picture, UVs and palette come from your install at build time); `untex` is an untextured face;
+  `lib:<ID>` is a picture of the course's texture library (only with `--library`, below).
 * **Positions:** course meters, world space, the course's axes. Exact: a vertex is 64·k + a/64 m, which a float32
   holds exactly.
 * **Faces:** each face has its own vertices and is split into the triangles (0,1,2) and (0,2,3) in its stored
@@ -42,8 +43,9 @@ exporter would delete one of them.
 
 ```text
 gt2-tools edit NAME EDITED.glb --out DIR [--data DIR] [--mod NAME] [--add NEWNAME] [--patch-out FILE.gt2patch]
-               [--target ps1|port] [--force]
+               [--target ps1|port|aspec] [--force] [--json FILE] [--library DIR [--room none|unused|far|compact]]
 gt2-tools edit NAME FILE.gt2patch --out DIR [--data DIR] [--mod NAME] [--add NEWNAME]
+  --target aspec adds: [--patch-name NAME] [--keep-image] [--check-only] [--cache DIR]
 ```
 
 It runs in two steps. **diff** compares the edited file with the original course and keeps only your changes;
@@ -65,8 +67,20 @@ same bytes.
   the moved line.
 * **Check.** The track builder's validator (the game's road tests) runs on the result. More errors than the original
   course has stops the build.
+* **Textures** (`--library DIR`, guides/15-TEXTURE-LIBRARY.md). Faces may use `lib:<ID>` materials. Those IDs get
+  texture-table entries after the course's own, and the packer places their pictures in the course's part of video
+  memory and writes a new `.trp` (the mod then holds it too). Pictures that do not fit stop the build with the fit
+  report. Without `--library` a `lib:` material is refused, and nothing else changes. A `.gt2patch` of such an edit
+  holds only table numbers, not the pictures: rebuild it from the edited `.glb` with the same library.
 * **Output.** By default the mod replaces the course: `mods/MOD/crsobj/NAME.tro.gz`. With `--add NEW` the edit is
-  added as a new course with a copy of the original's course record and minimap.
+  added as a new course with a copy of the original's course record and minimap (port only).
+* **`--target aspec`** builds against your A-Spec setup's copy of the course (`gt2-tools aspec setup`), runs the
+  stock game's checks, and writes `DIR/aspec/GT2-A-Spec-MOD.xdelta`, `.cue`, `README.txt`, `report.txt` and
+  `check.json` (guides/14-A-SPEC-PATCH.md). An edit or patch made from another copy of the course than A-Spec's is
+  refused before the build (it matters for the 8 courses A-Spec changed). `--add` is refused (a disc cannot add a
+  course).
+* **`--json FILE`** writes the findings with their places (section, high or low mesh, texture entries) and the budget
+  numbers: what the add-on's budget box and **Show** buttons read.
 
 New faces need a material: `tex:NNNN` (from this course), `untex`, or a surface name (`tarmac`, `kerb`, `grass`,
 `gravel`, `offroad`, `dirt`: the course's most used texture of that surface, and a face the cars drive on).
@@ -81,15 +95,18 @@ New faces need a material: `tex:NNNN` (from this course), `untex`, or a surface 
 * It holds no game data beyond ids: the positions are yours and the textures are names. Another player applies it
   to the course from their own install.
 
-## Console-safe (`--target ps1`)
+## Console-safe (`--target ps1`, `--target aspec`)
 
-Checks a replacing edit against what an unmodified PlayStation can run; see guides/12-CONSOLE-SAFE.md and the
-limits in LIMITS.md.
+`--target ps1` checks a replacing edit against what an unmodified PlayStation can run; `--target aspec` does the
+same and writes a verified A-Spec patch. See guides/12-CONSOLE-SAFE.md, guides/14-A-SPEC-PATCH.md and the limits in
+LIMITS.md.
 
 ## Known limits
 
 * Nothing re-optimizes a section: new faces are appended, and a section is not split at 512 vertices (the build
   stops instead).
-* A road moved across a section's boundary keeps the old boundaries. Re-routing is not supported.
-* Only this course's own textures can be used on faces (any of them; the add-on's picker offers the whole table).
-* Trackside objects are not in the edit file; they follow the road.
+* A road moved across a section's boundary keeps the old boundaries. Re-routing is not supported here; the
+  new-track export can move the route (guides/16-NEW-TRACK-FROM-COURSE.md).
+* Faces use this course's own textures (any of them; the add-on's picker offers the whole table), or with
+  `--library` the course's texture library pictures.
+* Trackside objects are not in the edit file; they follow the road (guide 16 can move them).

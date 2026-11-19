@@ -1,6 +1,6 @@
 GT2 PC PORT - MOD KIT
 
-gt2_track_tools-0.4.0.zip   the GT2 Tools add-on for Blender 4.2 or newer (Windows and Linux). Install it from
+gt2_track_tools-0.5.0.zip   the GT2 Tools add-on for Blender 4.2 or newer (Windows and Linux). Install it from
                             Blender: Edit > Preferences > Get Extensions > the small arrow top right >
                             Install from Disk... > pick this zip (do not unzip it). It replaces GT2 Track Tools 0.3.
                             Full steps: ..\guides\04-TOOLS-SETUP.md

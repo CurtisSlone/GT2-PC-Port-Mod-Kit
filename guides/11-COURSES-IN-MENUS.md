@@ -78,8 +78,8 @@ order (`zz_course1`, then `zz_course2`). They become courses 125, 126 and 127 in
 
 ## Saves
 
-A save made while an added course is in the game needs that course's mod (guides/03-MODS.md, "Saves and mods"). Use
-a separate memory card.
+A save made while an added course is in the game needs that course's mod (guides/03-MODS.md, "Saves and mods"). Play
+it in a separate save folder (`--save-dir saves-modded`).
 
 ## Sharing
 

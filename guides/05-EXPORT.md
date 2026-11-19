@@ -64,11 +64,29 @@ densified ones), `--textures original|upscaled` (the view's pictures: the game's
 * The export's own `view` folder opens in Blender with File > Import > glTF 2.0, or in any glTF viewer. Keep it out
   of Blender projects you share.
 
+## The three exports, and which one to edit
+
+| Export | What you get | Edit it to | Guide |
+|---|---|---|---|
+| `course export laguna --out ...` (this guide) | JSON + PNG and a glTF view | look, or change values by hand | below |
+| `course export laguna --edit [--textures] --out ...` | one `.edit.glb` for Blender: the drawn mesh and the mirror's | reshape the road and scenery, change face textures | guides/08-EDIT-A-COURSE.md |
+| `course export laguna --new-track [--textures] --out ...` | a scene folder: every part of the course on its own (route, meshes, collision, walls, AI lines, grid, cameras, objects, course record) | change any of those, as a new track | guides/16-NEW-TRACK-FROM-COURSE.md |
+
+```bat
+gt2-tools.exe course export laguna --new-track --textures --out work\nt-laguna
+```
+
+```sh
+./gt2-tools course export laguna --new-track --textures --out work/nt-laguna
+```
+
+All three are the game's data, made from your install: keep them on your PC.
+
 ## Edit the JSON and PNG, and put it back
 
 **The glTF view is for looking only.** Editing it does not flow back into the course. To reshape a course in
-Blender and race it, use guides/08-EDIT-A-COURSE.md. To repaint a texture, guides/06-RETEXTURE-A-COURSE.md is the
-easy way.
+Blender and race it, use guides/08-EDIT-A-COURSE.md (or guides/16-NEW-TRACK-FROM-COURSE.md for every part of it).
+To repaint a texture, guides/06-RETEXTURE-A-COURSE.md is the easy way.
 
 You can also edit the **JSON and PNG** files directly:
 

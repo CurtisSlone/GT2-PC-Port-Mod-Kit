@@ -5,6 +5,7 @@
 #   ./install-gt2.sh game.cue verify     compare an existing install with the disc (and repair it)
 # Only Gran Turismo 2 (USA) Simulation Mode v1.0 (SCUS-94488) is accepted; any other disc is refused.
 # The disc is read once; afterwards the game plays from data/ and the image is not needed.
+# The tracks and cars are prepared with GT2's own textures: nothing is upscaled (README.md, "Textures").
 cd "$(dirname "$0")" || exit 1
 APP=./UGT2R-x86_64.AppImage
 [ -x "$APP" ] || chmod +x "$APP" 2>/dev/null
@@ -50,8 +51,6 @@ else
     echo "Installing from: $CUE"
     echo
     "$APP" "$CUE" --install-only || failed
-    mkdir -p cards
-    [ -e cards/card1.mcr ] || cp cards/blank.mcd cards/card1.mcr
 fi
 
 echo
@@ -63,12 +62,13 @@ if ! ./gt2-tools builtin build --data data >/dev/null; then
 fi
 
 echo
-echo "Preparing your tracks and cars. This runs once, takes a while and uses several GB in data/scene-cache."
+echo "Preparing the main tracks (GT2's own textures, nothing upscaled) and every car. This runs once and takes a while."
+echo "The 2-player, reverse and license versions of the tracks are prepared the first time you race on them."
 echo "You can stop it (Ctrl+C) and play now instead; anything not ready yet is prepared when the game needs it."
 echo
-if "$APP" --warmup-all; then
+if "$APP" --warmup-all --warmup-set main --option-lock textures=smooth --scene-textures smooth; then
     echo
-    echo "Done. Start UGT2R-x86_64.AppImage to play. Your saves go to cards/card1.mcr."
+    echo "Done. Start UGT2R-x86_64.AppImage to play. Your saves go to saves/."
 else
     echo
     echo "Preparing the tracks and cars stopped early (see the message above). The game still plays: what is missing"

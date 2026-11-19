@@ -174,8 +174,8 @@ Running it again on the **same** `--out` folder with a later code (`zz02n` after
 all new cars in one mod: each car mod carries the whole car table, and the later mod would win.
 
 **Play it**: with `MyCar` in `mods/load-order.txt`, start UGT2R. For the first example: East City, then Toyota,
-NEW, LINEUP 2. The "MR2 G-Limited" tile now shows your price and sells your car. Use a separate memory card
-(guides/03-MODS.md).
+NEW, LINEUP 2. The "MR2 G-Limited" tile now shows your price and sells your car. Play it in a separate save folder,
+`--save-dir saves-modded` (guides/03-MODS.md).
 
 **Sharing**: the car tables, the menu pages, `.carinfo*`, `.carcolor` and the logos in the mod are edited game
 files. Do not share them. Share the `add-car` command line (and your own model or paint, if it is entirely yours);

@@ -81,20 +81,21 @@ echo SpliceTrack >> mods/load-order.txt
 ```
 
 Open `mods/load-order.txt` and put `#` in front of any other mod that adds a course (such as `MyTrack` from the
-Blender add-on). Each such mod carries the whole course table, so only one of them can be on at a time
+Blender add-on). Each such mod carries the whole course table, so only one of them can be on at a time (with two on, the game can load one course's track under the other's name
+and minimap)
 (guides/11-COURSES-IN-MENUS.md explains how to put several courses in one mod).
 
 ## 4. Play it
 
-Use a separate memory card for added courses (a save made with an added course needs its mod; guides/03-MODS.md).
-UGT2R creates the card when it does not exist:
+Use a separate save folder for added courses (a save made with an added course needs its mod; guides/03-MODS.md).
+UGT2R creates the folder when it does not exist:
 
 ```bat
-UGT2R.exe --course zz_splice --card1 cards\splice.mcr
+UGT2R.exe --course zz_splice --save-dir saves-splice
 ```
 
 ```text
-./UGT2R-x86_64.AppImage --course zz_splice --card1 cards/splice.mcr
+./UGT2R-x86_64.AppImage --course zz_splice --save-dir saves-splice
 ```
 
 Every race now runs on the new course. The quickest look is any license test; a full race with AI cars is any

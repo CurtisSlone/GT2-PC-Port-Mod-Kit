@@ -98,21 +98,27 @@ full-resolution pictures for the remaster look in `textures-override`.
 
 ## Saves and mods
 
-GT2 keeps your garage on the memory card. A save made with a mod that **adds** a car or a course uses something
-only that mod has. Loaded without it, the game would crash looking the car up. So:
+A save made with a mod that **adds** a car or a course uses something only that mod has: the car's code in the
+garage, the course's record by its number. GT2 itself would crash looking up a car that is not there. So:
 
-* When you save with mods on, UGT2R writes `cards/card1.mcr.mods.json` next to the card. It lists the active mods
-  and which of them add files.
-* When you start with that card and a mod that **adds** files is missing, UGT2R **refuses the card** and names the
-  mod. Turn the mod back on, use another card (`--card1 cards/other.mcr`), or start with `--card-mods ignore`,
-  which only warns, and the game may crash on that save.
-* A missing mod that only **replaces** files, such as a repaint or a retexture, is a warning only. The save loads
-  with the game's own files.
+* Every save slot (`saves/slotN.gt2s`, guides/02-PLAY.md) records the mods that were on when you saved, and which of
+  them add files.
+* When you load a slot and a mod that **adds** files is missing, UGT2R says so in its console and loads the slot
+  anyway: cars from the missing mod are set aside (parked) so GT2 never sees them, and come back at a later load once
+  the mod is on again.
+* A missing mod that only **replaces** files, such as a repaint or a retexture, is a note only. The save loads with
+  the game's own files.
 * Money and cars won with a modded car stay in the save after you remove the mod.
 
-**Play mods that add things on a separate card**: start UGT2R with `--card1 cards/modded.mcr`
-(guides/13-FLAGS-AND-SETTINGS.md shows how to make a shortcut). Card backups are off by default in this release:
-copy your card now and then, or start with `--card-backups cards-backup`.
+**Play mods that add things in their own save folder**: start UGT2R with `--save-dir saves-modded` (any folder
+name; it is created when it does not exist). Those saves stay apart from your main career in `saves`, and your
+Port Options choices are kept per folder too (a new folder starts with the release's settings). guides/13-FLAGS-AND-SETTINGS.md shows how to make a shortcut. Back up
+your save folders now and then (copy them).
+
+**Memory cards** (`--card1`, only when save slots are off): a card saved with mods on gets
+`<card>.mods.json` beside it, and a card whose mod that adds files is missing is **refused** with the mod's name
+(`--card-mods ignore` turns that into a warning, and the game may crash on that save). Do not take a card or a save
+with modded cars to DuckStation or ePSXe.
 
 ## Sharing mods: what is yours and what is the game's
 
@@ -133,7 +139,13 @@ edits. Share only what is your own work:
 | `data/builtin` (and an older `mods/GrandTour99`) | the installer, `gt2-tools builtin build` | game menu pages with our changes | **no**: everyone builds it from their own install |
 | `carobj/*.cdo/.cno/.cdp/.cnp` | `gt2-tools car import`, the add-on | the game's car with your changes, **unless** the model or paint is entirely your own | only if it is entirely your own |
 | anything from `course export`, `car export`, `course catalog`, `texture list`, the starter `.blend`, a `.blend` with a GT2 course or car in it, a `textures` folder from `export --edit --textures` | gt2-tools, the add-on | the game's courses, cars, textures | **no** |
+| an A-Spec patch: `NAME.xdelta`, `NAME.cue`, its `README.txt` | `--target aspec` (guides/14-A-SPEC-PATCH.md) | the difference between an A-Spec image and the patched one | yes |
+| the patched `.bin`, your A-Spec image, the `aspec` setup folder | `--keep-image`, you, `gt2-tools aspec setup` | the whole game | **no** |
+| a new-track scene folder (`gt2-newtrack/<course>`, `course export --new-track`) | gt2-tools, the add-on | the game's course, as editable parts | **no** |
+| texture library pictures you made (`textures/source/<your id>.png`) | you | your work | yes |
+| texture library entries from a disc (`<course>-tNNN`, pulled pictures; `"share": false`) | `texture library init`, `pull` | the game's textures | **no** |
 
 To share a track, share its spec or `.glb` and the course files marked "yes". To share a course edit, share the
-`.gt2patch`. To share a retexture, share your pictures and the `texture replace` commands. The other player builds
-the rest on their own PC, from their own install.
+`.gt2patch`. To share a retexture, share your pictures and the `texture replace` commands. For A-Spec, share the
+`.xdelta` and `.cue`. The other player builds the rest on their own PC, from their own install or their own A-Spec
+image.

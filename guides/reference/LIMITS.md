@@ -59,17 +59,28 @@ inside the number yourself.
 | Garage | 100 cars | save layout; the buy path refuses a 101st | |
 | Car missing from the data | | the car lookup (`func_8005D8C0`) returns nothing and its callers read through it | **crash** (garage view, race, replay). This is why the save manifest exists |
 
-## For an unmodified PlayStation (`--target ps1`)
+## For an unmodified PlayStation (`--target ps1`, `--target aspec`)
 
-What `--target ps1` enforces (guides/12-CONSOLE-SAFE.md), beyond the course limits above:
+What `--target ps1` and `--target aspec` enforce (guides/12-CONSOLE-SAFE.md, guides/14-A-SPEC-PATCH.md), beyond the
+course limits above:
 
 | Limit | Number | Why | Past it |
 |---|---|---|---|
 | Course files | `.tro` and `.trp` at most **700,000 bytes** each, inflated | inflated to 0x800B4724 (`func_800273C8`); the race's car models follow at 0x8015F584 (`func_80028D88`). The same limit applies without `--target ps1` | an error (the course is not built) |
 | Coordinates | within **±2,048 m** of the course origin | the GTE's matrix apply saturates (the car start, `func_80012CD4`, folded far grid slots); only this port's fix layer changes that | an error |
-| Draw load | at most **2,864** faces drawn from any section's visibility list | the busiest shipped course (test_in2); the console has no frame-time headroom | an error |
-| Video memory | every image and palette inside the replaced slot's own `.trp` rectangles | fonts, HUD, cars, the sky and the sponsor slots use the rest | an error |
-| Archive | each replaced file's compressed copy fits its original entry's sectors; no added files | GT2.VOL fills its extent on the disc (233,573 sectors) | an error |
+| Draw load | at most **2,864** track faces drawn from any section's visibility list (2,908 counting billboards and glows, the budget's number) | the busiest shipped course (test_in2); the console has no frame-time headroom | an error |
+| Video memory | every image and palette inside the slot's **course VRAM region**: the replaced course's own `.trp` rectangles, plus the halfwords that at least 20 of the shipped courses write (every such course load overwrites them), less the sky's `.bsp` rectangles (Laguna Seca: 159,868 halfwords, its own 139,318) | fonts, HUD, cars, the sky and the sponsor slots use the rest | an error, with the TIM or palette and its place |
+| Archive | no added files; a replaced file that grows is reported (how many sectors more) | GT2.VOL fills its extent on the disc | added files: an error. A larger file: `--target aspec` (`gt2-tools disc build`) repacks GT2.VOL, moving the later files |
+
+### A-Spec patches (`--target aspec`)
+
+| Limit | Number | Why | Past it |
+|---|---|---|---|
+| Base image | Gran Turismo 2 A-Spec v1.2.1 only, SHA-256 `94866e3d...a599f` (709,243,248 bytes) | the patch is a difference against that exact file | another image is refused at `aspec setup`, and again at every build if the image changed |
+| Courses per patch | one, replacing a slot (126 slots: `gt2-tools aspec targets`) | a disc image cannot add a course | `--add` is refused |
+| The 8 courses A-Spec changed | `speed`, `lic_seattle`, `test_s2`, `test_z`, `tahiti_test7`, `tahiti_d_new`, `tahiti_d_new_rev`, `tahiti_d_new_2p` | their `.tro` differs from the retail disc's | an edit made from the retail copy is refused: export it again from the A-Spec setup |
+| Free disk space during a build | the image size + GT2.VOL + 50 MB (about 1.3 GB) on the output's drive | the image is written, patched and compared, then deleted | refused before anything is written |
+| Texture library pictures | must fit the slot's course VRAM region (above) | the stock game uploads only there | the build stops with the fit report |
 
 ## The archive (GT2.VOL) and the mods folder
 
@@ -88,6 +99,6 @@ What `--target ps1` enforces (guides/12-CONSOLE-SAFE.md), beyond the course limi
 
 | Limit | Why | What happens |
 |---|---|---|
-| A save with a new car or course needs its mod | the save stores car codes and absolute part positions, and course records by number | without the mod GT2 would crash on the missing car. UGT2R writes `<card>.mods.json` beside the card when you save with mods on, and **refuses the card** at the next start if a mod that adds files is missing (`--card-mods ignore` turns that into a warning). A missing mod that only replaces files is a warning |
+| A save with a new car or course needs its mod | the save stores car codes and absolute part positions, and course records by number | without the mod GT2 would crash on the missing car. A save slot (`saves/slotN.gt2s`) records the active mods; loaded without a mod that adds files, it warns and sets that mod's cars aside until the mod is back. A memory card (save slots off) gets `<card>.mods.json` and is **refused** instead (`--card-mods ignore` turns that into a warning). A missing mod that only replaces files is a note. Play mods that add things in their own save folder (`--save-dir`) |
 | Old saves and new courses | the game initializes the spare course records 125-127 only at a new game | an older save shows a 0:00.000 record for a new course until you set a time |
-| Emulators (DuckStation, ePSXe) | they do not read the manifest | do not take a card with modded cars to an emulator; use a separate card for mods |
+| Emulators (DuckStation, ePSXe) | they do not read the manifest | do not take a card with modded cars to an emulator |

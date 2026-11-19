@@ -98,11 +98,42 @@ Run `replace` with other courses into the same mod, or into separate mods. A ret
 so it combines with a course edit of the same course (guides/08-EDIT-A-COURSE.md), which only holds the `.tro`. Put
 the edit first and the retexture after it in `mods/load-order.txt`.
 
+## For PlayStation and A-Spec
+
+A retexture keeps every texture's size and place in video memory, so it suits the stock game too. Two more
+`--target` values check it, or make a patch from it:
+
+```bat
+gt2-tools.exe course texture replace laguna t004 my-pictures\board.png --mod RetexLaguna --target ps1
+gt2-tools.exe course texture replace laguna t004 my-pictures\board.png --mod RetexLagunaAspec --target aspec --out work\retex-aspec
+```
+
+```sh
+./gt2-tools course texture replace laguna t004 my-pictures/board.png --mod RetexLaguna --target ps1
+./gt2-tools course texture replace laguna t004 my-pictures/board.png --mod RetexLagunaAspec --target aspec --out work/retex-aspec
+```
+
+* `--target ps1`: the replace as above, then the stock game's checks on the mod (the textures inside the course's
+  part of video memory, the `.trp` size; guides/12-CONSOLE-SAFE.md).
+* `--target aspec`: the same checks, then a verified A-Spec patch in `work/retex-aspec/aspec`
+  (`GT2-A-Spec-RetexLagunaAspec.xdelta`, `.cue`, `README.txt`, `report.txt`). It needs `gt2-tools aspec setup` once,
+  and the mod is still written into `mods` as well: put `#` in front of it in `mods/load-order.txt` if you do not
+  want it in the port. guides/14-A-SPEC-PATCH.md has the whole A-Spec story.
+
+The classic look is all the stock game has: on a PlayStation the picture is the 16-color copy. The full-resolution
+remaster pictures exist only in this port.
+
+## New pictures instead of replacing old ones
+
+`texture replace` paints over a texture the course already has. To give faces a picture of their own (a new sign
+on some faces, a kerb from another course) without losing the old one, use the course's **texture library**
+(guides/15-TEXTURE-LIBRARY.md) with a course edit or a new track.
+
 ## Sharing
 
 Share your pictures and the list of commands (`course`, `ID`, picture name). Another player runs the same commands
 on their own install and gets the same mod, byte for byte. Do not share the mod folder itself: its `laguna.trp` is
-the game's file.
+the game's file. For A-Spec, share the `.xdelta` and `.cue` (guides/14-A-SPEC-PATCH.md).
 
 ## More for the remaster look
 

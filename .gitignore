@@ -1,0 +1,33 @@
+# Never commit game data or per-player files. Everything below is made from your own disc or by playing.
+
+# the install (made by install-gt2 from your disc) and its caches
+data/
+aspec/
+
+# exports and edits made with the tools (they hold the game's courses, cars and textures)
+work/
+gt2-edit/
+*.blend
+*.blend1
+
+# what playing writes: saves, cards, recordings, screenshots
+saves/
+save-slots/
+shots/
+cards/*
+!cards/README.txt
+!cards/blank.mcd
+*.mcd.mods.json
+
+# mods (built from the game's files); only the shipped readme and load order are tracked
+mods/*
+!mods/README.txt
+!mods/load-order.txt
+
+# disc images
+*.bin
+*.cue
+*.iso
+*.img
+*.chd
+*.ecm

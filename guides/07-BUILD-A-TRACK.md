@@ -11,10 +11,11 @@ guides/08-EDIT-A-COURSE.md.
 
 * Tracks built as an **added** course (a new name such as `zz_mytrack`) run **only in this port**: a new course is
   added to the game's archive, which needs the port's archive extension and 8 MB of RAM. A track that **replaces**
-  an existing course can be checked for the original PlayStation: guides/12-CONSOLE-SAFE.md.
+  an existing course can be checked for the original PlayStation (guides/12-CONSOLE-SAFE.md) or built as an A-Spec
+  patch (guides/14-A-SPEC-PATCH.md).
 * Only one mod that adds courses can be on at a time, unless you build them into one mod
   (guides/11-COURSES-IN-MENUS.md).
-* A save made with an added course needs that course's mod. Use a separate memory card for it.
+* A save made with an added course needs that course's mod. Play it in a separate save folder (`--save-dir`).
 
 ## In Blender
 
@@ -65,15 +66,15 @@ installs the mod **MyTrack** into the port's `mods` folder and turns the other c
 
 ### 4. Race it
 
-Start UGT2R with `--course zz_mytrack` and its own memory card. Every race now runs on your track. The quickest
+Start UGT2R with `--course zz_mytrack` and its own save folder. Every race now runs on your track. The quickest
 look is any license test or Machine Test; a full race with AI cars is any GT Mode race your car qualifies for.
 
 ```bat
-UGT2R.exe --course zz_mytrack --card1 cards\mytrack.mcr
+UGT2R.exe --course zz_mytrack --save-dir saves-mytrack
 ```
 
 ```text
-./UGT2R-x86_64.AppImage --course zz_mytrack --card1 cards/mytrack.mcr
+./UGT2R-x86_64.AppImage --course zz_mytrack --save-dir saves-mytrack
 ```
 
 guides/13-FLAGS-AND-SETTINGS.md shows how to make a shortcut (Windows) or a launcher (Linux) for this. To give the
@@ -96,14 +97,15 @@ cp -r work/sample/mods/SampleTrack mods/
 echo SampleTrack >> mods/load-order.txt
 ```
 
-Put `#` in front of other mods that add courses in `mods/load-order.txt`, then race it:
+Put `#` in front of other mods that add courses in `mods/load-order.txt` (with two on, the game can load one
+course's track under the other's name and minimap), then race it:
 
 ```bat
-UGT2R.exe --course zz_sample --card1 cards\mytrack.mcr
+UGT2R.exe --course zz_sample --save-dir saves-mytrack
 ```
 
 ```text
-./UGT2R-x86_64.AppImage --course zz_sample --card1 cards/mytrack.mcr
+./UGT2R-x86_64.AppImage --course zz_sample --save-dir saves-mytrack
 ```
 
 The other samples:
@@ -136,7 +138,8 @@ gt2-tools.exe track check work\sample --slot zz_sample
 ```
 
 Other options of `track new`: `--add NAME` (add the course under that name, `zz_...`), `--name "Display Name"`,
-`--gltf` (also a glTF view of the result), `--target ps1` (guide 12). `gt2-tools help track` lists them all. The JSON
+`--gltf` (also a glTF view of the result), `--target ps1` (guide 12), `--target aspec` (a verified A-Spec patch of a
+track that replaces a course, guide 14). `gt2-tools help track` lists them all. The JSON
 format (road width and lanes, kerbs, verges, walls, grid, cameras, scenery) is described in
 `guides/reference/TRACK-SPEC.md`; every limit a track must respect is in `guides/reference/LIMITS.md`.
 
